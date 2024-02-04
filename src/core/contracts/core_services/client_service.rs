@@ -5,7 +5,7 @@ pub struct Client {
     name:  String
 }
 
-impl <'a> Service for Client {
+impl Service for Client {
     fn handle_request(&self, body: RequestPostBody) {
         // TODO add real data and functionality
         println!("handling request in clientservice {:?}", body)
