@@ -3,6 +3,7 @@ use crate::core::contracts::services::Service;
 use std::{fs, env};
 use std::sync::{Arc, Mutex};
 use log::{error, info, warn};
+use crate::core::contracts::basic_informations::RequestPostBody;
 use crate::service_manager::lookup_client;
 
 
@@ -12,7 +13,7 @@ pub trait IServiceManager {
 }
 
 pub trait ServiceManagerExt: Send + Sync  {
-    fn try_handle(&self);
+    fn try_handle(&self, path: String);
 }
 
 
@@ -27,8 +28,16 @@ pub struct ServiceManager {
 }
 
 impl ServiceManagerExt for ServiceManager {
-    fn try_handle(&self) {
-        println!("handling request with injected manager");
+    fn try_handle(&self, path: String) {
+        let binding = self.services.lock().unwrap();
+        let service = &binding.get(&path);
+
+        match service {
+            Some(T) => {
+                T.lock().unwrap().handle_request(RequestPostBody{method: "test".to_string(), params: vec!["1".to_string()] })
+            }
+            None => println!("no service found with name: {}", path)
+        }
     }
 }
 
@@ -67,6 +76,7 @@ impl IServiceManager for ServiceManager {
         // self.services
         //     .entry(service_name)
         //     .or_insert(service);
+        println!("Adding service with name: '{}'", service_name);
         self.services.lock().unwrap().entry(service_name).or_insert(Arc::new(Mutex::new(service)));
     }
 }

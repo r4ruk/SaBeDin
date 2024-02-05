@@ -15,7 +15,7 @@ pub struct Payload {
 pub async fn handler(State(state): State<ServiceManagerState>,
                      Path(path): Path<String>,
                      JsonOrForm(payload): JsonOrForm<Payload>) {
-    state.service_manager.try_handle();
+    state.service_manager.try_handle(path.clone());
     println!("Path: {:?}", path);
     println!("received payload: {:?}", payload);
 }
