@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 use crate::core::contracts::services::Service;
-use std::{fs, env};
 use std::sync::{Arc, Mutex};
 use log::{error, info, warn};
 use crate::core::contracts::basic_informations::RequestPostBody;
+use crate::core::contracts::file_helper;
 use crate::service_manager::lookup_client;
 
 
@@ -13,7 +13,7 @@ pub trait IServiceManager {
 }
 
 pub trait ServiceManagerExt: Send + Sync  {
-    fn try_handle(&self, path: String);
+    fn try_handle(&self, path: String, request_post_body: RequestPostBody);
 }
 
 
@@ -28,13 +28,13 @@ pub struct ServiceManager {
 }
 
 impl ServiceManagerExt for ServiceManager {
-    fn try_handle(&self, path: String) {
+    fn try_handle(&self, path: String, post_body: RequestPostBody) {
         let binding = self.services.lock().unwrap();
-        let service = &binding.get(&path);
+        let service_option = &binding.get(&path);
 
-        match service {
-            Some(T) => {
-                T.lock().unwrap().handle_request(RequestPostBody{method: "test".to_string(), params: vec!["1".to_string()] })
+        match service_option {
+            Some(service) => {
+                service.lock().unwrap().handle_request(RequestPostBody{method: "test".to_string(), params: vec!["1".to_string()] })
             }
             None => println!("no service found with name: {}", path)
         }
@@ -43,9 +43,7 @@ impl ServiceManagerExt for ServiceManager {
 
 impl IServiceManager for ServiceManager {
     fn new() -> ServiceManager {
-        let current_dir = env::current_dir().expect("should be able to open directory");
-        let path= current_dir.join("config.setting");
-        let contents = fs::read_to_string(path);
+        let contents = file_helper::read_settings("config.setting");
 
         let mut my_manager = ServiceManager {
             services: Arc::new(Mutex::new(Default::default()))

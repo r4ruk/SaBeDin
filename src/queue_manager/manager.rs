@@ -1,7 +1,9 @@
 use std::collections::{HashSet};
 use chrono::{DateTime, Utc};
 use kafka::client::KafkaClient;
-
+use log::{error, info, warn};
+use crate::core::contracts::file_helper;
+use crate::service_manager::lookup_client;
 
 trait IQueueManager {
     fn new() -> Self;
@@ -30,6 +32,25 @@ impl IQueueManager for QueueManager {
             if !manager.topics.contains(topic.name()) {
                 manager.topics.insert(topic.name().to_string());
             }
+        }
+
+        // TODO refine this section
+        let topics = file_helper::read_settings("queue_topics.settings");
+        match topics {
+            Ok(content) => {
+                if content.contains("\n") {
+                    let lines = content.split('\n').collect::<Vec<&str>>();
+                    for (_, line) in lines.iter().enumerate(){
+                        info!("adding topic {}", line);
+                        if !manager.topics.contains(line.clone()) {
+                            // TODO Add topic to Kafka if it does not exist yet
+                        } else {
+                            // TODO already exists. do something...?
+                        }
+                    }
+                }
+            },
+            Err(e) => warn!("Could not read topics from the settings file. {:?}", e)
         }
         manager
     }

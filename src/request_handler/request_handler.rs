@@ -3,21 +3,16 @@ use axum::extract::{FromRequest, Path, Request, State};
 use axum::http::header::CONTENT_TYPE;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use serde::{Deserialize, Serialize};
+use crate::core::contracts::basic_informations::RequestPostBody;
 use crate::service_manager::service_manager::{IServiceManager, ServiceManagerState};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Payload {
-    method: String,
-    params: String
-}
 
 pub async fn handler(State(state): State<ServiceManagerState>,
                      Path(path): Path<String>,
-                     JsonOrForm(payload): JsonOrForm<Payload>) {
-    state.service_manager.try_handle(path.clone());
+                     JsonOrForm(request_post_body): JsonOrForm<RequestPostBody>) {
+    state.service_manager.try_handle(path.clone(), request_post_body);
     println!("Path: {:?}", path);
-    println!("received payload: {:?}", payload);
+    // println!("received payload: {:?}", request_post_body);
 }
 
 pub struct JsonOrForm<T>(T);
