@@ -42,7 +42,7 @@ impl IQueueManager for QueueManager {
                     let lines = content.split('\n').collect::<Vec<&str>>();
                     for (_, line) in lines.iter().enumerate(){
                         info!("adding topic {}", line);
-                        if !manager.topics.contains(line.clone()) {
+                        if !manager.topics.contains(*line) {
                             // TODO Add topic to Kafka if it does not exist yet
                         } else {
                             // TODO already exists. do something...?

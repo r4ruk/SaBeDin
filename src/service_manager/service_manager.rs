@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use crate::core::contracts::services::Service;
 use std::sync::{Arc, Mutex};
+use axum::routing::post;
 use log::{error, info, warn};
 use crate::core::contracts::basic_informations::RequestPostBody;
 use crate::core::contracts::file_helper;
@@ -34,7 +35,7 @@ impl ServiceManagerExt for ServiceManager {
 
         match service_option {
             Some(service) => {
-                service.lock().unwrap().handle_request(RequestPostBody{method: "test".to_string(), params: vec!["1".to_string()] })
+                service.lock().unwrap().handle_request(post_body)
             }
             None => println!("no service found with name: {}", path)
         }
