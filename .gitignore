@@ -1,2 +1,7 @@
 /target
 /.idea
+/fe/sabedin/node_modules/
+/fe/sabedin/.next/
+/fe/sabedin/package-lock.json
+/Cargo.lock
+/fe/sabedin/.eslintrc.json
