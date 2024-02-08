@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use crate::core::contracts::services::Service;
 use std::sync::{Arc, Mutex};
-use axum::routing::post;
 use log::{error, info, warn};
 use crate::core::contracts::basic_informations::RequestPostBody;
 use crate::core::contracts::file_helper;
@@ -28,6 +27,9 @@ pub struct ServiceManager {
     pub services: Arc<Mutex<HashMap<String, Arc<Mutex<Box<dyn Service>>>>>>,
 }
 
+// implementation for the ServiceManagerExt trait which ensures the ServiceManager implements
+// the try_handle functionality
+// TODO As soon as MessageQueue implementation is ready implement the communication
 impl ServiceManagerExt for ServiceManager {
     fn try_handle(&self, path: String, post_body: RequestPostBody) {
         let binding = self.services.lock().unwrap();
@@ -43,6 +45,8 @@ impl ServiceManagerExt for ServiceManager {
 }
 
 impl IServiceManager for ServiceManager {
+
+    // instantiation of ServiceManager instance.
     fn new() -> ServiceManager {
         let contents = file_helper::read_settings("config.setting");
 
@@ -51,10 +55,14 @@ impl IServiceManager for ServiceManager {
         };
         match contents {
             Ok(content) => {
+                // be aware to always end the config.setting file with an empty newline.
+                // this ensures the correct functionality of the following code.
                 if content.contains("\n") {
                     let lines = content.split('\n').collect::<Vec<&str>>();
                     for (_, line) in lines.iter().enumerate(){
                         info!("adding service {}", line);
+                        // try find Service implementation in Lookup client
+                        // and then register it in the manager
                         let client_option = lookup_client::find_service(line);
                         match client_option {
                             Some(client) => {
@@ -71,10 +79,8 @@ impl IServiceManager for ServiceManager {
     }
 
 
+    // registers the service in the Manager.
     fn register_service(&mut self, service_name: String, service: Box<dyn Service>) {
-        // self.services
-        //     .entry(service_name)
-        //     .or_insert(service);
         println!("Adding service with name: '{}'", service_name);
         self.services.lock().unwrap().entry(service_name).or_insert(Arc::new(Mutex::new(service)));
     }

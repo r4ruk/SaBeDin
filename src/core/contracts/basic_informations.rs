@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+// The request post body representation which can be further sent to processing Services
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RequestPostBody {
     pub object: String,

@@ -10,9 +10,9 @@ use crate::service_manager::service_manager::{IServiceManager, ServiceManagerSta
 pub async fn handler(State(state): State<ServiceManagerState>,
                      Path(path): Path<String>,
                      JsonOrForm(request_post_body): JsonOrForm<RequestPostBody>) {
+
+    // redirect handling to service manager, which decided what to do with the request.
     state.service_manager.try_handle(path.clone(), request_post_body);
-    println!("Path: {:?}", path);
-    // println!("received payload: {:?}", request_post_body);
 }
 
 pub struct JsonOrForm<T>(T);
@@ -27,6 +27,7 @@ impl<S, T> FromRequest<S> for JsonOrForm<T>
 {
     type Rejection = Response;
 
+    // function used to extract JSON or Form Json out of the request body into the wanted JSON representation
     async fn from_request(req: Request, _state: &S) -> Result<Self, Self::Rejection> {
         let content_type_header = req.headers().get(CONTENT_TYPE);
         let content_type = content_type_header.and_then(|value| value.to_str().ok());
