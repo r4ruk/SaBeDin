@@ -7,3 +7,8 @@ pub struct RequestPostBody {
     pub method: String,
     pub params: Vec<String>
 }
+
+#[derive(Serialize, Deserialize, Debug )]
+pub struct ResponseBody {
+    pub body: String,
+}

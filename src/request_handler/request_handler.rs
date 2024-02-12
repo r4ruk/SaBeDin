@@ -3,16 +3,26 @@ use axum::extract::{FromRequest, Path, Request, State};
 use axum::http::header::CONTENT_TYPE;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use crate::core::contracts::basic_informations::RequestPostBody;
+use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
 use crate::service_manager::service_manager::{IServiceManager, ServiceManagerState};
 
 
-pub async fn handler(State(state): State<ServiceManagerState>,
+pub async fn health_check() -> Result<String, StatusCode>{
+    Ok("healthy".to_string())
+}
+
+pub async fn command_handler(State(state): State<ServiceManagerState>,
                      Path(path): Path<String>,
                      JsonOrForm(request_post_body): JsonOrForm<RequestPostBody>) {
 
-    // redirect handling to service manager, which decided what to do with the request.
+    // redirect handling to service manager, which decides what to do with the request.
     state.service_manager.try_handle(path.clone(), request_post_body);
+}
+
+
+pub async fn query_handler(State(state):State<ServiceManagerState>,
+                           Path(path): Path<String>) -> Result<Json<ResponseBody>, (StatusCode, Json<ResponseBody>)> {
+    Ok(Json::from(ResponseBody { body: format!("hallo von {}", path).to_string() }))
 }
 
 pub struct JsonOrForm<T>(T);

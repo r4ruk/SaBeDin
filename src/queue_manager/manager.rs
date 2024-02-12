@@ -5,13 +5,11 @@ trait IQueueManager {
     fn new() -> Self;
 }
 
-struct QueueManager {
-    topics: HashSet<String>,
-}
+struct QueueManager {}
 
 // body should be the expected services deserializable object structure representation in JSON
 struct RequestMessage {
-    message_id: uuid,
+    message_id: uuid::Uuid,
     return_address: String,
     headers: String,
     body: String,
@@ -20,7 +18,7 @@ struct RequestMessage {
 
 // body should be the expected services deserializable object structure representation in JSON
 struct ResponseMessage {
-    correlation_id: uuid,
+    correlation_id: uuid::Uuid,
     body: String
 }
 
@@ -31,6 +29,6 @@ struct ResponseMessage {
 
 impl IQueueManager for QueueManager {
     fn new() -> QueueManager {
-        return QueueManager{ topics: Default::default() }
+        return QueueManager{  }
     }
 }
