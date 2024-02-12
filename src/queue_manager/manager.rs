@@ -1,5 +1,9 @@
 use std::collections::{HashSet};
 use chrono::{DateTime, Utc};
+use uuid::Uuid;
+
+
+// TODO  read here about how to handle: https://blog.stackademic.com/rabbitmq-message-publisher-and-consumer-in-rust-9613113e89b2
 
 trait IQueueManager {
     fn new() -> Self;
@@ -9,7 +13,7 @@ struct QueueManager {}
 
 // body should be the expected services deserializable object structure representation in JSON
 struct RequestMessage {
-    message_id: uuid::Uuid,
+    message_id: Uuid,
     return_address: String,
     headers: String,
     body: String,
@@ -18,7 +22,7 @@ struct RequestMessage {
 
 // body should be the expected services deserializable object structure representation in JSON
 struct ResponseMessage {
-    correlation_id: uuid::Uuid,
+    correlation_id: Uuid,
     body: String
 }
 
