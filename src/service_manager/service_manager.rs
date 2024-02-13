@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use crate::core::contracts::services::Service;
 use std::sync::{Arc, Mutex};
 use log::{error, info, warn};
-use crate::core::contracts::basic_informations::RequestPostBody;
+use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
 use crate::core::contracts::file_helper;
 use crate::service_manager::lookup_client;
 
@@ -14,6 +14,7 @@ pub trait IServiceManager {
 
 pub trait ServiceManagerExt: Send + Sync  {
     fn try_handle(&self, path: String, request_post_body: RequestPostBody);
+    fn try_handle_query(&self, service: String, params: String) -> ResponseBody;
 }
 
 
@@ -37,10 +38,23 @@ impl ServiceManagerExt for ServiceManager {
 
         match service_option {
             Some(service) => {
-                service.lock().unwrap().handle_request(post_body)
+                service.lock().unwrap().handle_command(post_body)
             }
             None => println!("no service found with name: {}", path)
         }
+    }
+
+    fn try_handle_query(&self, service: String, params: String) -> ResponseBody {
+        let binding = self.services.lock().unwrap();
+        let service_option = &binding.get(&service);
+        let mut response = ResponseBody{ body: "".to_string() };
+        match service_option {
+            Some(service) => {
+                response = service.lock().unwrap().handle_query(params)
+            }
+            None => println!("no service found with name: {}", params)
+        }
+        return response
     }
 }
 

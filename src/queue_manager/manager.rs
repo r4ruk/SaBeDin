@@ -1,9 +1,6 @@
-use std::collections::{HashSet};
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-
-// TODO  read here about how to handle: https://blog.stackademic.com/rabbitmq-message-publisher-and-consumer-in-rust-9613113e89b2
 
 trait IQueueManager {
     fn new() -> Self;

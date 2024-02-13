@@ -11,6 +11,7 @@ pub async fn health_check() -> Result<String, StatusCode>{
     Ok("healthy".to_string())
 }
 
+// handler for POST requests
 pub async fn command_handler(State(state): State<ServiceManagerState>,
                      Path(path): Path<String>,
                      JsonOrForm(request_post_body): JsonOrForm<RequestPostBody>) {
@@ -19,10 +20,27 @@ pub async fn command_handler(State(state): State<ServiceManagerState>,
     state.service_manager.try_handle(path.clone(), request_post_body);
 }
 
-
+// handler for GET-Requests
 pub async fn query_handler(State(state):State<ServiceManagerState>,
                            Path(path): Path<String>) -> Result<Json<ResponseBody>, (StatusCode, Json<ResponseBody>)> {
-    Ok(Json::from(ResponseBody { body: format!("hallo von {}", path).to_string() }))
+
+    let mut responseBody = ResponseBody{ body: "".to_string() };
+    if path.contains('/') {
+        let splitted = path.split_once('/').unwrap();
+        let servicename = splitted.0;
+        let params = splitted.1;
+        responseBody = state.service_manager.try_handle_query(servicename.to_string(), params.to_string());
+    } else {
+        println!("havent found expected '/' in request path");
+        // TODO generally handle errors
+        let error_response = Json::from(ResponseBody{ body: "not found".to_string() });
+        let status_code = StatusCode::INTERNAL_SERVER_ERROR;
+
+        let error_result: Result<Json<ResponseBody>, (StatusCode, Json<ResponseBody>)> = Err((status_code, error_response));
+        return error_result
+    }
+
+    Ok(Json::from(responseBody))
 }
 
 pub struct JsonOrForm<T>(T);

@@ -1,0 +1,7 @@
+client_service:
+ - handle different params
+
+request_handler:
+ - develop a method, which handles errors and errorstatus codes and gives back
+   a Result which can then be returned generally
+ - currently statically implemented on line 35

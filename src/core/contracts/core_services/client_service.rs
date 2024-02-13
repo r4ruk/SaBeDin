@@ -1,6 +1,7 @@
+use axum::Json;
 use serde::{Deserialize, Serialize};
 use serde_json::from_str;
-use crate::core::contracts::basic_informations::RequestPostBody;
+use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
 use crate::core::contracts::services::Service;
 
 // template definition for further work on real entities and services.
@@ -16,7 +17,7 @@ pub struct ClientService {
 }
 
 impl Service for ClientService {
-    fn handle_request(&self, body: RequestPostBody) {
+    fn handle_command(&self, body: RequestPostBody) {
         // TODO add real data and functionality
         println!("handling request in clientservice {:?}", body);
 
@@ -25,6 +26,13 @@ impl Service for ClientService {
 
         // ensuring the deserialization worked
         println!("name is {} and age is {}", client.name, client.age)
+    }
+
+    fn handle_query(&self, params: String) -> ResponseBody{
+        println!("{}", params);
+        return ResponseBody {
+            body: params.to_string(),
+        }
     }
 
     // method create a boxed instance of the actual Service
