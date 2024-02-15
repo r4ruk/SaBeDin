@@ -14,7 +14,7 @@ pub trait IServiceManager {
 
 pub trait ServiceManagerExt: Send + Sync  {
     fn try_handle(&self, path: String, request_post_body: RequestPostBody);
-    fn try_handle_query(&self, service: String, params: String) -> ResponseBody;
+    fn try_handle_query(&self, service: String, params: HashMap<String, String>) -> ResponseBody;
 }
 
 
@@ -44,7 +44,7 @@ impl ServiceManagerExt for ServiceManager {
         }
     }
 
-    fn try_handle_query(&self, service: String, params: String) -> ResponseBody {
+    fn try_handle_query(&self, service: String, params: HashMap<String, String>) -> ResponseBody {
         let binding = self.services.lock().unwrap();
         let service_option = &binding.get(&service);
         let mut response = ResponseBody{ body: "".to_string() };
@@ -52,7 +52,7 @@ impl ServiceManagerExt for ServiceManager {
             Some(service) => {
                 response = service.lock().unwrap().handle_query(params)
             }
-            None => println!("no service found with name: {}", params)
+            None => println!("no service found with name: {:?}", service)
         }
         return response
     }
@@ -63,7 +63,7 @@ impl IServiceManager for ServiceManager {
     // instantiation of ServiceManager instance.
     fn new() -> ServiceManager {
         let contents = file_helper::read_settings("config.setting");
-
+        println!("{:?}", contents);
         let mut my_manager = ServiceManager {
             services: Arc::new(Mutex::new(Default::default()))
         };

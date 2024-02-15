@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+use std::hash::Hash;
 use axum::Json;
 use serde::{Deserialize, Serialize};
 use serde_json::from_str;
@@ -28,10 +30,14 @@ impl Service for ClientService {
         println!("name is {} and age is {}", client.name, client.age)
     }
 
-    fn handle_query(&self, params: String) -> ResponseBody{
-        println!("{}", params);
+    fn handle_query(&self, params: HashMap<String, String>) -> ResponseBody {
+        println!("{:?}", params);
+
+        // split params
+
+
         return ResponseBody {
-            body: params.to_string(),
+            body: "hello from handle_query".to_string(),
         }
     }
 

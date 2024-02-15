@@ -1,10 +1,11 @@
+use std::collections::HashMap;
 use axum::{async_trait, Form, Json, RequestExt};
 use axum::extract::{FromRequest, Path, Request, State};
 use axum::http::header::CONTENT_TYPE;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
-use crate::service_manager::service_manager::{IServiceManager, ServiceManagerState};
+use crate::service_manager::service_manager::ServiceManagerState;
 
 
 pub async fn health_check() -> Result<String, StatusCode>{
@@ -22,16 +23,24 @@ pub async fn command_handler(State(state): State<ServiceManagerState>,
 
 // handler for GET-Requests
 pub async fn query_handler(State(state):State<ServiceManagerState>,
-                           Path(path): Path<String>) -> Result<Json<ResponseBody>, (StatusCode, Json<ResponseBody>)> {
+                           mut req: Request) -> Result<Json<ResponseBody>, (StatusCode, Json<ResponseBody>)> {
 
-    let mut responseBody = ResponseBody{ body: "".to_string() };
-    if path.contains('/') {
-        let splitted = path.split_once('/').unwrap();
-        let servicename = splitted.0;
+    let mut response_body = ResponseBody{ body: "".to_string() };
+    println!("{:?}",req.uri());
+    let uri_path = req.uri_mut().to_string();
+    if uri_path.contains('?') {
+        let splitted = uri_path.split_once('?').unwrap();
+        let servicename:&str = splitted.0;
         let params = splitted.1;
-        responseBody = state.service_manager.try_handle_query(servicename.to_string(), params.to_string());
-    } else {
-        println!("havent found expected '/' in request path");
+        let mut service = "".to_string();
+        if servicename.contains('/') {
+            service = servicename.replace('/', "");
+        }
+
+        let params = handle_params(params);
+
+        response_body = state.service_manager.try_handle_query(service.to_string(), params);
+    } else if uri_path.contains('/') {
         // TODO generally handle errors
         let error_response = Json::from(ResponseBody{ body: "not found".to_string() });
         let status_code = StatusCode::INTERNAL_SERVER_ERROR;
@@ -40,7 +49,22 @@ pub async fn query_handler(State(state):State<ServiceManagerState>,
         return error_result
     }
 
-    Ok(Json::from(responseBody))
+    Ok(Json::from(response_body))
+}
+
+// function handles different params arriving from GET request
+// TODO outsource into an URI helper
+fn handle_params(params: &str) -> HashMap<String, String> {
+    let mut map_params: HashMap<String, String>  = HashMap::new();
+    let param_vec:Vec<&str> = params.split('&').collect::<Vec<&str>>();
+    for param in param_vec {
+        if let Some((name, value)) = param.split_once('=') {
+            map_params.entry(name.to_string()).or_insert(value.to_string());
+        } else {
+            println!("couldnt read name value params")
+        }
+    }
+    return map_params
 }
 
 pub struct JsonOrForm<T>(T);

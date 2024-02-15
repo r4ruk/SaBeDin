@@ -5,3 +5,8 @@ request_handler:
  - develop a method, which handles errors and errorstatus codes and gives back
    a Result which can then be returned generally
  - currently statically implemented on line 35
+
+  - DEBUG Handler if query params are extracted as expected:
+  send curl:
+  curl '127.0.0.1:7878/client?param1=1&param2=asdf'
+  -> outsource handleparam method to be in a central place so it can be reused from other places.
