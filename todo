@@ -9,4 +9,11 @@ request_handler:
   - DEBUG Handler if query params are extracted as expected:
   send curl:
   curl '127.0.0.1:7878/client?param1=1&param2=asdf'
-  -> outsource handleparam method to be in a central place so it can be reused from other places.
+
+  - 1. Introduce BL layer
+
+  - 2. Add persistence layer
+
+  - 3. Add seed data minimum for users. (for authentication)
+
+  - 4. Add authentication Middleware which uses

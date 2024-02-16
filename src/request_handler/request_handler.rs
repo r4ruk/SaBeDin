@@ -4,7 +4,7 @@ use axum::extract::{FromRequest, Path, Request, State};
 use axum::http::header::CONTENT_TYPE;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
+use crate::core::contracts::{basic_informations::{RequestPostBody, ResponseBody}, uri_helper};
 use crate::service_manager::service_manager::ServiceManagerState;
 
 
@@ -37,7 +37,7 @@ pub async fn query_handler(State(state):State<ServiceManagerState>,
             service = servicename.replace('/', "");
         }
 
-        let params = handle_params(params);
+        let params = uri_helper::handle_params(params);
 
         response_body = state.service_manager.try_handle_query(service.to_string(), params);
     } else if uri_path.contains('/') {
@@ -50,21 +50,6 @@ pub async fn query_handler(State(state):State<ServiceManagerState>,
     }
 
     Ok(Json::from(response_body))
-}
-
-// function handles different params arriving from GET request
-// TODO outsource into an URI helper
-fn handle_params(params: &str) -> HashMap<String, String> {
-    let mut map_params: HashMap<String, String>  = HashMap::new();
-    let param_vec:Vec<&str> = params.split('&').collect::<Vec<&str>>();
-    for param in param_vec {
-        if let Some((name, value)) = param.split_once('=') {
-            map_params.entry(name.to_string()).or_insert(value.to_string());
-        } else {
-            println!("couldnt read name value params")
-        }
-    }
-    return map_params
 }
 
 pub struct JsonOrForm<T>(T);
