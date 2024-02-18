@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use crate::core::contracts::services::Service;
+use crate::core::contracts::services::ClientHandler;
 use std::sync::{Arc, Mutex};
 use log::{error, info, warn};
 use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
@@ -9,7 +9,7 @@ use crate::service_manager::lookup_client;
 
 pub trait IServiceManager {
     fn new() -> Self;
-    fn register_service(&mut self, service_name: String, service: Box<dyn Service>);
+    fn register_service(&mut self, service_name: String, service: Box<dyn ClientHandler>);
 }
 
 pub trait ServiceManagerExt: Send + Sync  {
@@ -25,7 +25,7 @@ pub struct ServiceManagerState {
 
 
 pub struct ServiceManager {
-    pub services: Arc<Mutex<HashMap<String, Arc<Mutex<Box<dyn Service>>>>>>,
+    pub services: Arc<Mutex<HashMap<String, Arc<Mutex<Box<dyn ClientHandler>>>>>>,
 }
 
 // implementation for the ServiceManagerExt trait which ensures the ServiceManager implements
@@ -94,7 +94,7 @@ impl IServiceManager for ServiceManager {
 
 
     // registers the service in the Manager.
-    fn register_service(&mut self, service_name: String, service: Box<dyn Service>) {
+    fn register_service(&mut self, service_name: String, service: Box<dyn ClientHandler>) {
         println!("Adding service with name: '{}'", service_name);
         self.services.lock().unwrap().entry(service_name).or_insert(Arc::new(Mutex::new(service)));
     }

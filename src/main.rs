@@ -4,7 +4,7 @@ mod request_handler;
 mod service_manager;
 
 use std::sync::Arc;
-use axum::{Router, routing::post, routing::get, response::Html};
+use axum::{Router, routing::post, routing::get};
 use crate::service_manager::service_manager::{IServiceManager, ServiceManager, ServiceManagerState};
 
 #[tokio::main]
