@@ -1,10 +1,12 @@
+use std::sync::Arc;
 use axum::{async_trait, Form, Json, RequestExt};
 use axum::extract::{FromRequest, Path, Request, State};
 use axum::http::header::CONTENT_TYPE;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
+use crate::DepContainer;
 use crate::core::contracts::{basic_informations::{RequestPostBody, ResponseBody}, uri_helper};
-use crate::service_manager::service_manager::ServiceManagerState;
+use crate::service_manager::service_manager::{ServiceManagerExt};
 
 
 pub async fn health_check() -> Result<String, StatusCode>{
@@ -12,16 +14,16 @@ pub async fn health_check() -> Result<String, StatusCode>{
 }
 
 // handler for POST requests
-pub async fn command_handler(State(state): State<ServiceManagerState>,
-                     Path(path): Path<String>,
-                     JsonOrForm(request_post_body): JsonOrForm<RequestPostBody>) {
+pub async fn command_handler(State(state): State<Arc<DepContainer>>,
+                             Path(path): Path<String>,
+                             JsonOrForm(request_post_body): JsonOrForm<RequestPostBody>) {
 
     // redirect handling to service manager, which decides what to do with the request.
     state.service_manager.try_handle(path.clone(), request_post_body);
 }
 
 // handler for GET-Requests
-pub async fn query_handler(State(state):State<ServiceManagerState>,
+pub async fn query_handler(State(state):State<Arc<DepContainer>>,
                            mut req: Request) -> Result<Json<ResponseBody>, (StatusCode, Json<ResponseBody>)> {
 
     let mut response_body = ResponseBody{ body: "".to_string() };
