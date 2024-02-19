@@ -13,10 +13,14 @@ impl ClientHandler for UserClient {
         println!("handling request in clientservice {:?}", body);
 
         // parsing body's object which can be any 'serializable/deserializable' JSON representation.
-        let user: User = from_str(&body.object).expect("cant parse body object");
-
-        // ensuring the deserialization worked
-        println!("name is {} and age is {}", user.name, user.age)
+        // TODO think about exception handling
+        let user = from_str::<User>(&body.object);
+        if user.is_err()  == false {
+            // ensuring the deserialization worked
+            println!("in handlecommand, not handling command yet.");
+        } else {
+            println!("could not deserialize body");
+        }
     }
 
     // handles query function for user

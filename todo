@@ -10,6 +10,11 @@ request_handler:
   send curl:
   curl '127.0.0.1:7878/client?param1=1&param2=asdf'
 
+
+  src/core/client.rs
+// TODO think about exception handling
+
+
   - 1. Introduce BL layer
 
   - 2. Add persistence layer

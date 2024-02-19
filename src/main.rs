@@ -7,11 +7,11 @@ mod route;
 use std::sync::Arc;
 use axum::{Router, routing::post, routing::get};
 use crate::route::create_router;
-use crate::service_manager::service_manager::{IServiceManager, ServiceManager, ServiceManagerState};
+use crate::service_manager::service_manager::{IServiceManager, ServiceManager, ServiceManagerExt, ServiceManagerState};
 // use redis::Client;
 
 pub struct DepContainer {
-    service_manager: ServiceManager,
+    service_manager: Arc<dyn ServiceManagerExt>,
     // env: Config,
     // redis_client: Client,
 }
@@ -21,7 +21,7 @@ async fn main() {
 
     // the ServiceManagerState is used to enable DependencyInjection into the RequestHandler
     let state = Arc::new(DepContainer {
-        service_manager: ServiceManager::new()
+        service_manager: Arc::new(ServiceManager::new())
     });
 
     let app = create_router(state);
