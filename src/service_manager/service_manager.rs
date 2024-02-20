@@ -18,12 +18,6 @@ pub trait ServiceManagerExt: Send + Sync  {
 }
 
 
-#[derive(Clone)]
-pub struct ServiceManagerState {
-    pub service_manager: Arc<dyn ServiceManagerExt>
-}
-
-
 pub struct ServiceManager {
     pub services: Arc<Mutex<HashMap<String, Arc<Mutex<Box<dyn ClientHandler>>>>>>,
 }

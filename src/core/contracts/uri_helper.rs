@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 // function handles different params arriving from GET request
-// TODO outsource into an URI helper
 pub fn handle_params(params: &str) -> HashMap<String, String> {
     let mut map_params: HashMap<String, String>  = HashMap::new();
     let param_vec:Vec<&str> = params.split('&').collect::<Vec<&str>>();

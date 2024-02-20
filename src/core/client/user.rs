@@ -15,7 +15,7 @@ impl ClientHandler for UserClient {
         // parsing body's object which can be any 'serializable/deserializable' JSON representation.
         // TODO think about exception handling
         let user = from_str::<User>(&body.object);
-        if user.is_err()  == false {
+        if user.is_err() == false {
             // ensuring the deserialization worked
             println!("in handlecommand, not handling command yet.");
         } else {

@@ -7,7 +7,7 @@ mod route;
 use std::sync::Arc;
 use axum::{Router, routing::post, routing::get};
 use crate::route::create_router;
-use crate::service_manager::service_manager::{IServiceManager, ServiceManager, ServiceManagerExt, ServiceManagerState};
+use crate::service_manager::service_manager::{IServiceManager, ServiceManager, ServiceManagerExt};
 // use redis::Client;
 
 pub struct DepContainer {
