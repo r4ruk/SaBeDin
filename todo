@@ -11,14 +11,15 @@ request_handler:
   curl '127.0.0.1:7878/client?param1=1&param2=asdf'
 
 
-  src/core/client.rs
-// TODO think about exception handling
+General todo:
+[] think about exception handling
 
+next step:
+[X] Introduce BL layer
+[] add unittests for all implementations already done
+[] rename lookup_client to client_factory
 
-  - 1. Introduce BL layer
-
-  - 2. Add persistence layer
-
-  - 3. Add seed data minimum for users. (for authentication)
-
-  - 4. Add authentication Middleware which uses
+further work
+[] Add persistence layer
+[] Add seed data minimum for users. (for authentication)
+[] Add authentication Middleware 
