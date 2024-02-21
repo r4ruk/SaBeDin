@@ -1,4 +1,4 @@
 pub mod service_manager;
 mod service_manager_test;
-pub mod lookup_client;
-mod lookup_client_test;
+pub mod service_client_factory;
+mod service_client_factory_test;

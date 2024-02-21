@@ -4,7 +4,8 @@ use std::sync::{Arc, Mutex};
 use log::{error, info, warn};
 use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
 use crate::core::contracts::file_helper;
-use crate::service_manager::lookup_client;
+use crate::core::utils::utils;
+use crate::service_manager::service_client_factory;
 
 
 pub trait IServiceManager {
@@ -57,7 +58,8 @@ impl IServiceManager for ServiceManager {
     // instantiation of ServiceManager instance.
     fn new() -> ServiceManager {
         let contents = file_helper::read_settings("config.setting");
-        println!("{:?}", contents);
+        let os_specific_newline = utils::get_os_newline();
+
         let mut my_manager = ServiceManager {
             services: Arc::new(Mutex::new(Default::default()))
         };
@@ -65,18 +67,23 @@ impl IServiceManager for ServiceManager {
             Ok(content) => {
                 // be aware to always end the config.setting file with an empty newline.
                 // this ensures the correct functionality of the following code.
-                if content.contains("\n") {
-                    let lines = content.split('\n').collect::<Vec<&str>>();
-                    for (_, line) in lines.iter().enumerate(){
-                        info!("adding service {}", line);
-                        // try find Service implementation in Lookup client
-                        // and then register it in the manager
-                        let client_option = lookup_client::find_service(line);
-                        match client_option {
-                            Some(client) => {
-                                my_manager.register_service(line.to_string(), client);
-                            },
-                            None => error!("Unknown type '{}' in factory.", line)
+                if content.contains(&os_specific_newline.clone()) {
+                    let lines = content.split(&os_specific_newline).collect::<Vec<&str>>();
+                    for (_, line) in lines.iter().enumerate() {
+                        if line != "" {
+                            info!("adding service {}", line);
+                            // find Service implementation in service client factory
+                            // and then register it in the manager
+                            let client_option = service_client_factory::find_service(line);
+                            match client_option {
+                                Some(client) => {
+                                    my_manager.register_service(line.to_string(), client);
+                                },
+                                None => {
+                                    let interpolated = format!("Unknown type '{}' in factory.", line);
+                                    println!("{}", interpolated)
+                                }
+                            }
                         }
                     }
                 }
