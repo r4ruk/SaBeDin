@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    // Other compiler options...
+    "jsx": "react"
+  },
+  // Other configurations...
+}

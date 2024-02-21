@@ -70,7 +70,7 @@ impl IServiceManager for ServiceManager {
                 if content.contains(&os_specific_newline.clone()) {
                     let lines = content.split(&os_specific_newline).collect::<Vec<&str>>();
                     for (_, line) in lines.iter().enumerate() {
-                        if line != "" {
+                        if line != &"" {
                             info!("adding service {}", line);
                             // find Service implementation in service client factory
                             // and then register it in the manager

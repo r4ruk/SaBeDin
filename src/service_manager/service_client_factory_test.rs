@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod lookup_client_test {
     use super::super::service_client_factory;
-    use std::any::{Any, TypeId};
+    use std::any::{Any};
     use crate::core::client::user::UserClient;
     use crate::core::contracts::services::ClientHandler;
 
