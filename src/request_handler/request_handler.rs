@@ -1,16 +1,18 @@
 use std::sync::Arc;
-use axum::{async_trait, Form, Json, RequestExt};
-use axum::extract::{FromRequest, Path, Request, State};
-use axum::http::header::CONTENT_TYPE;
-use axum::http::StatusCode;
-use axum::response::{IntoResponse, Response};
+use serde_json::json;
+use axum::{async_trait, Form, Json, RequestExt,
+           response::{IntoResponse, Response}
+           http::{header::CONTENT_TYPE, StatusCode},
+           extract::{FromRequest, Path, Request, State}};
 use crate::DepContainer;
 use crate::core::contracts::{basic_informations::{RequestPostBody, ResponseBody}, uri_helper};
 use crate::service_manager::service_manager::{ServiceManagerExt};
 
 
+
 pub async fn health_check() -> Result<String, StatusCode>{
-    Ok("healthy".to_string())
+    println!("in healthcheck");
+    Ok(json!(ResponseBody{body:"healthy!".to_string()}).to_string())
 }
 
 // handler for POST requests
