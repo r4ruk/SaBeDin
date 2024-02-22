@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use serde_json::json;
 use axum::{async_trait, Form, Json, RequestExt,
-           response::{IntoResponse, Response}
+           response::{IntoResponse, Response},
            http::{header::CONTENT_TYPE, StatusCode},
            extract::{FromRequest, Path, Request, State}};
 use crate::DepContainer;
