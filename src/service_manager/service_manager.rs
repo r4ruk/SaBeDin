@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 use crate::core::contracts::services::ClientHandler;
-use std::sync::{Arc, Mutex};
-use log::{error, info, warn};
+use std::sync::{Arc, Mutex, MutexGuard};
+use log::{info, warn};
+use crate::core::client::auth::{AuthClient, AuthProvider};
 use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
 use crate::core::contracts::file_helper;
 use crate::core::utils::utils;
@@ -20,7 +21,7 @@ pub trait ServiceManagerExt: Send + Sync  {
 
 
 pub struct ServiceManager {
-    pub services: Arc<Mutex<HashMap<String, Arc<Mutex<Box<dyn ClientHandler>>>>>>,
+    pub services: Arc<Mutex<HashMap<String, Arc<Mutex<Box<dyn ClientHandler>>>>>>
 }
 
 // implementation for the ServiceManagerExt trait which ensures the ServiceManager implements

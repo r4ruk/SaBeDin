@@ -18,6 +18,7 @@ Send the following curl commands and debug / see the outcome.\
 It should be extendable and usable for different usecases.
 
 
+
 ### Test
 The easiest way to see how the core works you can run tests and debug the code.
 
@@ -34,3 +35,6 @@ just run `cargo test`.
 -d '{"method":"method", "object":"{\"id\":\"0f083f37-0693-42b8-8a3e-6b1dfa0221ff\",\"name\":\"John Doe\",\"password\":\"password123\",\"email\":\"john@example.com\",\"age\":30}","params":["1"]}' \
 -vv`
 
+### Basic Considerations
+As usual there has to be a format defined for what to use for example on dates and here I decided to go for rfc3339 \
+as this is a worldwide understandable format (YYYY-MM-DDTHH:MM:SS+HH:MM)

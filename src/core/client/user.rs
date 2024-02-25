@@ -37,14 +37,10 @@ impl ClientHandler for UserClient {
                 }
             }
             if let Some(ret) = ret_val {
-                return ResponseBody{
-                    body: json!(ret).to_string()
-                }
+                return ResponseBody{body: json!(ret).to_string()}
             }
         }
-        return ResponseBody {
-            body: "hello from handle_query".to_string(),
-        }
+        return ResponseBody{body: "error".to_string()}
     }
 
     // method creates a boxed instance of the actual Service

@@ -1,9 +1,9 @@
 use amqprs::connection::{Connection, OpenConnectionArguments};
 use axum::http::StatusCode;
 
-pub async fn publish(queue_name: &str, object: String) -> Result<String, StatusCode>{
-    let addr = "amqp://raruk:raruk@localhost:5672";
-    let connection = Connection::open(&OpenConnectionArguments::new(
+pub async fn publish(_queue_name: &str, _object: String) -> Result<String, StatusCode>{
+    let _addr = "amqp://raruk:raruk@localhost:5672";
+    let _connection = Connection::open(&OpenConnectionArguments::new(
         "localhost",
         5672,
         "raruk",

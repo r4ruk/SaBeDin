@@ -2,29 +2,48 @@ mod queue_manager;
 mod core;
 mod request_handler;
 mod service_manager;
-mod route;
+mod config;
+mod routes;
 
 use std::sync::Arc;
-use axum::{Router, routing::post, routing::get};
-use crate::route::create_router;
+use axum::{middleware, Router};
+use axum::body::Body;
+use dotenv::dotenv;
+use crate::routes::main_route::guarded_routes;
+use config::Config;
+use crate::core::client::auth::{AuthClient, AuthProvider};
+use crate::routes::{auth_routes, middlewares};
 use crate::service_manager::service_manager::{IServiceManager, ServiceManager, ServiceManagerExt};
 // use redis::Client;
 
 pub struct DepContainer {
     service_manager: Arc<dyn ServiceManagerExt>,
-    // env: Config,
+    auth_provider: Arc<dyn AuthProvider>,
+    env: Config,
     // redis_client: Client,
 }
 
 #[tokio::main]
 async fn main() {
 
+    dotenv().ok();
+
+    let config = Config::init();
+
     // the ServiceManagerState is used to enable DependencyInjection into the RequestHandler
     let state = Arc::new(DepContainer {
-        service_manager: Arc::new(ServiceManager::new())
+        service_manager: Arc::new(ServiceManager::new()).clone(),
+        auth_provider: Arc::new(AuthClient{}),
+        env: config.clone(),
     });
 
-    let app = create_router(state);
+    // the route layer middleware guard is only applying to the routes which are merged before it.
+    // everything after is not guarded by (in this first case) the authentication guard
+    let app =
+        Router::new()
+            .merge(guarded_routes(state.clone()))
+            .route_layer(middleware::from_fn(middlewares::guard::guard::<Body>))
+            .merge(auth_routes::auth_routes(state));
 
     // listening to address provided for any incoming request.
     let listener = tokio::net::TcpListener::bind("127.0.0.1:7878")

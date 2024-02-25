@@ -1,18 +1,19 @@
 use std::sync::Arc;
 use axum::{
-    middleware,
     routing::{get, post},
     Router,
 };
+use axum::http::header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE};
 use axum::http::Method;
 use tower_http::cors::{CorsLayer, Any};
 use crate::{DepContainer, request_handler};
 
-pub fn create_router(state: Arc<DepContainer>) -> Router {
+pub fn guarded_routes(state: Arc<DepContainer>) -> Router {
 
     let cors = CorsLayer::new()
         .allow_methods([Method::GET, Method::POST])
-        .allow_origin(Any);
+        .allow_origin(Any)
+        .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE]);
 
     // send everything which ends to a mydomain.com/servicename to the handler function in request_handler
     // servicename then gets handled inside request handler
