@@ -26,14 +26,27 @@ The easiest way to see how the core works you can run tests and debug the code.
 I try to keep the tests updated, sorry if i fail at times, haha ;) \
 just run `cargo test`.
 
-#### GET Request:
-`curl '127.0.0.1:7878/client?id=1'`
+### Curl Calls flow
 
-#### POST Request:
+#### 1. Authentication:
+at the moment every user and password combination is succeeding, as soon as database is attached there will be a certain \
+user availabel which i'm going to provide here.\
+`curl -X POST http://127.0.0.1:7878/login -H "Content-Type: application/json" -d "{\"email\":\"user@example.com\",\"password\":\"password123\"}"`
+
+#### 2. GET Request:
+`curl '127.0.0.1:7878/client?id=1' -H "Authorization: Bearer [AuthorizationTokenProvidedByAuthenticationCall]"` \
+OR \
+`curl -X 127.0.0.1:7878/healthcheck -H "Authorization: Bearer [AuthorizationTokenProvidedByAuthenticationCall]"`
+
+#### 3. POST Request:
 `curl -X POST 127.0.0.1:7878/client \
 -H 'Content-Type: application/json' \
+-H 'Authorization: Bearer [AuthenticationTokenHere'] \
 -d '{"method":"method", "object":"{\"id\":\"0f083f37-0693-42b8-8a3e-6b1dfa0221ff\",\"name\":\"John Doe\",\"password\":\"password123\",\"email\":\"john@example.com\",\"age\":30}","params":["1"]}' \
 -vv`
+
+
+
 
 ### Basic Considerations
 As usual there has to be a format defined for what to use for example on dates and here I decided to go for rfc3339 \
