@@ -19,11 +19,11 @@ next step:
 [X] rename lookup_client to client_factory
 [X] add Cors layer to accept requests from browser
 [X] start with easy frontend work to see if the communication is working
+[X] Add authentication Middleware
 [] Add persistence layer
 [] Add seed data minimum for users. (for authentication)
-[] Add authentication Middleware
 
 further work
-[] handle response serialization with status codes (for example: request handler health check returning OK)
+[] handle response serialization with status codes (for example: request handler health check returning OK) - partly done
 [] add unittests for all implementations already done
 [] think about general serialization/deserialization into classes in ts.
