@@ -1,2 +1,2 @@
 pub mod db_pool;
-mod auth_persistence;
+pub mod auth_persistence;
