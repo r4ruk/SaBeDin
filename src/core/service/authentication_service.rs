@@ -1,8 +1,11 @@
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use argon2::password_hash::SaltString;
+use axum::http::StatusCode;
 use rand_core::OsRng;
+use sqlx::Executor;
 use crate::core::contracts::errors::GeneralServerError;
 use crate::core::contracts::user::{LoginUserData, RegisterUserData};
+use crate::core::persistence::db_pool::get_db_pool;
 
 pub async fn register_user(user_data: RegisterUserData) -> Result<(), GeneralServerError> {
 
@@ -25,6 +28,12 @@ pub async fn register_user(user_data: RegisterUserData) -> Result<(), GeneralSer
 pub async fn login(user_data:LoginUserData) -> bool {
 
     // TODO retrieve user from database and compare stuff
+    let pool = match get_db_pool() {
+        Some(pool) => pool,
+        None => return false
+    };
+
+
 
     let is_valid = match PasswordHash::new(&user_data.password) {
         Ok(parsed_hash) => Argon2::default()

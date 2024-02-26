@@ -27,3 +27,5 @@ further work
 [] handle response serialization with status codes (for example: request handler health check returning OK) - partly done
 [] add unittests for all implementations already done
 [] think about general serialization/deserialization into classes in ts.
+[] research Port for postgresql (set in .env file now)
+[] cache in the backend handling

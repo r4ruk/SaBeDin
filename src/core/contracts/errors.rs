@@ -10,6 +10,7 @@ pub struct ApiError {
     pub status_code: u16,
 }
 
+#[derive(Debug)]
 pub struct GeneralServerError {
     pub message: String
 }

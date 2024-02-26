@@ -13,12 +13,21 @@ Implemented with the help of \
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black) 
 
 ### Installation
+#### Docker
+Run the docker containers, and make sure you provide the .env file in the main project directory using the command: \
+`docker compose up`
+
+#### Database Migrations
+install the Migration using the sqlx-cli tool: \
+if not installed yet install it via console with: `cargo install sqlx-cli` \
+once installed the tables can be created with `sqlx migrate run`
+
+#### Backend
 run the `cargo build` and then `cargo run` command in your working directory.
 Send the following curl commands and debug / see the outcome.\
 It should be extendable and usable for different usecases.
 
-
-
+\
 ### Test
 The easiest way to see how the core works you can run tests and debug the code.
 

@@ -46,17 +46,15 @@ pub struct LoginUserData {
 }
 
 #[allow(non_snake_case)]
-#[derive(Debug, Serialize)]
 pub struct FilteredUser {
     pub id: String,
     pub name: String,
     pub email: String,
+    pub password: String,
     pub role: String,
     pub verified: bool,
-    #[serde(with = "custom_datetime")]
-    pub createdAt: DateTime<Utc>,
-    #[serde(with = "custom_datetime")]
-    pub updatedAt: DateTime<Utc>,
+    pub created_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Serialize, Debug)]
