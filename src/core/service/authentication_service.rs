@@ -23,7 +23,20 @@ pub async fn register_user(user_data: RegisterUserData) -> Result<(), GeneralSer
         })
         .map(|hash| hash.to_string()).map_err(|_| GeneralServerError{message: "error".to_string()});
 
-    // TODO write the stuff to DB
+    let mut cloned_user_data = user_data.clone();
+    match hashed_password {
+        Ok(hashed) => {cloned_user_data.password = hashed}
+        Err(e) => {return Err(e)}
+    }
+
+    let registered_user = auth_persistence::register_user(cloned_user_data).await;
+    match registered_user {
+        Ok(_) => (),
+        Err(e) => {
+            return Err(e)
+        }
+    }
+
     return Ok(());
 }
 
