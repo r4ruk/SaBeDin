@@ -18,14 +18,16 @@ next step:
 [X] Introduce BL layer
 [X] rename lookup_client to client_factory
 [X] add Cors layer to accept requests from browser
+[X] handle response serialization with status codes (for example: request handler health check returning OK) - partly done
 [X] start with easy frontend work to see if the communication is working
 [X] Add authentication Middleware
-[] Add persistence layer
+[X] research Port for postgresql (set in .env file now) -> :5432
+[X] Add persistence layer
 [] Add seed data minimum for users. (for authentication)
+[] Test different possible ways to get in the app atm. via curl command
+[] fix and add tests
 
 further work
-[] handle response serialization with status codes (for example: request handler health check returning OK) - partly done
 [] add unittests for all implementations already done
 [] think about general serialization/deserialization into classes in ts.
-[] research Port for postgresql (set in .env file now)
 [] cache in the backend handling

@@ -4,7 +4,9 @@ This is a side project, which should serve as a general backend which handles
 basic stuff a server should do.
 #### The Idea
 The idea is that this backend should cover the main functionality and handle MessageQueue communication with 'external'
-Services which get the request params / POST body by MessageQueue. 
+Services which get the request params / POST body by MessageQueue. <br>
+The main goal of this is to decouple the main app from "Plugin" functionality and make it as generic as possible so it can <br>
+easily handle different other programming languages/project structures while still serving for the main critical tasks by itself.
 
 Implemented with the help of \
 ![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=red) 
@@ -25,9 +27,10 @@ once installed the tables can be created with `sqlx migrate run`
 #### Backend
 run the `cargo build` and then `cargo run` command in your working directory.
 Send the following curl commands and debug / see the outcome.\
-It should be extendable and usable for different usecases.
+It should be extendable and usable for different usecases. 
+<br>
 
-\
+
 ### Test
 The easiest way to see how the core works you can run tests and debug the code.
 
@@ -38,8 +41,8 @@ just run `cargo test`.
 ### Curl Calls flow
 
 #### 1. Authentication:
-at the moment every user and password combination is succeeding, as soon as database is attached there will be a certain \
-user availabel which i'm going to provide here.\
+Newly the user has to be registered first. i'll come back to that and provide a standarduser which can be used with \
+the existing init sql configuration. i'll  add that as top priority in todo. \
 `curl -X POST http://127.0.0.1:7878/login -H "Content-Type: application/json" -d "{\"email\":\"user@example.com\",\"password\":\"password123\"}"`
 
 #### 2. GET Request:
