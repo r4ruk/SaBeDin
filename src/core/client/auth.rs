@@ -15,7 +15,6 @@ impl AuthProvider for AuthClient {
         return authentication_service::register_user(create_user_data).await
     }
     async fn login(&self, login_data: LoginUserData) -> bool {
-        // TODO call service login func
         let attempt_success = authentication_service::login(login_data).await;
         return attempt_success
     }
