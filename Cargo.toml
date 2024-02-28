@@ -23,6 +23,7 @@ time = "0.3.34"
 rand_core = "0.6.4"
 sqlx-cli = "0.7.3"
 lazy_static = "1.4.0"
+async-trait = "0.1.77"
 
 [dependencies.uuid]
 version = "1.7.0"

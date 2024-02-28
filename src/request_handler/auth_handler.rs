@@ -9,7 +9,6 @@ use axum::http::header;
 use axum::response::Response;
 use axum_extra::extract::cookie::{Cookie, SameSite};
 use serde_json::json;
-use crate::core::client;
 use crate::core::contracts::errors::ApiError;
 use crate::core::contracts::user::{RegisterUserData, LoginUserData};
 use crate::core::utils::jwt::encode_jwt;
@@ -19,10 +18,9 @@ pub async fn create_user_post(State(state):State<Arc<DepContainer>>,
     Json(user_data): Json<RegisterUserData>
 ) -> Result<(), ApiError> {
 
-    let existing = state.auth_provider.check_user_exists(user_data.email.clone());
+    let existing = state.auth_provider.check_user_exists(user_data.email.clone()).await;
     return if !existing {
-        // client::auth::register_user(user_data);
-        let existing = state.auth_provider.register_user(user_data);
+        let existing = state.auth_provider.register_user(user_data).await;
 
         Ok(())
     } else {
@@ -37,7 +35,7 @@ pub async fn create_user_post(State(state):State<Arc<DepContainer>>,
 pub async fn login_user_post(State(state):State<Arc<DepContainer>>,
     Json(user_data): Json<LoginUserData>)
     -> Result<impl IntoResponse, ApiError> {
-    let is_valid = state.auth_provider.login(user_data.clone());
+    let is_valid = state.auth_provider.login(user_data.clone()).await;
     if !is_valid {
         return Err(ApiError{
             message: "Password or email is wrong".to_string(),

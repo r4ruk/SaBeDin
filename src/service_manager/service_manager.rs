@@ -2,9 +2,10 @@ use std::collections::HashMap;
 use crate::core::contracts::services::ClientHandler;
 use std::sync::{Arc, Mutex, MutexGuard};
 use log::{info, warn};
-use crate::core::client::auth::{AuthClient, AuthProvider};
+use crate::core::client::auth::{AuthClient};
 use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
 use crate::core::contracts::file_helper;
+use crate::core::contracts::service_manager_provider::ServiceManagerProvider;
 use crate::core::utils::utils;
 use crate::service_manager::service_client_factory;
 
@@ -14,12 +15,6 @@ pub trait IServiceManager {
     fn register_service(&mut self, service_name: String, service: Box<dyn ClientHandler>);
 }
 
-pub trait ServiceManagerExt: Send + Sync  {
-    fn try_handle(&self, path: String, request_post_body: RequestPostBody);
-    fn try_handle_query(&self, service: String, params: HashMap<String, String>) -> ResponseBody;
-}
-
-
 pub struct ServiceManager {
     pub services: Arc<Mutex<HashMap<String, Arc<Mutex<Box<dyn ClientHandler>>>>>>
 }
@@ -27,7 +22,7 @@ pub struct ServiceManager {
 // implementation for the ServiceManagerExt trait which ensures the ServiceManager implements
 // the try_handle functionality
 // TODO As soon as MessageQueue implementation is ready implement the communication
-impl ServiceManagerExt for ServiceManager {
+impl ServiceManagerProvider for ServiceManager {
     fn try_handle(&self, path: String, post_body: RequestPostBody) {
         let binding = self.services.lock().unwrap();
         let service_option = &binding.get(&path);

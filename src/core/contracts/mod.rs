@@ -5,3 +5,6 @@ pub mod file_helper;
 pub mod uri_helper;
 pub mod user;
 pub mod builtin_types;
+pub mod dependency_container;
+pub mod authentication_provider;
+pub mod service_manager_provider;
