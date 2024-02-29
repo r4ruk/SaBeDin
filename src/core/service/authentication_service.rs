@@ -1,16 +1,12 @@
-use std::future::Future;
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use argon2::password_hash::SaltString;
-use axum::http::StatusCode;
 use rand_core::OsRng;
-use sqlx::Executor;
+use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
 use crate::core::contracts::user::{FilteredUser, LoginUserData, RegisterUserData};
 use crate::core::persistence::auth_persistence;
-use crate::core::persistence::db_pool::get_db_pool;
-use crate::core::service::authentication_service;
 
-pub async fn register_user(user_data: RegisterUserData) -> Result<(), GeneralServerError> {
+pub async fn register_user(context: &ExecutionContext, user_data: RegisterUserData) -> Result<(), GeneralServerError> {
 
     let salt = SaltString::generate(&mut OsRng);
     let hashed_password = Argon2::default()
@@ -20,8 +16,9 @@ pub async fn register_user(user_data: RegisterUserData) -> Result<(), GeneralSer
                 "status": "fail",
                 "message": format!("Error while hashing password: {}", e),
             });
+            return error_response
         })
-        .map(|hash| hash.to_string()).map_err(|_| GeneralServerError{message: "error".to_string()});
+        .map(|hash| hash.to_string()).map_err(|e| GeneralServerError{message: e.to_string()});
 
     let mut cloned_user_data = user_data.clone();
     match hashed_password {
@@ -29,7 +26,7 @@ pub async fn register_user(user_data: RegisterUserData) -> Result<(), GeneralSer
         Err(e) => {return Err(e)}
     }
 
-    let registered_user = auth_persistence::register_user(cloned_user_data).await;
+    let registered_user = auth_persistence::register_user(context, cloned_user_data).await;
     match registered_user {
         Ok(_) => (),
         Err(e) => {
@@ -41,9 +38,9 @@ pub async fn register_user(user_data: RegisterUserData) -> Result<(), GeneralSer
 }
 
 /// function returns bool about state of the login attempt
-pub async fn login(user_data:LoginUserData) -> bool {
+pub async fn login(context: &ExecutionContext, user_data:LoginUserData) -> bool {
 
-    let dbuser = auth_persistence::login_user(user_data.clone()).await;
+    let dbuser = auth_persistence::login_user(context, user_data.clone()).await;
 
     let user: FilteredUser = match dbuser {
         Ok(u) => u,

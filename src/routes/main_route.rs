@@ -6,9 +6,9 @@ use axum::{
 use axum::http::header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE};
 use axum::http::Method;
 use tower_http::cors::{CorsLayer, Any};
-use crate::{DepContainer, request_handler};
+use crate::{ExecutionContext, request_handler};
 
-pub fn guarded_routes(state: Arc<DepContainer>) -> Router {
+pub fn guarded_routes(state: Arc<ExecutionContext>) -> Router {
 
     let cors = CorsLayer::new()
         .allow_methods([Method::GET, Method::POST])

@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 use crate::core::contracts::services::ClientHandler;
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::sync::{Arc, Mutex};
 use log::{info, warn};
-use crate::core::client::auth::{AuthClient};
 use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
+use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::file_helper;
 use crate::core::contracts::service_manager_provider::ServiceManagerProvider;
 use crate::core::utils::utils;
@@ -23,7 +23,7 @@ pub struct ServiceManager {
 // the try_handle functionality
 // TODO As soon as MessageQueue implementation is ready implement the communication
 impl ServiceManagerProvider for ServiceManager {
-    fn try_handle(&self, path: String, post_body: RequestPostBody) {
+    fn try_handle(&self, context: &ExecutionContext, path: String, post_body: RequestPostBody) {
         let binding = self.services.lock().unwrap();
         let service_option = &binding.get(&path);
 
@@ -35,7 +35,7 @@ impl ServiceManagerProvider for ServiceManager {
         }
     }
 
-    fn try_handle_query(&self, service: String, params: HashMap<String, String>) -> ResponseBody {
+    fn try_handle_query(&self, context: &ExecutionContext,service: String, params: HashMap<String, String>) -> ResponseBody {
         let binding = self.services.lock().unwrap();
         let service_option = &binding.get(&service);
         let mut response = ResponseBody{ body: "".to_string() };

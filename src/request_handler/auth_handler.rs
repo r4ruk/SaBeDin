@@ -12,16 +12,15 @@ use serde_json::json;
 use crate::core::contracts::errors::ApiError;
 use crate::core::contracts::user::{RegisterUserData, LoginUserData};
 use crate::core::utils::jwt::encode_jwt;
-use crate::DepContainer;
+use crate::ExecutionContext;
 
-pub async fn create_user_post(State(state):State<Arc<DepContainer>>,
-    Json(user_data): Json<RegisterUserData>
+pub async fn create_user_post(State(context):State<Arc<ExecutionContext>>,
+                              Json(user_data): Json<RegisterUserData>
 ) -> Result<(), ApiError> {
 
-    let existing = state.auth_provider.check_user_exists(user_data.email.clone()).await;
+    let existing = context.auth_provider.check_user_exists(context.as_ref(), user_data.email.clone()).await;
     return if !existing {
-        let existing = state.auth_provider.register_user(user_data).await;
-
+        let existing = context.auth_provider.register_user(context.as_ref(), user_data).await;
         Ok(())
     } else {
         Err(ApiError {
@@ -32,10 +31,10 @@ pub async fn create_user_post(State(state):State<Arc<DepContainer>>,
     }
 }
 
-pub async fn login_user_post(State(state):State<Arc<DepContainer>>,
-    Json(user_data): Json<LoginUserData>)
-    -> Result<impl IntoResponse, ApiError> {
-    let is_valid = state.auth_provider.login(user_data.clone()).await;
+pub async fn login_user_post(State(context):State<Arc<ExecutionContext>>,
+                             Json(user_data): Json<LoginUserData>)
+                             -> Result<impl IntoResponse, ApiError> {
+    let is_valid = context.auth_provider.login(context.as_ref(), user_data.clone()).await;
     if !is_valid {
         return Err(ApiError{
             message: "Password or email is wrong".to_string(),

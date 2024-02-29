@@ -1,26 +1,15 @@
-use std::iter::Filter;
-use argon2::{Argon2, PasswordHash, PasswordVerifier};
-use log::Level::Error;
-use uuid::Uuid;
+use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
-use crate::core::contracts::user::{FilteredUser, LoginUserData, RegisterUserData, User};
-use crate::core::persistence::db_pool::get_db_pool;
+use crate::core::contracts::user::{FilteredUser, LoginUserData, RegisterUserData};
 use crate::core::persistence::persistence_utils;
 
-pub async fn login_user(user_data: LoginUserData) -> Result<FilteredUser, GeneralServerError> {
-    let pool = match get_db_pool() {
-        Some(pool) => pool,
-        None => {
-            println!("could not retrieve pool");
-            return Err(GeneralServerError{ message: "no dbpool connection found".to_string() })
-        }
-    };
+pub async fn login_user(context: &ExecutionContext, user_data: LoginUserData) -> Result<FilteredUser, GeneralServerError> {
     let user = sqlx::query_as!(
         FilteredUser,
         "SELECT * FROM users WHERE email = $1",
         user_data.email.to_ascii_lowercase()
     )
-        .fetch_optional(&pool.pool)
+        .fetch_optional(&context.db)
         .await
         .map_err(|e| {
             GeneralServerError{message: persistence_utils::map_to_error_response(e)}
@@ -36,19 +25,12 @@ pub async fn login_user(user_data: LoginUserData) -> Result<FilteredUser, Genera
     return Ok(user)
 }
 
-pub async fn register_user(user_data: RegisterUserData) -> Result<FilteredUser, GeneralServerError>{
-    let pool = match get_db_pool() {
-        Some(pool) => pool,
-        None => {
-            println!("could not retrieve pool");
-            return Err(GeneralServerError{ message: "no dbpool connection found".to_string() })
-        }
-    };
+pub async fn register_user(context: &ExecutionContext, user_data: RegisterUserData) -> Result<FilteredUser, GeneralServerError>{
 
     let user_exists: Option<bool> =
         sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)")
             .bind(user_data.email.to_owned().to_ascii_lowercase())
-            .fetch_one(&pool.pool)
+            .fetch_one(&context.db)
             .await
             .map_err(|e| {
                 GeneralServerError{message: persistence_utils::map_to_error_response(e)}
@@ -70,7 +52,7 @@ pub async fn register_user(user_data: RegisterUserData) -> Result<FilteredUser, 
             user_data.email.to_string().to_ascii_lowercase(),
             user_data.password.to_string()
         )
-        .fetch_one(&pool.pool)
+        .fetch_one(&context.db)
         .await
         .map_err(|e| {
             GeneralServerError{message: persistence_utils::map_to_error_response(e)}

@@ -1,14 +1,14 @@
 use std::string::ToString;
 use axum::{http::Request, middleware::Next};
 use axum::body::Body;
-use axum::http::{header, StatusCode};
+use axum::http::StatusCode;
 use axum::response::Response;
 use crate::core::contracts::errors::ApiError;
 use crate::core::utils::jwt::decode_jwt;
 
 const AUTHORIZATION_HEADER: &str = "Authorization";
 
-pub async fn guard<T>(mut req: Request<Body>, next:Next) -> Result<Response, ApiError>{
+pub async fn guard<T>(req: Request<Body>, next:Next) -> Result<Response, ApiError>{
 
     let token_option:Result<String, ApiError> = req.headers()
         .get(AUTHORIZATION_HEADER)

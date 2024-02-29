@@ -1,10 +1,10 @@
 use std::sync::Arc;
 use axum::{Router, http::Method, routing::post};
 use tower_http::cors::{CorsLayer, Any};
-use crate::{DepContainer, request_handler};
+use crate::{ExecutionContext, request_handler};
 
 
-pub fn auth_routes() -> Router<Arc<DepContainer>> {
+pub fn auth_routes() -> Router<Arc<ExecutionContext>> {
 
     let cors = CorsLayer::new()
         .allow_methods([Method::POST])

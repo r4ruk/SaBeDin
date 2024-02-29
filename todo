@@ -25,6 +25,7 @@ next step:
 [X] Add persistence layer
 [] Add seed data minimum for users. (for authentication)
 [] Test different possible ways to get in the app atm. via curl command
+[] think transactions in db level - https://github.com/launchbadge/sqlx/tree/main/examples/postgres/transaction
 [] fix and add tests
 
 further work

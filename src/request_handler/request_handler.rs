@@ -4,7 +4,7 @@ use axum::{async_trait, Form, Json, RequestExt,
            response::{IntoResponse, Response},
            http::{header::CONTENT_TYPE, StatusCode},
            extract::{FromRequest, Path, Request, State}};
-use crate::DepContainer;
+use crate::ExecutionContext;
 use crate::core::contracts::{basic_informations::{RequestPostBody, ResponseBody}, uri_helper};
 
 
@@ -15,16 +15,16 @@ pub async fn health_check() -> Result<String, StatusCode>{
 }
 
 // handler for POST requests
-pub async fn command_handler(State(state): State<Arc<DepContainer>>,
+pub async fn command_handler(State(context): State<Arc<ExecutionContext>>,
                              Path(path): Path<String>,
                              JsonOrForm(request_post_body): JsonOrForm<RequestPostBody>) {
 
     // redirect handling to service manager, which decides what to do with the request.
-    state.service_manager.try_handle(path.clone(), request_post_body);
+    context.service_manager.try_handle(context.as_ref(), path.clone(), request_post_body);
 }
 
 // handler for GET-Requests
-pub async fn query_handler(State(state):State<Arc<DepContainer>>,
+pub async fn query_handler(State(context):State<Arc<ExecutionContext>>,
                            mut req: Request) -> Result<Json<ResponseBody>, (StatusCode, Json<ResponseBody>)> {
 
     let mut response_body = ResponseBody{ body: "".to_string() };
@@ -41,7 +41,7 @@ pub async fn query_handler(State(state):State<Arc<DepContainer>>,
 
         let params = uri_helper::handle_params(params);
 
-        response_body = state.service_manager.try_handle_query(service.to_string(), params);
+        response_body = context.service_manager.try_handle_query(context.as_ref(), service.to_string(), params);
     } else if uri_path.contains('/') {
         // TODO generally handle errors
         let error_response = Json::from(ResponseBody{ body: "not found".to_string() });

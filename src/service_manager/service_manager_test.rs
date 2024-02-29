@@ -3,6 +3,7 @@
 mod service_manager_test {
     use std::collections::HashMap;
     use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
+    use crate::core::contracts::dependency_container::ExecutionContext;
     use crate::core::contracts::user::User;
     use crate::service_manager::service_manager::{IServiceManager, ServiceManager, ServiceManagerProvider};
     const SERVICE_NAME: &str = "client";
