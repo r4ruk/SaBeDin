@@ -47,7 +47,8 @@ pub async fn login(context: &ExecutionContext, user_data:LoginUserData) -> bool 
         _ => return false
     };
 
-    let is_valid = match PasswordHash::new(&user.password) {
+    let hash = PasswordHash::new(&user.password);
+    let is_valid = match hash {
         Ok(parsed_hash) => Argon2::default()
             .verify_password(user_data.password.as_bytes(), &parsed_hash)
             .map_or(false, |_| true),

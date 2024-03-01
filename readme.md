@@ -43,12 +43,17 @@ just run `cargo test`.
 #### 1. Authentication:
 Newly the user has to be registered first. i'll come back to that and provide a standarduser which can be used with \
 the existing init sql configuration. i'll  add that as top priority in todo. \
-`curl -X POST http://127.0.0.1:7878/login -H "Content-Type: application/json" -d "{\"email\":\"user@example.com\",\"password\":\"password123\"}"`
+
+##### 1.1 Register using curl command:
+`curl -X POST "127.0.0.1:7878/register" --header "Content-Type: application/json" -d "{\"name\":\"user123\",\"email\":\"user@email.com\",\"password\":\"password\"}"`
+
+##### 1.2 Login after registering
+`curl -X POST "127.0.0.1:7878/login" --header "Content-Type: application/json" -d "{\"email\":\"user@email.com\",\"password\":\"password\"}"`
 
 #### 2. GET Request:
 `curl '127.0.0.1:7878/client?id=1' -H "Authorization: Bearer [AuthorizationTokenProvidedByAuthenticationCall]"` \
 OR \
-`curl -X 127.0.0.1:7878/healthcheck -H "Authorization: Bearer [AuthorizationTokenProvidedByAuthenticationCall]"`
+`curl "127.0.0.1:7878/healthcheck" --header "Authorization: Bearer [AuthorizationTokenProvidedByAuthenticationCall]"`
 
 #### 3. POST Request:
 `curl -X POST 127.0.0.1:7878/client \
