@@ -1,34 +1,46 @@
 use std::string::ToString;
+use std::sync::Arc;
 use axum::{http::Request, middleware::Next};
 use axum::body::Body;
+use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::Response;
+use axum_extra::extract::CookieJar;
+use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::ApiError;
 use crate::core::utils::jwt::decode_jwt;
 
 const AUTHORIZATION_HEADER: &str = "Authorization";
 
-pub async fn guard<T>(req: Request<Body>, next:Next) -> Result<Response, ApiError>{
+pub async fn guard<T>(
+    cookie_jar: CookieJar,
+    State(context): State<Arc<ExecutionContext>>,
+    mut req: Request<Body>,
+    next:Next)
+    -> Result<Response, ApiError>
+{
+    let token_option = cookie_jar
+        .get("token")
+        .map(|cookie| cookie.value().to_string())
+        .or_else(|| {
+            req.headers()
+                .get(AUTHORIZATION_HEADER)
+                .and_then(|auth_header| auth_header.to_str().ok())
+                .and_then(|auth_value| {
+                    if auth_value.starts_with("Bearer ") {
+                        Some(auth_value[7..].to_owned())
+                    } else {
+                        None
+                    }
+                })
+        });
 
-    let token_option:Result<String, ApiError> = req.headers()
-        .get(AUTHORIZATION_HEADER)
-        .and_then(|auth_header| auth_header.to_str().ok())
-        .and_then(|auth_value| {
-            if auth_value.starts_with("Bearer ") {
-                Some(auth_value[7..].to_owned())
-            } else {
-                None
-            }
-        }).ok_or(ApiError {
-        message: "No authorization token provided".to_string(),
-        redirect: "none".to_string(),
-        status_code: StatusCode::BAD_REQUEST.as_u16()
-    });
-    let mut token = None;
-    match token_option {
-        Ok(val) => token = Some(val),
-        _ => token = None
+
+    let mut token = match token_option {
+        Some(val) => Some(val),
+        _ => None
     };
+
     if token == None {
         return Err(ApiError{
             message: "Invalid token provided".to_string(),

@@ -56,6 +56,7 @@ pub async fn login_user_post(State(context):State<Arc<ExecutionContext>>,
             .path("/")
             .max_age(time::Duration::hours(1))
             .same_site(SameSite::Lax)
+            .secure(true)
             .http_only(true)
             .build();
 

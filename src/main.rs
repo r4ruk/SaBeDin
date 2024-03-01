@@ -39,7 +39,7 @@ async fn main() {
     let app =
         Router::new()
             .merge(guarded_routes(state.clone()))
-            .route_layer(middleware::from_fn(middlewares::guard::guard::<Body>))
+            .route_layer(middleware::from_fn_with_state(state.clone(), middlewares::guard::guard::<Body>))
             .merge(auth_routes::auth_routes().with_state(state.clone()));
 
     // listening to address provided for any incoming request.
