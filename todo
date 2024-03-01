@@ -1,15 +1,3 @@
-client_service:
- - handle different params
-
-request_handler:
- - develop a method, which handles errors and errorstatus codes and gives back
-   a Result which can then be returned generally
- - currently statically implemented on line 35
-
-  - DEBUG Handler if query params are extracted as expected:
-  send curl:
-  curl '127.0.0.1:7878/client?param1=1&param2=asdf'
-
 
 General todo:
 [] think about exception handling
@@ -23,7 +11,7 @@ next step:
 [X] Add authentication Middleware
 [X] research Port for postgresql (set in .env file now) -> :5432
 [X] Add persistence layer
-[] Add seed data minimum for users. (for authentication)
+[X] Add seed data minimum for users. (for authentication)
 [] Test different possible ways to get in the app atm. via curl command
 [] think transactions in db level - https://github.com/launchbadge/sqlx/tree/main/examples/postgres/transaction
 [] fix and add tests
@@ -32,3 +20,13 @@ further work
 [] add unittests for all implementations already done
 [] think about general serialization/deserialization into classes in ts.
 [] cache in the backend handling
+
+
+
+
+
+NOTES:
+request_handler:
+ - develop a method, which handles errors and errorstatus codes and gives back
+   a Result which can then be returned generally
+ - currently statically implemented on line 35
