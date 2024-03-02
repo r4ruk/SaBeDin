@@ -12,9 +12,13 @@ next step:
 [X] research Port for postgresql (set in .env file now) -> :5432
 [X] Add persistence layer
 [X] Add seed data minimum for users. (for authentication)
-[] Test different possible ways to get in the app atm. via curl command
+[X] Test different possible ways to get in the app atm. via curl command
+[X] fix existing tests
+[] Add query builder tests
+[] Finish query builder
 [] think transactions in db level - https://github.com/launchbadge/sqlx/tree/main/examples/postgres/transaction
 [] fix and add tests
+
 
 further work
 [] add unittests for all implementations already done

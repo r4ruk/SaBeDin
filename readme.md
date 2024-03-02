@@ -68,3 +68,8 @@ OR \
 ### Basic Considerations
 As usual there has to be a format defined for what to use for example on dates and here I decided to go for rfc3339 \
 as this is a worldwide understandable format (YYYY-MM-DDTHH:MM:SS+HH:MM)
+
+### Extending Tables and Persistence
+To make the project build without a running db doing checks for syntactically and semantically valid queries for the current database \
+and still ensuring safe & easy querying i built a dynamic raw-query creation logic which needs table names as which to work on. \
+For this i created a static TABLE_NAMES variable which has to be extended as there is new Tables added.
