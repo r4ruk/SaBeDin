@@ -21,7 +21,6 @@ pub async fn login_user(context: &ExecutionContext, user_data: LoginUserData) ->
         });
             GeneralServerError{message: error_response.to_string() }
         })?;
-
     return Ok(user)
 }
 
@@ -60,4 +59,6 @@ pub async fn register_user(context: &ExecutionContext, user_data: RegisterUserDa
 
     return Ok(user)
 }
+
+
 

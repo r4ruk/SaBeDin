@@ -3,6 +3,12 @@ name = "SaBeDin_crm"
 version = "0.1.0"
 edition = "2021"
 
+[source.crates-io]
+index = "https://github.com/rust-lang/crates.io-index" # set the source to the official github index
+
+[http]
+proxy = "" # leaving this as a blank string resets proxy to default
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -24,6 +30,7 @@ rand_core = "0.6.4"
 sqlx-cli = "0.7.3"
 lazy_static = "1.4.0"
 async-trait = "0.1.77"
+config = "0.14.0"
 
 [dependencies.uuid]
 version = "1.7.0"
