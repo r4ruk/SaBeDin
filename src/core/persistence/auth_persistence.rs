@@ -1,10 +1,11 @@
+use sqlx::query_as;
 use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
 use crate::core::contracts::user::{FilteredUser, LoginUserData, RegisterUserData};
 use crate::core::persistence::persistence_utils;
 
 pub async fn login_user(context: &ExecutionContext, user_data: LoginUserData) -> Result<FilteredUser, GeneralServerError> {
-    let user = sqlx::query_as!(
+    let user = query_as!(
         FilteredUser,
         "SELECT * FROM users WHERE email = $1",
         user_data.email.to_ascii_lowercase()
