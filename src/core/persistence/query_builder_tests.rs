@@ -14,7 +14,7 @@ mod query_builder_tests {
     #[test]
     fn test_select_single_statements() {
         let query = QueryBuilder::Select(SelectAmount::One, TableName::Users, None);
-        let query_string = "SELECT 1 FROM users;";
+        let query_string = "SELECT 1 FROM users";
         assert_eq!(query_string, query.build_query());
     }
 
@@ -25,7 +25,7 @@ mod query_builder_tests {
         where_clause.push(QueryClause::Equals("name".to_string()));
 
         let query = QueryBuilder::Select(SelectAmount::One, TableName::Users, Some(where_clause));
-        let query_string = "SELECT 1 FROM users WHERE name = $1;";
+        let query_string = "SELECT 1 FROM users WHERE name = $1";
         assert_eq!(query_string, query.build_query());
 
 
@@ -35,7 +35,50 @@ mod query_builder_tests {
         where_clause.push(QueryClause::Equals("email".to_string()));
 
         let query = QueryBuilder::Select(SelectAmount::One, TableName::Users, Some(where_clause));
-        let query_string = "SELECT 1 FROM users WHERE name = $1 AND email = $2;";
+        let query_string = "SELECT 1 FROM users WHERE name = $1 AND email = $2";
+        assert_eq!(query_string, query.build_query());
+    }
+
+    #[test]
+    fn test_select_queryclause_statements() {
+        let mut where_clause: Vec<QueryClause> = vec![];
+        where_clause.push(QueryClause::BiggerThan("number".to_string()));
+
+        let query = QueryBuilder::Select(SelectAmount::One, TableName::Users, Some(where_clause));
+        let query_string = "SELECT 1 FROM users WHERE number > $1";
+        assert_eq!(query_string, query.build_query());
+
+        where_clause = vec![];
+        where_clause.push(QueryClause::SmallerThan("number".to_string()));
+        let query = QueryBuilder::Select(SelectAmount::One, TableName::Users, Some(where_clause));
+        let query_string = "SELECT 1 FROM users WHERE number < $1";
+        assert_eq!(query_string, query.build_query());
+
+
+        where_clause = vec![];
+        where_clause.push(QueryClause::StartsWith("name".to_string()));
+        let query = QueryBuilder::Select(SelectAmount::One, TableName::Users, Some(where_clause));
+        let query_string = "SELECT 1 FROM users WHERE name LIKE $1%";
+        assert_eq!(query_string, query.build_query());
+
+        where_clause = vec![];
+        where_clause.push(QueryClause::EndsWith("name".to_string()));
+        let query = QueryBuilder::Select(SelectAmount::One, TableName::Users, Some(where_clause));
+        let query_string = "SELECT 1 FROM users WHERE name LIKE %$1";
+        assert_eq!(query_string, query.build_query());
+
+        where_clause = vec![];
+        where_clause.push(QueryClause::Contains("name".to_string()));
+        let query = QueryBuilder::Select(SelectAmount::One, TableName::Users, Some(where_clause));
+        let query_string = "SELECT 1 FROM users WHERE name LIKE %$1%";
+        assert_eq!(query_string, query.build_query());
+
+        where_clause = vec![];
+        where_clause.push(QueryClause::SmallerThan("number".to_string()));
+        where_clause.push(QueryClause::Equals("name".to_string()));
+
+        let query = QueryBuilder::Select(SelectAmount::One, TableName::Users, Some(where_clause));
+        let query_string = "SELECT 1 FROM users WHERE number < $1 AND name = $2";
         assert_eq!(query_string, query.build_query());
     }
 
