@@ -9,11 +9,3 @@ pub fn map_to_error_response(e: Error) -> String {
 
     return error_response.to_string()
 }
-
-pub fn extract_table_name(table_name: &TableName) -> String  {
-    return if let Some(value) = TABLE_NAMES.get(table_name) {
-        value.clone()
-    } else {
-        "".to_string()
-    }
-}
