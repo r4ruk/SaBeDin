@@ -7,6 +7,7 @@
 
 #[cfg(test)]
 mod query_builder_tests {
+    use sqlx::query;
     use crate::core::persistence::query_builder::{QueryBuilder, QueryClause, SelectAmount};
     use crate::core::persistence::table_names::TableName;
 
@@ -53,9 +54,21 @@ mod query_builder_tests {
         assert_eq!(query_string, query.build_query());
     }
 
-    fn test_insert_statements() {
+    #[test]
+    fn test_insert_multiple_statements() {
         // INSERT INTO [TABLENAME]([fieldNames: Vec<String>]) VALUES ([fieldValues: Vec<(type: String, value: String)>])
-
+        let query = QueryBuilder::Insert(TableName::Users,
+                                         vec!["name".to_string(), "email".to_string(), "password".to_string()]);
+        let expect_query = "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)";
+        assert_eq!(expect_query, query.build_query());
+    }
+    #[test]
+    fn test_insert_single_statements() {
+        // INSERT INTO [TABLENAME]([fieldNames: Vec<String>]) VALUES ([fieldValues: Vec<(type: String, value: String)>])
+        let query = QueryBuilder::Insert(TableName::Users,
+                                         vec!["name".to_string()]);
+        let expect_query = "INSERT INTO users (name) VALUES ($1)";
+        assert_eq!(expect_query, query.build_query());
     }
 
     fn test_delete_statements() {
