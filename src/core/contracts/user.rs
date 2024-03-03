@@ -4,6 +4,8 @@ use axum::response::{IntoResponse, Response};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use sqlx::postgres::PgRow;
+use sqlx::Row;
 use uuid::Uuid;
 use crate::core::contracts::builtin_types::custom_uuid;
 use crate::core::contracts::builtin_types::custom_datetime;
@@ -47,7 +49,7 @@ pub struct LoginUserData {
 
 #[allow(non_snake_case)]
 pub struct FilteredUser {
-    pub id: String,
+    pub id: Uuid,
     pub name: String,
     pub email: String,
     pub password: String,
@@ -55,6 +57,25 @@ pub struct FilteredUser {
     pub verified: bool,
     pub created_at: Option<DateTime<Utc>>,
     pub updated_at: Option<DateTime<Utc>>,
+}
+
+
+
+/// Implement From<PgRow> for FilteredUser
+impl From<PgRow> for FilteredUser {
+    fn from(row: PgRow) -> Self {
+        // Extract fields from the row and construct a FilteredUser instance
+        FilteredUser {
+            id: row.get("id"),  // Adjust field names and types as necessary
+            name: row.get("name"),
+            email: row.get("email"),
+            password: row.get("password"),
+            role: row.get("role"),
+            verified: row.get("verified"),
+            created_at: row.get("created_at"),
+            updated_at: row.get("updated_at"),
+        }
+    }
 }
 
 #[derive(Serialize, Debug)]

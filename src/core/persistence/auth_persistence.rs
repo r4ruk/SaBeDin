@@ -1,40 +1,41 @@
-use sqlx::query_as;
+use sqlx::{query, query_as};
+use crate::core::persistence::query_builder::QueryBuilder;
 use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
-use crate::core::contracts::user::{FilteredUser, LoginUserData, RegisterUserData};
+use crate::core::contracts::user::{FilteredUser, LoginUserData, RegisterUserData, User};
 use crate::core::persistence::persistence_utils;
+use crate::core::persistence::query_builder::{QueryClause, SelectAmount};
+use crate::core::persistence::table_names::TableName;
 
 pub async fn login_user(context: &ExecutionContext, user_data: LoginUserData) -> Result<FilteredUser, GeneralServerError> {
-    let user = query_as!(
-        FilteredUser,
-        "SELECT * FROM users WHERE email = $1",
-        user_data.email.to_ascii_lowercase()
-    )
-        .fetch_optional(&context.db)
-        .await
-        .map_err(|e| {
-            GeneralServerError{message: persistence_utils::map_to_error_response(e)}
-        })?
-        .ok_or_else(|| {
-            let error_response = serde_json::json!({
+
+    let mut where_clause: Vec<QueryClause> = vec![];
+    where_clause.push(QueryClause::Equals("email".to_string()));
+    let search_query = QueryBuilder::Select(SelectAmount::All, TableName::Users, Some(where_clause));
+
+    let row = query(&search_query.build_query())
+                            .bind(user_data.email)
+                            .fetch_optional(&context.db)
+                            .await?;
+    let user_option: Option<FilteredUser> = match row {
+        Some(user) => Some(user.into()),
+        None => None
+    };
+
+    return if user_option.is_some() {
+        Ok(user_option.unwrap())
+    } else {
+        let error_response = serde_json::json!({
             "status": "fail",
             "message": "Invalid email or password",
         });
-            GeneralServerError{message: error_response.to_string() }
-        })?;
-    return Ok(user)
+        let err = GeneralServerError { message: error_response.to_string() };
+        Err(err)
+    }
 }
 
 pub async fn register_user(context: &ExecutionContext, user_data: RegisterUserData) -> Result<FilteredUser, GeneralServerError>{
-
-    let user_exists: Option<bool> =
-        sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)")
-            .bind(user_data.email.to_owned().to_ascii_lowercase())
-            .fetch_one(&context.db)
-            .await
-            .map_err(|e| {
-                GeneralServerError{message: persistence_utils::map_to_error_response(e)}
-            })?;
+    let user_exists = check_user_exists(&context, &user_data).await?;
 
     match user_exists {
         Some(exists_state) => {
@@ -45,20 +46,34 @@ pub async fn register_user(context: &ExecutionContext, user_data: RegisterUserDa
         None => (),
     }
 
-    let user = sqlx::query_as!(
-            FilteredUser,
-            "INSERT INTO users (name,email,password) VALUES ($1, $2, $3) RETURNING *",
-            user_data.name.to_string(),
-            user_data.email.to_string().to_ascii_lowercase(),
-            user_data.password.to_string()
-        )
+    let query_builder = QueryBuilder::Insert(TableName::Users, vec!["name".to_string(),
+                                                "email".to_string(),
+                                                "password".to_string()]);
+
+    let res = sqlx::query(&query_builder.build_query())
+        .bind(user_data.name)
+        .bind(user_data.email)
+        .bind(user_data.password)
         .fetch_one(&context.db)
-        .await
-        .map_err(|e| {
+        .await.map_err(|e| {
             GeneralServerError{message: persistence_utils::map_to_error_response(e)}
         })?;
+    return Ok(res.into());
+}
 
-    return Ok(user)
+async fn check_user_exists(context: &&ExecutionContext, user_data: &RegisterUserData) -> Result<Option<bool>, GeneralServerError> {
+    let where_query = vec![QueryClause::Equals("email".to_string())];
+    let select_exists = QueryBuilder::Select(SelectAmount::One, TableName::Users, Some(where_query));
+
+    let user_exists: Option<bool> =
+        sqlx::query_scalar(&format!("SELECT EXISTS({})", select_exists.build_query()))
+            .bind(user_data.email.to_owned().to_ascii_lowercase())
+            .fetch_one(&context.db)
+            .await
+            .map_err(|e| {
+                GeneralServerError { message: persistence_utils::map_to_error_response(e) }
+            })?;
+    Ok(user_exists)
 }
 
 

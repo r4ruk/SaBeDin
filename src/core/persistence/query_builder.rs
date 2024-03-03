@@ -66,7 +66,7 @@ impl QueryClause {
 }
 
 impl QueryBuilder {
-    pub(crate) fn build_query(&self) -> String {
+    pub fn build_query(&self) -> String {
         return match self {
             QueryBuilder::Select(amount, table_name, where_clauses) => build_select_statement(amount, table_name, where_clauses),
             QueryBuilder::Insert(table_name, field_names) => build_insert_statement(table_name, field_names),
@@ -83,7 +83,7 @@ fn build_select_statement(select_amount: &SelectAmount,
 
     let mut query = format!("SELECT {} FROM {}", select_amount.get(), table_name.extract_table_name());
     query = query + &build_where_clause_simple(where_clauses);
-    query = query + &select_amount.get_additional() + ";";
+    query = query + &select_amount.get_additional();
     return query.to_string()
 }
 
