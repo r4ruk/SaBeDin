@@ -7,6 +7,16 @@ pub enum TableName {
     Users,
 }
 
+impl TableName {
+    pub fn extract_table_name(&self) -> String {
+        return if let Some(value) = TABLE_NAMES.get(self) {
+            value.clone()
+        } else {
+            "".to_string()
+        }
+    }
+}
+
 lazy_static!{
     pub static ref TABLE_NAMES: HashMap<TableName, String> = {
         let mut m = HashMap::new();
