@@ -85,14 +85,14 @@ mod query_builder_tests {
     #[test]
     fn test_select_all_statements() {
         let query = QueryBuilder::Select(SelectAmount::All, TableName::Users, None);
-        let query_string = "SELECT * FROM users;";
+        let query_string = "SELECT * FROM users";
         assert_eq!(query_string, query.build_query());
     }
 
     #[test]
     fn test_select_subset_statements() {
         let query = QueryBuilder::Select(SelectAmount::Amount(5), TableName::Users, None);
-        let query_string = "SELECT * FROM users LIMIT 5;";
+        let query_string = "SELECT * FROM users LIMIT 5";
         assert_eq!(query_string, query.build_query());
     }
 
