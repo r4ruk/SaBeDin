@@ -6,18 +6,20 @@
 // {} optional case
 
 #[cfg(test)]
-mod service_manager_test {
-    use std::ptr::eq;
+mod query_builder_tests {
     use crate::core::persistence::query_builder::{QueryBuilder, QueryClause, SelectAmount};
     use crate::core::persistence::table_names::TableName;
 
     #[test]
-    fn test_select_statements() {
+    fn test_select_single_statements() {
         // SELECT [Amount] FROM [TABLENAME] {[WHERE CLAUSE]}
         let query = QueryBuilder::Select(SelectAmount::One, TableName::Users, None);
         let query_string = "SELECT 1 FROM users;";
         assert_eq!(query_string, query.build_query());
+    }
 
+    #[test]
+    fn test_select_where_statements() {
         // select with 1 where
         let mut where_clause: Vec<QueryClause> = vec![];
         where_clause.push(QueryClause::Equals("name".to_string()));
@@ -34,6 +36,20 @@ mod service_manager_test {
 
         let query = QueryBuilder::Select(SelectAmount::One, TableName::Users, Some(where_clause));
         let query_string = "SELECT 1 FROM users WHERE name = $1 AND email = $2;";
+        assert_eq!(query_string, query.build_query());
+    }
+
+    #[test]
+    fn test_select_all_statements() {
+        let query = QueryBuilder::Select(SelectAmount::All, TableName::Users, None);
+        let query_string = "SELECT * FROM users;";
+        assert_eq!(query_string, query.build_query());
+    }
+
+    #[test]
+    fn test_select_subset_statements() {
+        let query = QueryBuilder::Select(SelectAmount::Amount(5), TableName::Users, None);
+        let query_string = "SELECT * FROM users LIMIT 5;";
         assert_eq!(query_string, query.build_query());
     }
 

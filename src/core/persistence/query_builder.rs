@@ -11,8 +11,15 @@ impl SelectAmount {
     fn get(&self) -> String {
         return match self {
             SelectAmount::One => "1".to_string(),
-            SelectAmount::All => "8".to_string(),
-            SelectAmount::Amount(amount) => amount.to_string()
+            SelectAmount::All => "*".to_string(),
+            SelectAmount::Amount(amount) => "*".to_string()
+        }
+    }
+
+    fn get_additional(&self) -> String {
+        return match self {
+            SelectAmount::Amount(amount) => format!(" LIMIT {}", amount),
+            _ => "".to_string()
         }
     }
 }
@@ -74,6 +81,14 @@ fn build_select_statement(select_amount: &SelectAmount,
                           table_name: &TableName,
                           where_clauses: &Option<Vec<QueryClause>>)
     -> String {
+
+    let mut query = format!("SELECT {} FROM {}", select_amount.get(), extract_table_name(table_name));
+    query = query + &build_where_clause(where_clauses);
+    query = query + &select_amount.get_additional() + ";";
+    return query.to_string()
+}
+
+fn build_where_clause(where_clauses:  &Option<Vec<QueryClause>>) -> String{
     let binding = Vec::default();
 
     let wheres = match where_clauses {
@@ -81,21 +96,19 @@ fn build_select_statement(select_amount: &SelectAmount,
         None => &binding
     };
 
-    let mut query = format!("SELECT {} FROM {}", select_amount.get(), extract_table_name(table_name));
     let where_count = wheres.iter().count();
+    let mut query = "".to_string();
     if where_count > 0 {
         query = query + " WHERE ";
         for (index, query_clause) in wheres.iter().enumerate() {
             if index < where_count - 1 {
-                query = query + &query_clause.get(index+1) + " AND "
+                query = query + &query_clause.get(index + 1) + " AND "
             } else {
-                query = query + &query_clause.get(index +1) + ";"
+                query = query + &query_clause.get(index + 1)
             }
         }
-    } else {
-        query = query + ";";
     }
-    return query.to_string()
+    return query
 }
 
 fn build_insert_statement(table_name: &TableName, field_names: &Vec<String>, field_values: &Vec<String>) -> String {
