@@ -1,7 +1,4 @@
-use std::fmt::format;
-use std::ops::Deref;
-use crate::core::persistence::persistence_utils::extract_table_name;
-use crate::core::persistence::table_names::{TABLE_NAMES, TableName};
+use crate::core::persistence::table_names::TableName;
 
 pub enum SelectAmount {
     One,
@@ -33,9 +30,16 @@ impl SelectAmount {
 // }
 
 pub enum QueryBuilder {
-    Select(SelectAmount, TableName, Option<Vec<QueryClause>>), // Amount, FromTableName, Optional Where Clause
-    Insert(TableName, Vec<String>), // TableToInsert, FieldNames
-    Update(TableName, Vec<(String,String)>, Option<Vec<QueryClause>>),
+    /// params: Amount, FromTableName, Option\<Vec\<QueryClause\>\>
+    Select(SelectAmount, TableName, Option<Vec<QueryClause>>),
+
+    /// params: TableName, Vec\<String\> which represents field names
+    Insert(TableName, Vec<String>),
+
+    /// params: TableName, Vec\<String\> which represents field names, Option\<Vec\<QueryClause\>\>
+    Update(TableName, Vec<String>, Option<Vec<QueryClause>>),
+
+    /// params: TableName and Option\<Vec\<QueryClause\>\>
     Delete(TableName, Option<Vec<QueryClause>>)
 }
 
@@ -61,35 +65,66 @@ impl QueryClause {
     }
 }
 
-// [] variable input
-// {} optional case
-
-// SELECT [Amount] FROM [TABLENAME] {[WHERE CLAUSE]}
-
 impl QueryBuilder {
     pub(crate) fn build_query(&self) -> String {
         return match self {
             QueryBuilder::Select(amount, table_name, where_clauses) => build_select_statement(amount, table_name, where_clauses),
             QueryBuilder::Insert(table_name, field_names) => build_insert_statement(table_name, field_names),
-            QueryBuilder::Update(table_name, field_value_pairs, where_clauses) => build_update_statement(table_name, field_value_pairs, where_clauses),
+            QueryBuilder::Update(table_name, field_names, where_clauses) => build_update_statement(table_name, field_names, where_clauses),
             QueryBuilder::Delete(table_name, where_clauses) => build_delete_statement(table_name, where_clauses),
         }
     }
 }
-
 
 fn build_select_statement(select_amount: &SelectAmount,
                           table_name: &TableName,
                           where_clauses: &Option<Vec<QueryClause>>)
     -> String {
 
-    let mut query = format!("SELECT {} FROM {}", select_amount.get(), extract_table_name(table_name));
-    query = query + &build_where_clause(where_clauses);
+    let mut query = format!("SELECT {} FROM {}", select_amount.get(), table_name.extract_table_name());
+    query = query + &build_where_clause_simple(where_clauses);
     query = query + &select_amount.get_additional() + ";";
     return query.to_string()
 }
 
-fn build_where_clause(where_clauses:  &Option<Vec<QueryClause>>) -> String{
+fn build_insert_statement(table_name: &TableName, field_names: &Vec<String>) -> String {
+    let mut field_count = field_names.iter().count();
+    // if no fields provided
+    // return empty
+    if field_count == 0{
+        return "".to_string()
+    }
+
+    let mut query = format!("INSERT INTO {} ({}) VALUES ({})",
+                            table_name.extract_table_name(),
+                            build_fields_chaining(field_names),
+                            build_values_chaining(field_count));
+    return query
+}
+
+fn build_delete_statement(table_name: &TableName, where_clauses: &Option<Vec<QueryClause>>) -> String {
+    return format!("DELETE FROM {}", table_name.extract_table_name()) + &build_where_clause_simple(where_clauses);
+}
+
+fn build_update_statement(table_name: &TableName,
+                          field_names: &Vec<String>,
+                          where_clauses: &Option<Vec<QueryClause>>)
+                          -> String {
+
+    let mut query = format!("UPDATE {} SET {}{}",
+                            table_name.extract_table_name(),
+                            build_update_setters(field_names),
+                            build_where_clause(where_clauses, field_names.iter().count()));
+
+    return query
+}
+
+// helpers
+fn build_where_clause_simple(where_clauses:  &Option<Vec<QueryClause>>) -> String {
+    return build_where_clause(where_clauses, 0);
+}
+
+fn build_where_clause(where_clauses:  &Option<Vec<QueryClause>>, existing_dynamic_params: usize) -> String{
     let binding = Vec::default();
 
     let wheres = match where_clauses {
@@ -103,30 +138,15 @@ fn build_where_clause(where_clauses:  &Option<Vec<QueryClause>>) -> String{
         query = query + " WHERE ";
         for (index, query_clause) in wheres.iter().enumerate() {
             if index < where_count - 1 {
-                query = query + &query_clause.get(index + 1) + " AND "
+                query = query + &query_clause.get(index + 1 + existing_dynamic_params) + " AND "
             } else {
-                query = query + &query_clause.get(index + 1)
+                query = query + &query_clause.get(index + 1 + existing_dynamic_params)
             }
         }
     }
     return query
 }
 
-// INSERT INTO [TABLENAME]([fieldNames: Vec<String>]) VALUES ([fieldValues: Vec<(type: String, value: String)>])
-fn build_insert_statement(table_name: &TableName, field_names: &Vec<String>) -> String {
-    let mut field_count = field_names.iter().count();
-        // if no fields provided
-        // return empty
-    if field_count == 0{
-        return "".to_string()
-    }
-
-    let mut query = format!("INSERT INTO {} ({}) VALUES ({})",
-                            extract_table_name(table_name),
-                            build_fields_chaining(field_names),
-                            build_values_chaining(field_count));
-    return query
-}
 
 fn build_values_chaining(field_count: usize) -> String {
     let mut val_chain = "".to_string();
@@ -159,14 +179,15 @@ fn build_fields_chaining(values: &Vec<String>) -> String {
     return chain
 }
 
-fn build_update_statement(table_name: &TableName,
-                          field_value_pairs: &Vec<(String, String)>,
-                          where_clauses: &Option<Vec<QueryClause>>)
-    -> String {
-    return "".to_string()
+
+fn build_update_setters(field_names: &Vec<String>) -> String {
+    let mut setters: String = String::default();
+    for (index, field) in field_names.iter().enumerate() {
+        setters = setters + &format!("{} = ${}", field, index+1);
+        if index < field_names.iter().count() - 1{
+            setters = setters + ", ";
+        }
+    }
+    return setters
 }
 
-
-fn build_delete_statement(table_name: &TableName, where_clauses: &Option<Vec<QueryClause>>) -> String {
-    return "".to_string()
-}
