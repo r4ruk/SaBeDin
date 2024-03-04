@@ -10,7 +10,7 @@ pub struct AuthClient{}
 #[async_trait]
 impl AuthProvider for AuthClient {
     async fn check_user_exists(&self, context: &ExecutionContext, email: String) -> bool {
-        return false
+        return authentication_service::check_user_exists(context, email).await
     }
     async fn register_user(&self, context: &ExecutionContext, create_user_data: RegisterUserData) -> Result<(), GeneralServerError> {
         return authentication_service::register_user(context, create_user_data).await

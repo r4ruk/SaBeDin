@@ -35,41 +35,34 @@ pub async fn login_user(context: &ExecutionContext, user_data: LoginUserData) ->
     }
 }
 
-pub async fn register_user(context: &ExecutionContext, user_data: RegisterUserData) -> Result<FilteredUser, GeneralServerError>{
-    let user_exists = check_user_exists(&context, &user_data).await?;
-
-    match user_exists {
-        Some(exists_state) => {
-            if exists_state {
-                return Err(GeneralServerError{message: "user already exists".to_string()})
-            }
-        }
-        None => (),
-    }
+pub async fn register_user(transaction: &mut sqlx::Transaction<'_, sqlx::Postgres>, user_data: RegisterUserData) -> Result<(), GeneralServerError>{
 
     let query_builder = QueryBuilder::Insert(TableName::Users, vec![name_of!(name in RegisterUserData),
                                                 name_of!(email in RegisterUserData),
                                                 name_of!(password in RegisterUserData)]);
 
 
-    let res = sqlx::query(&query_builder.build_query())
+    sqlx::query(&query_builder.build_query())
         .bind(user_data.name)
         .bind(user_data.email)
         .bind(user_data.password)
-        .fetch_one(&context.db)
-        .await.map_err(|e| {
-            GeneralServerError{message: persistence_utils::map_to_error_response(e)}
+        .execute(&mut **transaction)
+        .await
+        .map_err(|e| {
+            let error_message = format!("Failed to execute SQL query: {}", e);
+            GeneralServerError { message: error_message }
         })?;
-    return Ok(res.into());
+
+    return Ok(());
 }
 
-async fn check_user_exists(context: &&ExecutionContext, user_data: &RegisterUserData) -> Result<Option<bool>, GeneralServerError> {
+pub async fn check_user_exists(context: &&ExecutionContext, email: String) -> Result<Option<bool>, GeneralServerError> {
     let where_query = vec![QueryClause::Equals(name_of!(email in RegisterUserData))];
     let select_exists = QueryBuilder::Select(SelectAmount::One, TableName::Users, Some(where_query));
 
     let user_exists: Option<bool> =
         sqlx::query_scalar(&format!("SELECT EXISTS({})", select_exists.build_query()))
-            .bind(user_data.email.to_owned().to_ascii_lowercase())
+            .bind(email.to_owned().to_ascii_lowercase())
             .fetch_one(&context.db)
             .await
             .map_err(|e| {

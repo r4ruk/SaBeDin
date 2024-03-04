@@ -9,7 +9,7 @@ use axum::http::header;
 use axum::response::Response;
 use axum_extra::extract::cookie::{Cookie, SameSite};
 use serde_json::json;
-use crate::core::contracts::errors::ApiError;
+use crate::core::contracts::errors::{ApiError, GeneralServerError};
 use crate::core::contracts::user::{RegisterUserData, LoginUserData};
 use crate::core::utils::jwt::encode_jwt;
 use crate::ExecutionContext;
@@ -20,8 +20,17 @@ pub async fn create_user_post(State(context):State<Arc<ExecutionContext>>,
 
     let existing = context.auth_provider.check_user_exists(context.as_ref(), user_data.email.clone()).await;
     return if !existing {
-        let existing = context.auth_provider.register_user(context.as_ref(), user_data).await;
-        Ok(())
+        let result = context.auth_provider.register_user(context.as_ref(), user_data).await;
+        match result {
+            Ok(_) => return Ok(()),
+            Err(e) => {
+                Err(ApiError {
+                    message: e.message,
+                    redirect: "login".to_string(),
+                    status_code: StatusCode::CONFLICT.as_u16()
+                })
+            }
+        }
     } else {
         Err(ApiError {
             message: "User with this email already exists".to_string(),

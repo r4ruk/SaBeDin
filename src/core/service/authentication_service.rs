@@ -1,24 +1,15 @@
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
-use argon2::password_hash::SaltString;
-use rand_core::OsRng;
 use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
 use crate::core::contracts::user::{FilteredUser, LoginUserData, RegisterUserData};
 use crate::core::persistence::auth_persistence;
+use crate::core::service::service_base::handle_finish_transaction;
+use crate::core::utils::password::hash_password;
 
+/// function registers user if he/she doesn't exist yet
 pub async fn register_user(context: &ExecutionContext, user_data: RegisterUserData) -> Result<(), GeneralServerError> {
-
-    let salt = SaltString::generate(&mut OsRng);
-    let hashed_password = Argon2::default()
-        .hash_password(user_data.password.as_bytes(), &salt)
-        .map_err(|e| {
-            let error_response = serde_json::json!({
-                "status": "fail",
-                "message": format!("Error while hashing password: {}", e),
-            });
-            return error_response
-        })
-        .map(|hash| hash.to_string()).map_err(|e| GeneralServerError{message: e.to_string()});
+    let hashed_password = hash_password(&user_data.password)
+        .map_err(|e| GeneralServerError{message: e.to_string()});
 
     let mut cloned_user_data = user_data.clone();
     match hashed_password {
@@ -26,15 +17,16 @@ pub async fn register_user(context: &ExecutionContext, user_data: RegisterUserDa
         Err(e) => {return Err(e)}
     }
 
-    let registered_user = auth_persistence::register_user(context, cloned_user_data).await;
-    match registered_user {
-        Ok(_) => (),
-        Err(e) => {
-            return Err(e)
-        }
+    let user_exists = check_user_exists(context, user_data.email.clone()).await;
+    if user_exists {
+        return Err(GeneralServerError{message: "user already exists".to_string()})
     }
 
-    return Ok(());
+    let mut transaction = context.db.begin().await?;
+
+    let result = auth_persistence::register_user(&mut transaction, cloned_user_data).await;
+
+    handle_finish_transaction(result, transaction).await
 }
 
 /// function returns bool about state of the login attempt
@@ -55,4 +47,15 @@ pub async fn login(context: &ExecutionContext, user_data:LoginUserData) -> bool 
         Err(_) => false,
     };
     return is_valid
+}
+
+/// Function checks if user exists already or not
+pub async fn check_user_exists(context: &ExecutionContext, email: String) -> bool {
+    let user_exists = auth_persistence::check_user_exists(&context, email).await;
+    return match user_exists {
+        Ok(res) => {
+            res.unwrap_or_else(|| true)
+        },
+        Err(_) => false
+    }
 }
