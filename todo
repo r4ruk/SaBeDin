@@ -14,14 +14,14 @@ next step:
 [X] Add seed data minimum for users. (for authentication)
 [X] Test different possible ways to get in the app atm. via curl command
 [X] fix existing tests
-[] Add query builder tests
-[] Finish query builder
+[X] Add query builder tests
+[X] Finish query builder
+[X] Add nameof macro to not strongly type fieldnames for db
 [] think transactions in db level - https://github.com/launchbadge/sqlx/tree/main/examples/postgres/transaction
 [] fix and add tests
 
 
 further work
-[] add unittests for all implementations already done
 [] think about general serialization/deserialization into classes in ts.
 [] cache in the backend handling
 

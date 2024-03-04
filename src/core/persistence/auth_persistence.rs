@@ -6,11 +6,12 @@ use crate::core::contracts::user::{FilteredUser, LoginUserData, RegisterUserData
 use crate::core::persistence::persistence_utils;
 use crate::core::persistence::query_builder::{QueryClause, SelectAmount};
 use crate::core::persistence::table_names::TableName;
+use crate::name_of;
+
 
 pub async fn login_user(context: &ExecutionContext, user_data: LoginUserData) -> Result<FilteredUser, GeneralServerError> {
-
     let mut where_clause: Vec<QueryClause> = vec![];
-    where_clause.push(QueryClause::Equals("email".to_string()));
+    where_clause.push(QueryClause::Equals(name_of!(email in LoginUserData)));
     let search_query = QueryBuilder::Select(SelectAmount::All, TableName::Users, Some(where_clause));
 
     let row = query(&search_query.build_query())
@@ -46,9 +47,10 @@ pub async fn register_user(context: &ExecutionContext, user_data: RegisterUserDa
         None => (),
     }
 
-    let query_builder = QueryBuilder::Insert(TableName::Users, vec!["name".to_string(),
-                                                "email".to_string(),
-                                                "password".to_string()]);
+    let query_builder = QueryBuilder::Insert(TableName::Users, vec![name_of!(name in RegisterUserData),
+                                                name_of!(email in RegisterUserData),
+                                                name_of!(password in RegisterUserData)]);
+
 
     let res = sqlx::query(&query_builder.build_query())
         .bind(user_data.name)
@@ -62,7 +64,7 @@ pub async fn register_user(context: &ExecutionContext, user_data: RegisterUserDa
 }
 
 async fn check_user_exists(context: &&ExecutionContext, user_data: &RegisterUserData) -> Result<Option<bool>, GeneralServerError> {
-    let where_query = vec![QueryClause::Equals("email".to_string())];
+    let where_query = vec![QueryClause::Equals(name_of!(email in RegisterUserData))];
     let select_exists = QueryBuilder::Select(SelectAmount::One, TableName::Users, Some(where_query));
 
     let user_exists: Option<bool> =

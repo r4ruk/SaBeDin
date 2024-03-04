@@ -8,3 +8,4 @@ pub mod builtin_types;
 pub mod dependency_container;
 pub mod authentication_provider;
 pub mod service_manager_provider;
+pub mod custom_macros;

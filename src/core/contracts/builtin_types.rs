@@ -40,14 +40,5 @@ pub mod custom_datetime {
         }
         let result: DateTime<Utc> = deserialized_time;
         Ok(result)
-        // let val: &str = Deserialize::deserialize(deserializer)?;
-        // let parsed = DateTime::parse_from_rfc3339(val);
-        // let mut deserialized_time:DateTime<Utc>;
-        // match parsed {
-        //     Ok(value) => deserialized_time = DateTime::from(value),
-        //     Err(_) => deserialized_time = DateTime::from(Utc::now())
-        // }
-        // let result: DateTime<Utc> = DateTime::from(deserialized_time).to_utc();
-        // return Ok(result)
     }
 }
