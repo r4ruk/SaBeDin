@@ -4,7 +4,7 @@ use crate::core::contracts::errors::GeneralServerError;
 use crate::core::contracts::user::{FilteredUser, LoginUserData, RegisterUserData};
 use crate::core::persistence::auth_persistence;
 use crate::core::service::service_base::handle_finish_transaction;
-use crate::core::utils::password::hash_password;
+use crate::core::utils::password::{check_password_hash, hash_password};
 
 /// function registers user if he/she doesn't exist yet
 pub async fn register_user(context: &ExecutionContext, user_data: RegisterUserData) -> Result<(), GeneralServerError> {
@@ -39,13 +39,7 @@ pub async fn login(context: &ExecutionContext, user_data:LoginUserData) -> bool 
         _ => return false
     };
 
-    let hash = PasswordHash::new(&user.password);
-    let is_valid = match hash {
-        Ok(parsed_hash) => Argon2::default()
-            .verify_password(user_data.password.as_bytes(), &parsed_hash)
-            .map_or(false, |_| true),
-        Err(_) => false,
-    };
+    let is_valid = check_password_hash(user_data.password, user);
     return is_valid
 }
 

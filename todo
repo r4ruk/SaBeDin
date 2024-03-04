@@ -17,8 +17,9 @@ next step:
 [X] Add query builder tests
 [X] Finish query builder
 [X] Add nameof macro to not strongly type fieldnames for db
-[] think transactions in db level - https://github.com/launchbadge/sqlx/tree/main/examples/postgres/transaction
-[] fix and add tests
+[X] think transactions in db level - https://github.com/launchbadge/sqlx/tree/main/examples/postgres/transaction
+        -> implemented in service level so it can cover multiple writes in case it is needed.
+[X] fix and add tests
 
 
 further work
