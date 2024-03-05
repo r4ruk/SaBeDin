@@ -5,8 +5,8 @@ use axum::{async_trait, Form, Json, RequestExt,
            http::{header::CONTENT_TYPE, StatusCode},
            extract::{FromRequest, Path, Request, State}};
 use crate::ExecutionContext;
-use crate::core::contracts::{basic_informations::{RequestPostBody, ResponseBody}, uri_helper};
-
+use crate::core::contracts::{basic_informations::{RequestPostBody, ResponseBody}};
+use crate::core::utils::uri_helper;
 
 
 pub async fn health_check() -> Result<String, StatusCode>{

@@ -1,5 +1,4 @@
 use sqlx::Error;
-use crate::core::persistence::table_names::{TABLE_NAMES, TableName};
 
 pub fn map_to_error_response(e: Error) -> String {
     let error_response = serde_json::json!({

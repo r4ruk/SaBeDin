@@ -14,8 +14,8 @@ const AUTHORIZATION_HEADER: &str = "Authorization";
 
 pub async fn guard<T>(
     cookie_jar: CookieJar,
-    State(context): State<Arc<ExecutionContext>>,
-    mut req: Request<Body>,
+    State(_context): State<Arc<ExecutionContext>>,
+    req: Request<Body>,
     next:Next)
     -> Result<Response, ApiError>
 {
@@ -36,7 +36,7 @@ pub async fn guard<T>(
         });
 
 
-    let mut token = match token_option {
+    let token = match token_option {
         Some(val) => Some(val),
         _ => None
     };
@@ -49,7 +49,7 @@ pub async fn guard<T>(
         })
     }
 
-    let claim = decode_jwt(token.unwrap()).map_err(|_| ApiError {
+    let _claim = decode_jwt(token.unwrap()).map_err(|_| ApiError {
         message: "claim not valid".to_string(),
         redirect: "none".to_string(),
         status_code: StatusCode::BAD_REQUEST.as_u16(),

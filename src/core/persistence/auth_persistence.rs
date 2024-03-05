@@ -1,8 +1,8 @@
-use sqlx::{query, query_as};
+use sqlx::query;
 use crate::core::persistence::query_builder::QueryBuilder;
 use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
-use crate::core::contracts::user::{FilteredUser, LoginUserData, RegisterUserData, User};
+use crate::core::contracts::user::{FilteredUser, LoginUserData, RegisterUserData};
 use crate::core::persistence::persistence_utils;
 use crate::core::persistence::query_builder::{QueryClause, SelectAmount};
 use crate::core::persistence::table_names::TableName;

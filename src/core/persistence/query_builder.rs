@@ -1,5 +1,6 @@
 use crate::core::persistence::table_names::TableName;
 
+#[allow(unused)]
 pub enum SelectAmount {
     One,
     All,
@@ -11,7 +12,7 @@ impl SelectAmount {
         return match self {
             SelectAmount::One => "1".to_string(),
             SelectAmount::All => "*".to_string(),
-            SelectAmount::Amount(amount) => "*".to_string()
+            SelectAmount::Amount(_) => "*".to_string()
         }
     }
 
@@ -29,6 +30,7 @@ impl SelectAmount {
 //     OR
 // }
 
+#[allow(unused)]
 pub enum QueryBuilder {
     /// params: Amount, FromTableName, Option\<Vec\<QueryClause\>\>
     Select(SelectAmount, TableName, Option<Vec<QueryClause>>),
@@ -44,6 +46,7 @@ pub enum QueryBuilder {
 }
 
 /// Query clause taking propertyname as parameter.
+#[allow(unused)]
 pub enum QueryClause {
     Equals(String),
     StartsWith(String),
@@ -88,14 +91,14 @@ fn build_select_statement(select_amount: &SelectAmount,
 }
 
 fn build_insert_statement(table_name: &TableName, field_names: &Vec<String>) -> String {
-    let mut field_count = field_names.iter().count();
+    let field_count = field_names.iter().count();
     // if no fields provided
     // return empty
     if field_count == 0{
         return "".to_string()
     }
 
-    let mut query = format!("INSERT INTO {} ({}) VALUES ({})",
+    let query = format!("INSERT INTO {} ({}) VALUES ({})",
                             table_name.extract_table_name(),
                             build_fields_chaining(field_names),
                             build_values_chaining(field_count));
@@ -111,7 +114,7 @@ fn build_update_statement(table_name: &TableName,
                           where_clauses: &Option<Vec<QueryClause>>)
                           -> String {
 
-    let mut query = format!("UPDATE {} SET {}{}",
+    let query = format!("UPDATE {} SET {}{}",
                             table_name.extract_table_name(),
                             build_update_setters(field_names),
                             build_where_clause(where_clauses, field_names.iter().count()));

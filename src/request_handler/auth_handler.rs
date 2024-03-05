@@ -9,7 +9,7 @@ use axum::http::header;
 use axum::response::Response;
 use axum_extra::extract::cookie::{Cookie, SameSite};
 use serde_json::json;
-use crate::core::contracts::errors::{ApiError, GeneralServerError};
+use crate::core::contracts::errors::ApiError;
 use crate::core::contracts::user::{RegisterUserData, LoginUserData};
 use crate::core::utils::jwt::encode_jwt;
 use crate::ExecutionContext;

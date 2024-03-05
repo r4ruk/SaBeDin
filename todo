@@ -20,6 +20,9 @@ next step:
 [X] think transactions in db level - https://github.com/launchbadge/sqlx/tree/main/examples/postgres/transaction
         -> implemented in service level so it can cover multiple writes in case it is needed.
 [X] fix and add tests
+[] redo and test service implemented
+[] Add cache...? (in service, handle different types...)
+[] start connecting queue and think about return-pipeline
 
 
 further work

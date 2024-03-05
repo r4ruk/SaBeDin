@@ -2,7 +2,6 @@ use axum::body::Body;
 use axum::response::{IntoResponse, Response};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use sqlx::Error;
 
 #[derive(Serialize, Deserialize)]
 pub struct ApiError {

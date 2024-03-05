@@ -6,12 +6,14 @@ use crate::core::client::auth::AuthClient;
 use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::service_manager::service_manager::{IServiceManager, ServiceManager};
 
+#[allow(unused)]
 pub fn get_config() -> Config {
     dotenv().ok();
     let config = Config::init();
     return config;
 }
 
+#[allow(unused)]
 pub async fn create_execution_context(db: Pool<Postgres>, config: Option<Config>) -> ExecutionContext {
     return match config {
         Some(conf) => ExecutionContext {

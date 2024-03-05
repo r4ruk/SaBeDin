@@ -12,8 +12,6 @@ impl ClientHandler for UserClient {
         // TODO add real data and functionality
         println!("handling request in clientservice {:?}", body);
 
-        // parsing body's object which can be any 'serializable/deserializable' JSON representation.
-        // TODO think about exception handling
         let user = from_str::<User>(&body.object);
         if user.is_err() == false {
             // ensuring the deserialization worked
