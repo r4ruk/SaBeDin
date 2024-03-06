@@ -22,7 +22,11 @@ next step:
 [X] fix and add tests
 [] redo and test service implemented
 [] Add cache...? (in service, handle different types...)
+
 [] start connecting queue and think about return-pipeline
+    [] examples to be found in the following links:
+        https://www.zupzup.org/rmq-in-rust/index.html
+        https://github.com/zupzup/rmq-in-rust-example/blob/main/src/main.rs#L46 (code for the article before)
 
 
 further work

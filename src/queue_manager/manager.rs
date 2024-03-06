@@ -42,7 +42,7 @@ impl IQueueManager for QueueManager {
         //     "test123"))
         //     .await
         //     .unwrap();
-        let addr = "amqp://127.0.0.1:5672";
+        let addr = "amqp://raruk:test123@127.0.0.1:5672";
         let conn = Connection::connect(addr, ConnectionProperties::default()).await.map_err(|_| println!("error happened") );
 
         QueueManager {
