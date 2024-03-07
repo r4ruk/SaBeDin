@@ -2,4 +2,4 @@ pub mod contracts;
 pub mod client;
 pub mod utils;
 mod service;
-mod persistence;
+pub mod persistence;

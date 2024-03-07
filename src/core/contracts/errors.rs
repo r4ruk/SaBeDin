@@ -27,6 +27,18 @@ impl From<sqlx::Error> for GeneralServerError {
     }
 }
 
+impl From<lapin::Error> for GeneralServerError {
+    fn from(error: lapin::Error) -> Self {
+        let message = json!({
+            "status":"fail",
+            "message":format!("Error happened in message queue manager: {:?}", error)
+        });
+        return GeneralServerError {
+            message: message.to_string(),
+        }
+    }
+}
+
 
 impl IntoResponse for ApiError {
     fn into_response(self) -> Response {

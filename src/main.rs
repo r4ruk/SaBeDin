@@ -11,11 +11,11 @@ use axum::body::Body;
 use crate::routes::main_route::guarded_routes;
 use crate::routes::{auth_routes, middlewares};
 use crate::core::contracts::dependency_container::ExecutionContext;
+use crate::queue_manager::manager::QueueManager;
 
 
 #[tokio::main]
 async fn main() {
-
     let state = Arc::new(ExecutionContext::new().await);
 
     // the route layer middleware guard is only applying to the routes which are merged before it.
