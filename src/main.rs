@@ -11,7 +11,6 @@ use axum::body::Body;
 use crate::routes::main_route::guarded_routes;
 use crate::routes::{auth_routes, middlewares};
 use crate::core::contracts::dependency_container::ExecutionContext;
-use crate::queue_manager::manager::QueueManager;
 
 
 #[tokio::main]
