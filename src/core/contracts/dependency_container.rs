@@ -25,7 +25,7 @@ impl ExecutionContext {
         let config = Config::init();
 
         Self {
-            service_manager: Arc::new(ServiceManager::new()),
+            service_manager: Arc::new(ServiceManager::new().await),
             auth_provider: Arc::new(AuthClient{}),
             env: config.clone(),
             db: db_pool::init(&config.database_url).await,

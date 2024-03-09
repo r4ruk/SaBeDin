@@ -6,6 +6,7 @@ use axum::{async_trait, Form, Json, RequestExt,
            extract::{FromRequest, Path, Request, State}};
 use crate::ExecutionContext;
 use crate::core::contracts::{basic_informations::{RequestPostBody, ResponseBody}};
+use crate::core::contracts::errors::GeneralServerError;
 use crate::core::utils::uri_helper;
 
 
@@ -20,7 +21,11 @@ pub async fn command_handler(State(context): State<Arc<ExecutionContext>>,
                              JsonOrForm(request_post_body): JsonOrForm<RequestPostBody>) {
 
     // redirect handling to service manager, which decides what to do with the request.
-    context.service_manager.try_handle(context.as_ref(), path.clone(), request_post_body);
+    let result =  context.service_manager.try_handle(context.as_ref(), path.clone(), request_post_body).await;
+    match result {
+        Ok(_) => {println!("successfull handled post request")}
+        Err(e) => {println!("error happened  in the execution: '{}'", e.message)}
+    }
 }
 
 // handler for GET-Requests
@@ -41,9 +46,13 @@ pub async fn query_handler(State(context):State<Arc<ExecutionContext>>,
 
         let params = uri_helper::handle_params(params);
 
-        response_body = context.service_manager.try_handle_query(context.as_ref(), service.to_string(), params);
+        let result = context.service_manager.try_handle_query(context.as_ref(), service.to_string(), params).await;
+        if result.is_ok() {
+            response_body.body = result.unwrap().body
+        } else {
+            response_body.body = result.err().unwrap().message
+        }
     } else if uri_path.contains('/') {
-        // TODO generally handle errors
         let error_response = Json::from(ResponseBody{ body: "not found".to_string() });
         let status_code = StatusCode::INTERNAL_SERVER_ERROR;
 

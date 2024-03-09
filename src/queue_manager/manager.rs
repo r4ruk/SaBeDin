@@ -16,8 +16,8 @@ pub trait QueueManagerProvider: Send + Sync  {
     async fn get_queue_connection(&self, context: &ExecutionContext) -> Result<Connection, GeneralServerError>;
     // async fn establish_temporary_listener(&self, context: ExecutionContext, queue_name: &str, correlation_id: Uuid)
     //     -> Result<ResponseMessage, GeneralServerError>;
-    async fn basic_publish(&self, context: ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<(), GeneralServerError>;
-    async fn returning_publish(&self, context: ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<QueueResponseMessage, GeneralServerError>;
+    async fn basic_publish(&self, context: &ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<(), GeneralServerError>;
+    async fn returning_publish(&self, context: &ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<QueueResponseMessage, GeneralServerError>;
 }
 
 
@@ -94,7 +94,7 @@ impl QueueManagerProvider for QueueManager {
           }
     }
 
-    async fn basic_publish(&self, context: ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<(), GeneralServerError> {
+    async fn basic_publish(&self, context: &ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<(), GeneralServerError> {
         let conn = self.get_queue_connection(&context).await.map_err(|e| {
             eprintln!("could not get rmq con: {:?}", e);
             e
@@ -120,7 +120,7 @@ impl QueueManagerProvider for QueueManager {
         return Ok(())
     }
 
-    async fn returning_publish(&self, context: ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<QueueResponseMessage, GeneralServerError> {
+    async fn returning_publish(&self, context: &ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<QueueResponseMessage, GeneralServerError> {
         let correlation_id = Uuid::new_v4();
 
         let connection: Connection = self.get_queue_connection(&context).await.map_err(|e| {
@@ -128,7 +128,7 @@ impl QueueManagerProvider for QueueManager {
             e
         })?;
 
-        self.basic_publish(context, queue_name, body).await.map_err(|e| {
+        self.basic_publish(&context, queue_name, body).await.map_err(|e| {
             e
         })?;
         let res = self.establish_temporary_listener(connection, queue_name, correlation_id).await;
