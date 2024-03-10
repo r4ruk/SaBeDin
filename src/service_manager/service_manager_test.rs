@@ -13,22 +13,23 @@ mod service_manager_test {
 
     const SERVICE_NAME: &str = "client";
 
-    #[test]
-    fn create_service_manager() {
-        let manager = ServiceManager::new();
-        let count_of_services = manager.services.lock().unwrap().iter().count();
+
+    #[tokio::test]
+    async fn create_service_manager() {
+        let manager = ServiceManager::new().await;
+        let count_of_services = manager.services.lock().await.iter().count();
         assert_eq!(count_of_services, 1);
     }
 
     #[tokio::test]
     async fn handle_query_test() {
-        let manager = ServiceManager::new();
+        let manager = ServiceManager::new().await;
 
         let mut param: HashMap<String, String> = HashMap::new();
         param.insert("id".to_string(), "1".to_string());
         let db = crate::core::persistence::db_pool::init(&get_config().database_url).await;
         let mq = crate::queue_manager::manager::QueueManager::init().await;
-        let returned_user:  ResponseBody = manager.try_handle_query(&create_execution_context(db, mq, None).await, SERVICE_NAME.to_string(), param);
+        let returned_user = manager.try_handle_query(&create_execution_context(db, mq, None).await, SERVICE_NAME.to_string(), param).await.unwrap();
         let user_object: User = serde_json::from_str(&returned_user.body).unwrap();
 
         assert_eq!(user_object.email, "hans.ueli@test.ch".to_string());
@@ -37,7 +38,7 @@ mod service_manager_test {
 
     #[tokio::test]
     async fn handle_command_test() {
-        let manager = ServiceManager::new();
+        let manager = ServiceManager::new().await;
         let db = crate::core::persistence::db_pool::init(&get_config().database_url).await;
         let mq = crate::queue_manager::manager::QueueManager::init().await;
         let user = User{
@@ -54,9 +55,9 @@ mod service_manager_test {
         let requestpostbody = RequestPostBody {
             method: "generalmethod".to_string(),
             object: json!(user).to_string(),
-            params: vec!["1".to_string()],
+            params: HashMap::new(),
         };
-        let r = manager.try_handle(&create_execution_context(db, mq, None).await, SERVICE_NAME.to_string(), requestpostbody);
+        let r = manager.try_handle(&create_execution_context(db, mq, None).await, SERVICE_NAME.to_string(), requestpostbody).await;
         println!("test successfully run")
     }
 }
