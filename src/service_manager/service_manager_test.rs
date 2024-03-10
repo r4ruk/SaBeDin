@@ -21,6 +21,7 @@ mod service_manager_test {
         assert_eq!(count_of_services, 1);
     }
 
+    // ATTENTION THIS TESTS NEED DOCKER WITH DB RUNNING
     #[tokio::test]
     async fn handle_query_test() {
         let manager = ServiceManager::new().await;
@@ -36,6 +37,7 @@ mod service_manager_test {
         assert_eq!(user_object.password, "superSafePassword".to_string());
     }
 
+    // ATTENTION THIS TESTS NEED DOCKER WITH DB RUNNING
     #[tokio::test]
     async fn handle_command_test() {
         let manager = ServiceManager::new().await;
@@ -57,7 +59,8 @@ mod service_manager_test {
             object: json!(user).to_string(),
             params: HashMap::new(),
         };
-        let r = manager.try_handle(&create_execution_context(db, mq, None).await, SERVICE_NAME.to_string(), requestpostbody).await;
+        let rs = &create_execution_context(db, mq, None).await;
+        let r = manager.try_handle(rs, SERVICE_NAME.to_string(), requestpostbody).await;
         println!("test successfully run")
     }
 }
