@@ -38,6 +38,10 @@ The easiest way to see how the core works you can run tests and debug the code.
 I try to keep the tests updated, sorry if i fail at times, haha ;) \
 just run `cargo test`.
 
+#### RabbitMQ Management WebView
+To see the rabbit mq management page you can open:
+`localhost:15672` and log in with the credentials specified in the rabbitmq.conf file.
+
 ### Curl Calls flow
 
 #### 1. Authentication:

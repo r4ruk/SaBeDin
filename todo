@@ -20,14 +20,14 @@ next step:
 [X] think transactions in db level - https://github.com/launchbadge/sqlx/tree/main/examples/postgres/transaction
         -> implemented in service level so it can cover multiple writes in case it is needed.
 [X] fix and add tests
-[] redo and test service implemented
+[X] redo and test service implemented
 [] Add cache...? (in service, handle different types...)
 
-[] start connecting queue and think about return-pipeline
+[X] start connecting queue and think about return-pipeline
     [] examples to be found in the following links:
         https://www.zupzup.org/rmq-in-rust/index.html
         https://github.com/zupzup/rmq-in-rust-example/blob/main/src/main.rs#L46 (code for the article before)
-
+[] test message queue
 
 further work
 [] think about general serialization/deserialization into classes in ts.

@@ -105,6 +105,11 @@ impl QueueManagerProvider for QueueManager {
             e
         })?;
 
+
+        // TODO: queue declare needed if it does not exist
+        // passive flag research about this.
+        // channel.queue_declare()\
+
         channel.basic_publish("", queue_name, BasicPublishOptions::default(), &serde_json::to_vec(&body).unwrap(), BasicProperties::default())
             .await
             .map_err(|e| {
