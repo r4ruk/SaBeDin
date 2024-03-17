@@ -61,6 +61,7 @@ impl ServiceManagerProvider for ServiceManager {
                 let queue_manager = QueueManager { };
                 let res = queue_manager.returning_publish(context, &service, QueueRequestMessage {
                     message_id: Uuid::new_v4(),
+                    correlation_id: Default::default(),
                     headers: "".to_string(),
                     body: RequestPostBody {
                         method: "get".to_string(),

@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use async_std::stream::StreamExt;
 use deadpool_lapin::{Manager, Pool};
-use lapin::{BasicProperties, ConnectionProperties, Consumer};
+use lapin::{BasicProperties, Channel, ConnectionProperties, Consumer, Queue};
 use lapin::options::{BasicAckOptions, BasicConsumeOptions, BasicPublishOptions, QueueDeclareOptions};
 use lapin::types::FieldTable;
 use crate::core::contracts::queue_types::{QueueRequestMessage, QueueResponseMessage};
@@ -45,14 +45,14 @@ impl QueueManager {
     }
 
 
-    async fn establish_temporary_listener(&self, conn: Connection, queue_name: &str, correlation_id: Uuid)
+    async fn establish_temporary_listener(&self, conn: Connection, correlation_id: Uuid)
                                           -> Result<QueueResponseMessage, GeneralServerError> {
 
         let channel = conn.create_channel().await?;
 
         let queue = channel
             .queue_declare(
-                queue_name,
+                &correlation_id.to_string(),
                 QueueDeclareOptions::default(),
                 FieldTable::default(),
             )
@@ -61,7 +61,7 @@ impl QueueManager {
 
         let mut consumer: Consumer = channel
             .basic_consume(
-                queue_name,
+                &correlation_id.to_string(),
                 &format!("{}",correlation_id),
                 BasicConsumeOptions::default(),
                 FieldTable::default(),
@@ -80,6 +80,10 @@ impl QueueManager {
             }
         }
         return Ok(QueueResponseMessage { correlation_id, body: response_body.to_string() })
+    }
+
+    async fn create_queue(&self, channel: Channel, name: &str, declaration_options: QueueDeclareOptions) -> Result<Queue, GeneralServerError> {
+        return channel.queue_declare(name, declaration_options, Default::default()).await.map_err(|e| GeneralServerError{ message: "failed to create".to_string() });
     }
 }
 
@@ -100,15 +104,20 @@ impl QueueManagerProvider for QueueManager {
             e
         })?;
 
-        let channel = conn.create_channel().await.map_err(|e| {
+        let channel:  Channel = conn.create_channel().await.map_err(|e| {
             println!("error in opening channel");
             e
         })?;
 
 
-        // TODO: queue declare needed if it does not exist
-        // passive flag research about this.
-        // channel.queue_declare()\
+        let declare_options = QueueDeclareOptions {
+            passive: true, // this param defines a creation if it does not exist and otherwise returns existing
+            durable: true, // delete on shutdown?
+            exclusive: false, // exclusive for the given connection, after closing delete
+            auto_delete: false, // auto delete when there is no consumer connected.
+            nowait: true, // does not get a return from the queue -> fire and forget
+        };
+        let _creation_result = self.create_queue(channel.clone(), queue_name,declare_options).await?;
 
         channel.basic_publish("", queue_name, BasicPublishOptions::default(), &serde_json::to_vec(&body).unwrap(), BasicProperties::default())
             .await
@@ -125,18 +134,17 @@ impl QueueManagerProvider for QueueManager {
         return Ok(())
     }
 
-    async fn returning_publish(&self, context: &ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<QueueResponseMessage, GeneralServerError> {
+    async fn returning_publish(&self, context: &ExecutionContext, queue_name: &str, mut body: QueueRequestMessage) -> Result<QueueResponseMessage, GeneralServerError> {
         let correlation_id = Uuid::new_v4();
 
-        let connection: Connection = self.get_queue_connection(&context).await.map_err(|e| {
-            eprintln!("could not get rmq con: {:?}", e);
-            e
-        })?;
+        let connection: Connection = self.get_queue_connection(&context).await?;
+
+        body.correlation_id = correlation_id;
 
         self.basic_publish(&context, queue_name, body).await.map_err(|e| {
             e
         })?;
-        let res = self.establish_temporary_listener(connection, queue_name, correlation_id).await;
+        let res = self.establish_temporary_listener(connection, correlation_id).await;
         return res
     }
 }

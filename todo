@@ -27,6 +27,8 @@ next step:
     [] examples to be found in the following links:
         https://www.zupzup.org/rmq-in-rust/index.html
         https://github.com/zupzup/rmq-in-rust-example/blob/main/src/main.rs#L46 (code for the article before)
+    [] figure out direct queue declaration when publishing, which is not working atm.
+        https://docs.rs/lapin/latest/lapin/struct.Channel.html#method.exchange_declare
 [] test message queue
 
 further work

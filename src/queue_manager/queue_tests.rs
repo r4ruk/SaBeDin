@@ -16,6 +16,7 @@ async fn manager_basic_publish_test() {
     let queue_manager = QueueManager { };
     let res = queue_manager.basic_publish(&context, "test", QueueRequestMessage {
         message_id: Uuid::new_v4(),
+        correlation_id: Default::default(),
         headers: "".to_string(),
         body: RequestPostBody {
             method: "get".to_string(),
