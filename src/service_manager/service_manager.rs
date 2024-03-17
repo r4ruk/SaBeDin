@@ -11,7 +11,6 @@ use crate::core::contracts::errors::GeneralServerError;
 use crate::core::contracts::queue_types::QueueRequestMessage;
 use crate::core::contracts::service_manager_provider::ServiceManagerProvider;
 use crate::core::utils::{file_helper, utils};
-use crate::queue_manager;
 use crate::queue_manager::manager::{QueueManager, QueueManagerProvider};
 use crate::service_manager::service_client_factory;
 

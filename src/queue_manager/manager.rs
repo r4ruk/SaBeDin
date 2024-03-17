@@ -26,12 +26,15 @@ pub struct QueueManager {}
 
 
 
-// communication should be:
-// client -> sends request to channel and provides return address channel
-// -> Service handles request (probably only get requests...?!) -> returns ResponseMessage to return_channel
-// correlation_id should be the same as message_id of the request, so it knows it's reading the right message.
+/// communication should be:
+/// client
+///     -> sends request to channel and provides return_channel (correlation_id)
+///         -> external Service handles request
+///             -> returns ResponseMessage to return_channel
+/// this should ensure the queue to be exclusive for the single returning request.
 
 impl QueueManager {
+    /// initializes a new connectionpool
     pub async fn init() -> Pool {
         let addr = "amqp://raruk:test123@127.0.0.1:5672";
         // let conn = Connection::connect(addr, ConnectionProperties::default()).await.map_err(|_| println!("error happened") );
@@ -44,19 +47,21 @@ impl QueueManager {
         pool
     }
 
-
+    /// establishes temporary listener connection and queue if it is not created from external service
     async fn establish_temporary_listener(&self, conn: Connection, correlation_id: Uuid)
                                           -> Result<QueueResponseMessage, GeneralServerError> {
 
         let channel = conn.create_channel().await?;
 
-        let queue = channel
-            .queue_declare(
-                &correlation_id.to_string(),
-                QueueDeclareOptions::default(),
-                FieldTable::default(),
-            )
-            .await?;
+        let queue_declareoptions = QueueDeclareOptions {
+            passive: true,
+            durable: false,
+            exclusive: true,
+            auto_delete: false,
+            nowait: false,
+        };
+
+        let queue = self.create_queue(channel.clone(), &correlation_id.to_string(),queue_declareoptions).await?;
         println!("Declared queue {:?}", queue);
 
         let mut consumer: Consumer = channel
@@ -82,13 +87,15 @@ impl QueueManager {
         return Ok(QueueResponseMessage { correlation_id, body: response_body.to_string() })
     }
 
+    /// creates queue on given parameters.
     async fn create_queue(&self, channel: Channel, name: &str, declaration_options: QueueDeclareOptions) -> Result<Queue, GeneralServerError> {
-        return channel.queue_declare(name, declaration_options, Default::default()).await.map_err(|e| GeneralServerError{ message: "failed to create".to_string() });
+        return channel.queue_declare(name, declaration_options, Default::default()).await.map_err(|e| GeneralServerError{ message: format!("failed to create channel: {}", e) });
     }
 }
 
 #[async_trait]
 impl QueueManagerProvider for QueueManager {
+      /// gets a connection from the pool of connections
       async fn get_queue_connection(&self, context: &ExecutionContext) -> Result<Connection, GeneralServerError> {
         let conn = context.queue.get().await;
           return if conn.is_ok() {
@@ -98,6 +105,7 @@ impl QueueManagerProvider for QueueManager {
           }
     }
 
+    /// basic publish function which handles general "POST" requests
     async fn basic_publish(&self, context: &ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<(), GeneralServerError> {
         let conn = self.get_queue_connection(&context).await.map_err(|e| {
             eprintln!("could not get rmq con: {:?}", e);
@@ -134,6 +142,7 @@ impl QueueManagerProvider for QueueManager {
         return Ok(())
     }
 
+    /// function which handles returning publishing functions. (usually thats "GET" requests to external services
     async fn returning_publish(&self, context: &ExecutionContext, queue_name: &str, mut body: QueueRequestMessage) -> Result<QueueResponseMessage, GeneralServerError> {
         let correlation_id = Uuid::new_v4();
 
