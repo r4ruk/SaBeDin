@@ -54,7 +54,7 @@ impl QueueManager {
         let channel = conn.create_channel().await?;
 
         let queue_declareoptions = QueueDeclareOptions {
-            passive: true,
+            passive: false,
             durable: false,
             exclusive: true,
             auto_delete: false,
@@ -89,6 +89,7 @@ impl QueueManager {
 
     /// creates queue on given parameters.
     async fn create_queue(&self, channel: Channel, name: &str, declaration_options: QueueDeclareOptions) -> Result<Queue, GeneralServerError> {
+        println!("creating queue with name '{}'", name);
         return channel.queue_declare(name, declaration_options, Default::default()).await.map_err(|e| GeneralServerError{ message: format!("failed to create channel: {}", e) });
     }
 }
@@ -119,7 +120,7 @@ impl QueueManagerProvider for QueueManager {
 
 
         let declare_options = QueueDeclareOptions {
-            passive: true, // this param defines a creation if it does not exist and otherwise returns existing
+            passive: false, // false -> defines a creation if it does not exist and otherwise returns existing, true does only work with existing
             durable: true, // delete on shutdown?
             exclusive: false, // exclusive for the given connection, after closing delete
             auto_delete: false, // auto delete when there is no consumer connected.
