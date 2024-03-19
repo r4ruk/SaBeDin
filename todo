@@ -24,12 +24,16 @@ next step:
 [] Add cache...? (in service, handle different types...)
 
 [X] start connecting queue and think about return-pipeline
-    [] examples to be found in the following links:
+    [X] examples to be found in the following links:
         https://www.zupzup.org/rmq-in-rust/index.html
         https://github.com/zupzup/rmq-in-rust-example/blob/main/src/main.rs#L46 (code for the article before)
-    [] figure out direct queue declaration when publishing, which is not working atm.
+    [X] figure out direct queue declaration when publishing, which is not working atm.
         https://docs.rs/lapin/latest/lapin/struct.Channel.html#method.exchange_declare
-[] test message queue
+[X] test message queue
+    [] figure out how to asynchronously publish on the returning temporary queue inside the test automatically.
+        atm it can only be tested by manually publish a message into that queue
+
+
 
 further work
 [] think about general serialization/deserialization into classes in ts.

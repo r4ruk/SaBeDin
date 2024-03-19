@@ -40,24 +40,28 @@ mod queue_tests {
         // }).await;
     }
 
-    // #[tokio::test]
-    // async fn manager_returning_publish_test() {
-    //     let db = crate::core::persistence::db_pool::init(&get_config().database_url).await;
-    //     let mq = QueueManager::init().await;
-    //
-    //
-    //     let context = test_helper::create_execution_context(db, mq, None).await;
-    //     let queue_manager = QueueManager { };
-    //     let res = queue_manager.returning_publish(&context, "test", QueueRequestMessage {
-    //         message_id: Uuid::new_v4(),
-    //         headers: "".to_string(),
-    //         body: RequestPostBody {
-    //             method: "get".to_string(),
-    //             object: "".to_string(),
-    //             params,
-    //         },
-    //         timestamp: Default::default(),
-    //     }).await;
-    //     assert!(res.is_ok())
-    // }
+    #[tokio::test]
+    async fn manager_returning_publish_test() {
+
+        let db = crate::core::persistence::db_pool::init(&get_config().database_url).await;
+        let mq = QueueManager::init().await;
+
+        let correlation_id = Uuid::new_v4();
+
+        let context = test_helper::create_execution_context(db, mq, None).await;
+        let queue_manager = QueueManager { };
+        let res = queue_manager.returning_publish(&context, "test", QueueRequestMessage {
+            message_id: Uuid::new_v4(),
+            correlation_id,
+            headers: "".to_string(),
+            body: RequestPostBody {
+                method: "get".to_string(),
+                object: "".to_string(),
+                params: Default::default(),
+            },
+            timestamp: Default::default(),
+        }).await;
+
+        assert!(res.is_ok())
+    }
 }

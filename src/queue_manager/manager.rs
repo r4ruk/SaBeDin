@@ -81,7 +81,8 @@ impl QueueManager {
                 response_body = String::from_utf8_lossy(&delivery.data).to_string();
                 channel
                     .basic_ack(delivery.delivery_tag, BasicAckOptions::default())
-                    .await?
+                    .await?;
+                return Ok(QueueResponseMessage { correlation_id, body: response_body.to_string()})
             }
         }
         return Ok(QueueResponseMessage { correlation_id, body: response_body.to_string() })
@@ -151,9 +152,7 @@ impl QueueManagerProvider for QueueManager {
 
         body.correlation_id = correlation_id;
 
-        self.basic_publish(&context, queue_name, body).await.map_err(|e| {
-            e
-        })?;
+        self.basic_publish(&context, queue_name, body).await?;
         let res = self.establish_temporary_listener(connection, correlation_id).await;
         return res
     }
