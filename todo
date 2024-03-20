@@ -32,6 +32,9 @@ next step:
 [X] test message queue
     [] figure out how to asynchronously publish on the returning temporary queue inside the test automatically.
         atm it can only be tested by manually publish a message into that queue
+        => Can probably be handled if i tear the function apart and return from the publish_returning function the name
+        of the temporary queue and await the answer onto it in another function..
+        like this it should be possible to first send a message onto the new temporary queue and then start listening onto it...
 
 
 
