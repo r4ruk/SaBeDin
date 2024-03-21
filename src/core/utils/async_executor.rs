@@ -9,15 +9,18 @@ use std::{
     task::Context,
 };
 
+#[allow(unused)]
 pub struct Executor {
     ready_queue: Receiver<Arc<Task>>
 }
 
+#[allow(unused)]
 #[derive(Clone)]
 pub struct Spawner {
     task_sender: SyncSender<Arc<Task>>,
 }
 
+#[allow(unused)]
 struct Task {
     future: Mutex<Option<BoxFuture<'static, ()>>>,
     task_sender: SyncSender<Arc<Task>>,
@@ -31,7 +34,7 @@ impl ArcWake for Task {
             .expect("too many tasks queued");
     }
 }
-
+#[allow(unused)]
 pub fn init() -> (Executor, Spawner) {
     const MAX_QUEUED_TASKS: usize = 10_000;
     let (task_sender, ready_queue) = sync_channel(MAX_QUEUED_TASKS);
@@ -40,6 +43,7 @@ pub fn init() -> (Executor, Spawner) {
 }
 
 impl Spawner {
+    #[allow(unused)]
     pub(crate) fn spawn(&self, future: impl Future<Output= ()> + 'static + Send) {
         let future = future.boxed();
         let task = Arc::new(Task {
@@ -51,6 +55,7 @@ impl Spawner {
 }
 
 impl Executor {
+    #[allow(unused)]
     pub(crate) fn run(&self) {
         while let Ok(task) = self.ready_queue.recv() {
             let mut future_slot = task.future.lock().unwrap();

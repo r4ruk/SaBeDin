@@ -14,7 +14,7 @@ mod queue_tests {
 
         let context = test_helper::create_execution_context(db, mq, None).await;
         let queue_manager = QueueManager {};
-        let res = queue_manager.basic_publish(&context, "test", QueueRequestMessage {
+        let res = queue_manager.publish(&context, "test", QueueRequestMessage {
             message_id: Uuid::new_v4(),
             correlation_id: Default::default(),
             headers: "".to_string(),

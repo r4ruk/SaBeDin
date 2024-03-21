@@ -1,22 +1,20 @@
 use async_trait::async_trait;
-use async_std::stream::StreamExt;
 use deadpool_lapin::{Manager, Pool};
-use lapin::{BasicProperties, Channel, ConnectionProperties, Consumer, Queue};
-use lapin::options::{BasicAckOptions, BasicConsumeOptions, BasicPublishOptions, QueueDeclareOptions};
-use lapin::types::FieldTable;
+use lapin::{Channel, ConnectionProperties,Queue};
+use lapin::options::QueueDeclareOptions;
 use crate::core::contracts::queue_types::{QueueRequestMessage, QueueResponseMessage};
 use uuid::Uuid;
 use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
+use crate::queue_manager::{publisher, receiver};
+use crate::queue_manager::publisher::PublishParams;
 
-type Connection = deadpool::managed::Object<Manager>;
+pub(crate) type Connection = deadpool::managed::Object<Manager>;
 
 #[async_trait]
 pub trait QueueManagerProvider: Send + Sync  {
-    async fn get_queue_connection(&self, context: &ExecutionContext) -> Result<Connection, GeneralServerError>;
-    // async fn establish_temporary_listener(&self, context: ExecutionContext, queue_name: &str, correlation_id: Uuid)
-    //     -> Result<ResponseMessage, GeneralServerError>;
-    async fn basic_publish(&self, context: &ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<(), GeneralServerError>;
+    async fn get_from_queue(&self, context: &ExecutionContext, queue_name: &str) -> Result<QueueResponseMessage, GeneralServerError>;
+    async fn publish(&self, context: &ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<(), GeneralServerError>;
     async fn returning_publish(&self, context: &ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<QueueResponseMessage, GeneralServerError>;
 }
 
@@ -47,68 +45,39 @@ impl QueueManager {
         pool
     }
 
-    /// establishes temporary listener connection and queue if it is not created from external service
-    async fn establish_temporary_listener(&self, conn: Connection, correlation_id: Uuid)
-                                          -> Result<QueueResponseMessage, GeneralServerError> {
-
-        let channel = conn.create_channel().await?;
-
-        let queue_declareoptions = QueueDeclareOptions {
-            passive: false,
-            durable: false,
-            exclusive: true,
-            auto_delete: false,
-            nowait: false,
-        };
-
-        let queue = self.create_queue(channel.clone(), &correlation_id.to_string(),queue_declareoptions).await?;
-        println!("Declared queue {:?}", queue);
-
-        let mut consumer: Consumer = channel
-            .basic_consume(
-                &correlation_id.to_string(),
-                &format!("{}",correlation_id),
-                BasicConsumeOptions::default(),
-                FieldTable::default(),
-            )
-            .await?;
-
-        let mut response_body= String::new();
-
-        while let Some(delivery) = consumer.next().await {
-            if let Ok(delivery) = delivery {
-                println!("received msg: {:?}", delivery);
-                response_body = String::from_utf8_lossy(&delivery.data).to_string();
-                channel
-                    .basic_ack(delivery.delivery_tag, BasicAckOptions::default())
-                    .await?;
-                return Ok(QueueResponseMessage { correlation_id, body: response_body.to_string()})
-            }
-        }
-        return Ok(QueueResponseMessage { correlation_id, body: response_body.to_string() })
-    }
-
     /// creates queue on given parameters.
-    async fn create_queue(&self, channel: Channel, name: &str, declaration_options: QueueDeclareOptions) -> Result<Queue, GeneralServerError> {
+    pub async fn create_queue(&self, channel: Channel, name: &str, declaration_options: QueueDeclareOptions) -> Result<Queue, GeneralServerError> {
         println!("creating queue with name '{}'", name);
         return channel.queue_declare(name, declaration_options, Default::default()).await.map_err(|e| GeneralServerError{ message: format!("failed to create channel: {}", e) });
+    }
+
+    /// gets a connection from the pool of connections
+    async fn get_queue_connection(&self, context: &ExecutionContext) -> Result<Connection, GeneralServerError> {
+        let conn = context.queue.get().await;
+        return if conn.is_ok() {
+            Ok(conn.unwrap())
+        } else {
+            Err(GeneralServerError { message: "error getting connection from pool".to_string() })
+        }
     }
 }
 
 #[async_trait]
 impl QueueManagerProvider for QueueManager {
-      /// gets a connection from the pool of connections
-      async fn get_queue_connection(&self, context: &ExecutionContext) -> Result<Connection, GeneralServerError> {
-        let conn = context.queue.get().await;
-          return if conn.is_ok() {
-              Ok(conn.unwrap())
-          } else {
-              Err(GeneralServerError { message: "error getting connection from pool".to_string() })
-          }
+    async fn get_from_queue(&self, context: &ExecutionContext, queue_name: &str) -> Result<QueueResponseMessage, GeneralServerError> {
+        let connection: Connection = self.get_queue_connection(&context).await?;
+        let mut channel: Channel = connection.create_channel().await?;
+
+        // receive a message on to defined queue
+        channel = connection.create_channel().await?;
+
+        // TODO not working yet, must be implemented, but too lazy atm.
+        return receiver::receive_on_queue(self, channel, queue_name).await
+
     }
 
     /// basic publish function which handles general "POST" requests
-    async fn basic_publish(&self, context: &ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<(), GeneralServerError> {
+    async fn publish(&self, context: &ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<(), GeneralServerError> {
         let conn = self.get_queue_connection(&context).await.map_err(|e| {
             eprintln!("could not get rmq con: {:?}", e);
             e
@@ -119,41 +88,38 @@ impl QueueManagerProvider for QueueManager {
             e
         })?;
 
-
-        let declare_options = QueueDeclareOptions {
-            passive: false, // false -> defines a creation if it does not exist and otherwise returns existing, true does only work with existing
-            durable: true, // delete on shutdown?
-            exclusive: false, // exclusive for the given connection, after closing delete
-            auto_delete: false, // auto delete when there is no consumer connected.
-            nowait: true, // does not get a return from the queue -> fire and forget
+        let params = PublishParams {
+            context,
+            manager: &self,
+            queue_name,
+            channel,
+            body,
         };
-        let _creation_result = self.create_queue(channel.clone(), queue_name,declare_options).await?;
-
-        channel.basic_publish("", queue_name, BasicPublishOptions::default(), &serde_json::to_vec(&body).unwrap(), BasicProperties::default())
-            .await
-            .map_err(|e| {
-                println!("cant publish: {}", e);
-                e
-            })?
-            .await
-            .map_err(|e|{
-                println!("cant publish: {}", e);
-                e
-            })?;
-
-        return Ok(())
+        return publisher::basic_publish(params).await
     }
 
-    /// function which handles returning publishing functions. (usually thats "GET" requests to external services
+    /// function which handles returning publishing functions. (usually that's "GET" requests to external services
     async fn returning_publish(&self, context: &ExecutionContext, queue_name: &str, mut body: QueueRequestMessage) -> Result<QueueResponseMessage, GeneralServerError> {
-        let correlation_id = Uuid::new_v4();
-
         let connection: Connection = self.get_queue_connection(&context).await?;
+        let mut channel: Channel = connection.create_channel().await?;
 
+        let correlation_id = Uuid::new_v4();
         body.correlation_id = correlation_id;
 
-        self.basic_publish(&context, queue_name, body).await?;
-        let res = self.establish_temporary_listener(connection, correlation_id).await;
-        return res
+        // publish the message
+        let params = PublishParams {
+            context,
+            manager: &self,
+            queue_name,
+            channel,
+            body,
+        };
+        publisher::basic_publish(params).await?;
+
+        // receive an 'immediate' response from external service
+        channel = connection.create_channel().await?;
+        let res = receiver::establish_temporary_listener(self, channel, correlation_id).await?;
+
+        return Ok(res)
     }
 }
