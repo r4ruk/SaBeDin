@@ -10,8 +10,7 @@ pub struct QueueRequestMessage {
     #[serde(with = "custom_uuid")]
     pub message_id: Uuid,
     #[serde(with = "custom_uuid")]
-    pub correlation_id: Uuid, // never has to be set as its used as a indicator for consuming external
-                                // service on which queue name he has to publish the answer.
+    pub correlation_id: Uuid,
     pub headers: String,
     pub body: RequestPostBody,
     #[serde(with = "custom_datetime")]
