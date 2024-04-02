@@ -2,6 +2,7 @@ use axum::body::Body;
 use axum::response::{IntoResponse, Response};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use tokio::sync::broadcast::error::SendError;
 
 #[derive(Serialize, Deserialize)]
 pub struct ApiError {
@@ -32,6 +33,17 @@ impl From<lapin::Error> for GeneralServerError {
         let message = json!({
             "status":"fail",
             "message":format!("Error happened in message queue manager: {:?}", error)
+        });
+        return GeneralServerError {
+            message: message.to_string(),
+        }
+    }
+}
+impl From<SendError<String>> for GeneralServerError {
+    fn from(error: SendError<String>) -> Self {
+        let message = json!({
+            "status":"fail",
+            "message":format!("Error could not push message to clients. '{}'", error)
         });
         return GeneralServerError {
             message: message.to_string(),
