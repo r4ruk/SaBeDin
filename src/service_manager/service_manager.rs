@@ -28,9 +28,9 @@ pub struct ServiceManager {
 // the try_handle functionality
 #[async_trait]
 impl ServiceManagerProvider for ServiceManager {
-    async fn try_handle(&self, _context: &ExecutionContext, path: String, post_body: RequestPostBody) -> Result<(), GeneralServerError> {
+    async fn try_handle(&self, _context: &ExecutionContext, path: &str, post_body: RequestPostBody) -> Result<(), GeneralServerError> {
         let binding = self.services.lock().await;
-        let service_option = &binding.get(&path);
+        let service_option = &binding.get(path);
 
         match service_option {
             Some(service) => {
@@ -44,9 +44,9 @@ impl ServiceManagerProvider for ServiceManager {
         }
     }
 
-    async fn try_handle_query(&self, context: &ExecutionContext, service: String, params: HashMap<String, String>) -> Result<ResponseBody, GeneralServerError> {
+    async fn try_handle_query(&self, context: &ExecutionContext, service: &str, params: HashMap<String, String>) -> Result<ResponseBody, GeneralServerError> {
         let binding = self.services.lock().await; // using async lock
-        let service_option = &binding.get(&service);
+        let service_option = &binding.get(service);
         let mut response = ResponseBody{ body: "".to_string() };
         match service_option {
             Some(service) => {

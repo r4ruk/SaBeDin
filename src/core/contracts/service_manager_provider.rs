@@ -6,6 +6,6 @@ use crate::core::contracts::errors::GeneralServerError;
 
 #[async_trait]
 pub trait ServiceManagerProvider: Send + Sync  {
-    async fn try_handle(&self, context: &ExecutionContext,  path: String, request_post_body: RequestPostBody) -> Result<(), GeneralServerError>;
-    async fn try_handle_query(&self, context: &ExecutionContext, service: String, params: HashMap<String, String>) -> Result<ResponseBody, GeneralServerError>;
+    async fn try_handle(&self, context: &ExecutionContext,  path: &str, request_post_body: RequestPostBody) -> Result<(), GeneralServerError>;
+    async fn try_handle_query(&self, context: &ExecutionContext, service: &str, params: HashMap<String, String>) -> Result<ResponseBody, GeneralServerError>;
 }

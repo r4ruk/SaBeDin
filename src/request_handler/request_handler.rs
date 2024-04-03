@@ -20,7 +20,7 @@ pub async fn command_handler(State(context): State<Arc<ExecutionContext>>,
                              JsonOrForm(request_post_body): JsonOrForm<RequestPostBody>) {
 
     // redirect handling to service manager, which decides what to do with the request.
-    let result =  context.service_manager.try_handle(context.as_ref(), path.clone(), request_post_body).await;
+    let result =  context.service_manager.try_handle(context.as_ref(), &path, request_post_body).await;
     match result {
         Ok(_) => {println!("successfull handled post request")}
         Err(e) => {println!("error happened  in the execution: '{}'", e.message)}
@@ -45,7 +45,7 @@ pub async fn query_handler(State(context):State<Arc<ExecutionContext>>,
 
         let params = uri_helper::handle_params(params);
 
-        let result = context.service_manager.try_handle_query(context.as_ref(), service.to_string(), params).await;
+        let result = context.service_manager.try_handle_query(context.as_ref(), &service, params).await;
         if result.is_ok() {
             response_body.body = result.unwrap().body
         } else {
