@@ -1,14 +1,17 @@
 use std::collections::HashMap;
+use async_trait::async_trait;
 use serde_json::{from_str, json};
 use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
+use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::services::ClientHandler;
 use crate::core::contracts::user::User;
 use crate::core::service;
 
 pub struct UserClient {}
 
+#[async_trait]
 impl ClientHandler for UserClient {
-    fn handle_command(&self, body: RequestPostBody) {
+    async fn handle_command(&self, context: &ExecutionContext, body: RequestPostBody) {
         // TODO add real data and functionality
         println!("handling request in clientservice {:?}", body);
 
@@ -22,7 +25,7 @@ impl ClientHandler for UserClient {
     }
 
     // handles query function for user
-    fn handle_query(&self, params: HashMap<String, String>) -> ResponseBody {
+    async fn handle_query(&self, context: &ExecutionContext, params: HashMap<String, String>) -> ResponseBody {
         println!("{:?}", params);
         if params.len() == 1 {
             let (key, val) = params.iter().nth(0).unwrap();
@@ -44,6 +47,6 @@ impl ClientHandler for UserClient {
     // method creates a boxed instance of the actual Service
     fn instantiate() -> Box<dyn ClientHandler> {
         let c = UserClient { };
-        return Box::new(c);
+        return Box::new(c)
     }
 }

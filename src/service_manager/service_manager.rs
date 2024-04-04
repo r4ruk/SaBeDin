@@ -28,18 +28,26 @@ pub struct ServiceManager {
 // the try_handle functionality
 #[async_trait]
 impl ServiceManagerProvider for ServiceManager {
-    async fn try_handle(&self, _context: &ExecutionContext, path: &str, post_body: RequestPostBody) -> Result<(), GeneralServerError> {
+    async fn try_handle(&self, context: &ExecutionContext, path: &str, post_body: RequestPostBody) -> Result<(), GeneralServerError> {
         let binding = self.services.lock().await;
         let service_option = &binding.get(path);
 
         match service_option {
             Some(service) => {
-                Ok(service.lock().await.handle_command(post_body))
+                Ok(service.lock().await.handle_command(context, post_body).await)
             }
             None => {
-                // TODO add queue handler in here
                 println!("no service found with name: {}", path);
-                return Err(GeneralServerError{message: "queue handler not yet added".to_string()})
+                let queue = QueueManager{};
+                queue.publish(context, path, QueueRequestMessage {
+                    message_id: Uuid::new_v4(),
+                    correlation_id: Uuid::new_v4(),
+                    headers: path.to_string(),
+                    body: post_body,
+                    timestamp: Default::default(),
+                }).await?;
+
+                return Ok(())
             }
         }
     }
@@ -51,7 +59,7 @@ impl ServiceManagerProvider for ServiceManager {
         match service_option {
             Some(service) => {
                 let serv = service.lock().await;
-                response = serv.handle_query(params);
+                response = serv.handle_query(context, params).await;
                 Ok(response)
             }
             None => {
