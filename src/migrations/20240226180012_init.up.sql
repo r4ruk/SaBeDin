@@ -22,3 +22,16 @@ CREATE UNIQUE INDEX users_email_idx ON users (email);
 -- password of the created user is done by argon2 algorithm and equals "password" (without the ")
 INSERT INTO users(name, email, verified, password, role)
 VALUES ('validuser','validuser@test.com', true,'$argon2id$v=19$m=19456,t=2,p=1$5Fowt30D7yxpFW0ZyfAlDw$OSJLoBEQpTdj8dRelbUclJo6qq/iWnhK7CV8CcFU3Xk','user')
+
+
+CREATE TABLE
+    "articles" (
+                id UUID NOT NULL PRIMARY KEY DEFAULT (uuid_generate_v4()),
+                programming_key_name VARCHAR(255),
+                title VARCHAR,
+                contents VARCHAR,
+                tags VARCHAR,
+                created_at TIMESTAMP
+                    WITH TIME ZONE DEFAULT NOW()
+);
+CREATE UNIQUE INDEX articles_pkn ON articles(programming_key_name);
