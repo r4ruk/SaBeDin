@@ -1,9 +1,13 @@
 use std::collections::HashMap;
+use std::io::Error;
+use std::pin::Pin;
 use std::sync::Arc;
+use std::task::{Context, Poll};
 use crate::core::contracts::services::ClientHandler;
 use tokio::sync::Mutex;
 use async_trait::async_trait;
 use log::{info, warn};
+use tokio::io::{AsyncWrite, AsyncWriteExt};
 use uuid::Uuid;
 use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
 use crate::core::contracts::dependency_container::ExecutionContext;
@@ -123,7 +127,6 @@ impl IServiceManager for ServiceManager {
         }
         return my_manager
     }
-
 
     // registers the service in the Manager.
     async fn register_service(&mut self, service_name: String, service: Box<dyn ClientHandler>) {

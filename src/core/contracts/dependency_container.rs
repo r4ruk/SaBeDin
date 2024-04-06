@@ -21,11 +21,15 @@ pub struct ExecutionContext {
 
 impl ExecutionContext {
     pub async fn new() -> Self {
+        let manager = ServiceManager::new().await;
+        return Self::new_with_manager(manager).await
+    }
+
+    pub async fn new_with_manager(existing_service_manager: ServiceManager) -> Self {
         dotenv().ok();
         let config = Config::init();
-
         Self {
-            service_manager: Arc::new(ServiceManager::new().await),
+            service_manager: Arc::new(existing_service_manager),
             auth_provider: Arc::new(AuthClient{}),
             env: config.clone(),
             db: db_pool::init(&config.database_url).await,
