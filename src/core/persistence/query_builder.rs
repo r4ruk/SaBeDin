@@ -1,4 +1,4 @@
-use crate::core::persistence::table_names::TableName;
+use crate::core::persistence::table_names::{TableName, TableNameSupplier};
 
 #[allow(unused)]
 pub enum SelectAmount {
@@ -33,16 +33,16 @@ impl SelectAmount {
 #[allow(unused)]
 pub enum QueryBuilder {
     /// params: Amount, FromTableName, Option\<Vec\<QueryClause\>\>
-    Select(SelectAmount, TableName, Option<Vec<QueryClause>>),
+    Select(SelectAmount, dyn TableNameSupplier, Option<Vec<QueryClause>>),
 
     /// params: TableName, Vec\<String\> which represents field names
-    Insert(TableName, Vec<String>),
+    Insert(dyn TableNameSupplier, Vec<String>),
 
     /// params: TableName, Vec\<String\> which represents field names, Option\<Vec\<QueryClause\>\>
-    Update(TableName, Vec<String>, Option<Vec<QueryClause>>),
+    Update(dyn TableNameSupplier, Vec<String>, Option<Vec<QueryClause>>),
 
     /// params: TableName and Option\<Vec\<QueryClause\>\>
-    Delete(TableName, Option<Vec<QueryClause>>)
+    Delete(dyn TableNameSupplier, Option<Vec<QueryClause>>)
 }
 
 /// Query clause taking propertyname as parameter.
@@ -80,7 +80,7 @@ impl QueryBuilder {
 }
 
 fn build_select_statement(select_amount: &SelectAmount,
-                          table_name: &TableName,
+                          table_name: &dyn TableNameSupplier,
                           where_clauses: &Option<Vec<QueryClause>>)
     -> String {
 

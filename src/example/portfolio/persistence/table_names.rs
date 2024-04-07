@@ -1,17 +1,15 @@
 use std::collections::HashMap;
 use lazy_static::lazy_static;
+use crate::core::persistence::table_names::TableNameSupplier;
 
-pub trait TableNameSupplier {
-    fn extract_table_name(&self) -> String;
-}
 
 /// enum representing different entities stored in the database
 #[derive(Debug, Hash, PartialEq, Eq)]
-pub enum TableName {
-    Users,
+pub enum TableNamePortfolio {
+    Article,
 }
 
-impl TableNameSupplier for TableName {
+impl TableNameSupplier for TableNamePortfolio {
     fn extract_table_name(&self) -> String {
         return if let Some(value) = TABLE_NAMES.get(self) {
             value.clone()
@@ -22,11 +20,11 @@ impl TableNameSupplier for TableName {
 }
 
 lazy_static!{
-    pub static ref TABLE_NAMES: HashMap<TableName, String> = {
+    pub static ref TABLE_NAMES: HashMap<TableNamePortfolio, String> = {
         let mut m = HashMap::new();
 
         // extend the following lines with matching database informations
-        m.insert(TableName::Users, "users".to_string());
+        m.insert(TableNamePortfolio::Article, "articles".to_string());
 
 
         m
