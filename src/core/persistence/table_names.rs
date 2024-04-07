@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use lazy_static::lazy_static;
 
-pub trait TableNameSupplier {
+pub trait TableNameSupplier: Send + Sync{
     fn extract_table_name(&self) -> String;
 }
 

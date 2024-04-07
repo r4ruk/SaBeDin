@@ -5,14 +5,15 @@ use crate::core::contracts::errors::GeneralServerError;
 use crate::core::contracts::user::{FilteredUser, LoginUserData, RegisterUserData};
 use crate::core::persistence::persistence_utils;
 use crate::core::persistence::query_builder::{QueryClause, SelectAmount};
-use crate::core::persistence::table_names::TableName;
+use crate::core::persistence::table_names::{TableName, TableNameSupplier};
 use crate::name_of;
 
 
 pub async fn login_user(context: &ExecutionContext, user_data: LoginUserData) -> Result<FilteredUser, GeneralServerError> {
     let mut where_clause: Vec<QueryClause> = vec![];
     where_clause.push(QueryClause::Equals(name_of!(email in LoginUserData)));
-    let search_query = QueryBuilder::Select(SelectAmount::All, TableName::Users, Some(where_clause));
+    let tablenamesupplier: Box<dyn TableNameSupplier> = Box::new(TableName::Users);
+    let search_query = QueryBuilder::Select(SelectAmount::All, tablenamesupplier, Some(where_clause));
 
     let row = query(&search_query.build_query())
                             .bind(user_data.email)
@@ -36,8 +37,7 @@ pub async fn login_user(context: &ExecutionContext, user_data: LoginUserData) ->
 }
 
 pub async fn register_user(transaction: &mut sqlx::Transaction<'_, sqlx::Postgres>, user_data: RegisterUserData) -> Result<(), GeneralServerError>{
-
-    let query_builder = QueryBuilder::Insert(TableName::Users, vec![name_of!(name in RegisterUserData),
+    let query_builder = QueryBuilder::Insert(Box::new(TableName::Users), vec![name_of!(name in RegisterUserData),
                                                 name_of!(email in RegisterUserData),
                                                 name_of!(password in RegisterUserData)]);
 
@@ -58,7 +58,8 @@ pub async fn register_user(transaction: &mut sqlx::Transaction<'_, sqlx::Postgre
 
 pub async fn check_user_exists(context: &&ExecutionContext, email: String) -> Result<Option<bool>, GeneralServerError> {
     let where_query = vec![QueryClause::Equals(name_of!(email in RegisterUserData))];
-    let select_exists = QueryBuilder::Select(SelectAmount::One, TableName::Users, Some(where_query));
+    let tablenamesupplier: Box<dyn TableNameSupplier> = Box::new(TableName::Users);
+    let select_exists = QueryBuilder::Select(SelectAmount::One, Box::new(TableName::Users), Some(where_query));
 
     let user_exists: Option<bool> =
         sqlx::query_scalar(&format!("SELECT EXISTS({})", select_exists.build_query()))

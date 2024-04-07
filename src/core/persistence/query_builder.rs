@@ -33,16 +33,16 @@ impl SelectAmount {
 #[allow(unused)]
 pub enum QueryBuilder {
     /// params: Amount, FromTableName, Option\<Vec\<QueryClause\>\>
-    Select(SelectAmount, dyn TableNameSupplier, Option<Vec<QueryClause>>),
+    Select(SelectAmount, Box<dyn TableNameSupplier>, Option<Vec<QueryClause>>),
 
     /// params: TableName, Vec\<String\> which represents field names
-    Insert(dyn TableNameSupplier, Vec<String>),
+    Insert(Box<dyn TableNameSupplier>, Vec<String>),
 
     /// params: TableName, Vec\<String\> which represents field names, Option\<Vec\<QueryClause\>\>
-    Update(dyn TableNameSupplier, Vec<String>, Option<Vec<QueryClause>>),
+    Update(Box<dyn TableNameSupplier>, Vec<String>, Option<Vec<QueryClause>>),
 
     /// params: TableName and Option\<Vec\<QueryClause\>\>
-    Delete(dyn TableNameSupplier, Option<Vec<QueryClause>>)
+    Delete(Box<dyn TableNameSupplier>, Option<Vec<QueryClause>>)
 }
 
 /// Query clause taking propertyname as parameter.
@@ -80,7 +80,7 @@ impl QueryBuilder {
 }
 
 fn build_select_statement(select_amount: &SelectAmount,
-                          table_name: &dyn TableNameSupplier,
+                          table_name: &Box<dyn TableNameSupplier>,
                           where_clauses: &Option<Vec<QueryClause>>)
     -> String {
 
@@ -90,7 +90,7 @@ fn build_select_statement(select_amount: &SelectAmount,
     return query.to_string()
 }
 
-fn build_insert_statement(table_name: &TableName, field_names: &Vec<String>) -> String {
+fn build_insert_statement(table_name: &Box<dyn TableNameSupplier>, field_names: &Vec<String>) -> String {
     let field_count = field_names.iter().count();
     // if no fields provided
     // return empty
@@ -105,11 +105,11 @@ fn build_insert_statement(table_name: &TableName, field_names: &Vec<String>) -> 
     return query
 }
 
-fn build_delete_statement(table_name: &TableName, where_clauses: &Option<Vec<QueryClause>>) -> String {
+fn build_delete_statement(table_name: &Box<dyn TableNameSupplier>, where_clauses: &Option<Vec<QueryClause>>) -> String {
     return format!("DELETE FROM {}", table_name.extract_table_name()) + &build_where_clause_simple(where_clauses);
 }
 
-fn build_update_statement(table_name: &TableName,
+fn build_update_statement(table_name: &Box<dyn TableNameSupplier>,
                           field_names: &Vec<String>,
                           where_clauses: &Option<Vec<QueryClause>>)
                           -> String {

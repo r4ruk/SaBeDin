@@ -4,13 +4,17 @@ use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
 use crate::example::portfolio::contracts::article::Article;
 use crate::core::persistence::query_builder::{QueryBuilder, QueryClause, SelectAmount};
+use crate::core::persistence::table_names::{TableName, TableNameSupplier};
 use crate::example::portfolio::persistence::table_names::TableNamePortfolio;
 use crate::name_of;
 
 pub async fn get_by_pkn(context: &ExecutionContext, pkn: &str) -> Result<Article,  GeneralServerError> {
     let mut whereclause: Vec<QueryClause> = vec![];
     whereclause.push(QueryClause::Equals(name_of!(programming_key_name in Article)));
-    let search_query = QueryBuilder::Select(SelectAmount::One, TableNamePortfolio::Article, Some(whereclause));
+    let article_name_supplier: Box<dyn TableNameSupplier> = Box::new(TableNamePortfolio::Article);
+
+    let search_query = QueryBuilder::Select(SelectAmount::One, article_name_supplier, Some(whereclause));
+
 
     let row = query(&search_query.build_query())
                 .bind(pkn)
