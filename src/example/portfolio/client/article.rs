@@ -25,7 +25,6 @@ impl ClientHandler for ArticleClient {
             let (key, val) = params.iter().nth(0).unwrap();
             let ret_val: Result<Article, GeneralServerError> = match key.as_str() {
                 "programmingKeyName" => crate::example::portfolio::service::article_service::get_article_by_pkn(context, val),
-
                 _ => {
                     println!("unsupported parameters");
                     Err(GeneralServerError{ message: "unsupported params".to_string() })

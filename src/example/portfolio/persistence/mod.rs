@@ -1,2 +1,2 @@
-mod article_persistence;
+pub mod article_persistence;
 mod table_names;

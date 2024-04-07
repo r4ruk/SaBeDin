@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use lazy_static::lazy_static;
-use crate::core::persistence::table_names::TableNameSupplier;
+use crate::core::persistence::table_name_supplier::TableNameSupplier;
 
 
 /// enum representing different entities stored in the database

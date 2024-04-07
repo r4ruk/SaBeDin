@@ -1,24 +1,11 @@
 use std::collections::HashMap;
 use lazy_static::lazy_static;
-
-pub trait TableNameSupplier: Send + Sync{
-    fn extract_table_name(&self) -> String;
-}
+use crate::core::persistence::table_name_supplier::TableNameSupplier;
 
 /// enum representing different entities stored in the database
 #[derive(Debug, Hash, PartialEq, Eq)]
 pub enum TableName {
     Users,
-}
-
-impl TableNameSupplier for TableName {
-    fn extract_table_name(&self) -> String {
-        return if let Some(value) = TABLE_NAMES.get(self) {
-            value.clone()
-        } else {
-            "".to_string()
-        }
-    }
 }
 
 lazy_static!{
@@ -31,4 +18,14 @@ lazy_static!{
 
         m
     };
+}
+
+impl TableNameSupplier for TableName {
+    fn extract_table_name(&self) -> String {
+        return if let Some(value) = TABLE_NAMES.get(self) {
+            value.clone()
+        } else {
+            "".to_string()
+        }
+    }
 }

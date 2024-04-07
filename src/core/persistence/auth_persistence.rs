@@ -5,7 +5,8 @@ use crate::core::contracts::errors::GeneralServerError;
 use crate::core::contracts::user::{FilteredUser, LoginUserData, RegisterUserData};
 use crate::core::persistence::persistence_utils;
 use crate::core::persistence::query_builder::{QueryClause, SelectAmount};
-use crate::core::persistence::table_names::{TableName, TableNameSupplier};
+use crate::core::persistence::table_name_supplier::TableNameSupplier;
+use crate::core::persistence::table_names::TableName;
 use crate::name_of;
 
 

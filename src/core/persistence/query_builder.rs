@@ -1,4 +1,4 @@
-use crate::core::persistence::table_names::{TableName, TableNameSupplier};
+use crate::core::persistence::table_name_supplier::TableNameSupplier;
 
 #[allow(unused)]
 pub enum SelectAmount {

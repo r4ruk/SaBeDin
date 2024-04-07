@@ -36,7 +36,13 @@ next step:
         of the temporary queue and await the answer onto it in another function..
         like this it should be possible to first send a message onto the new temporary queue and then start listening onto it...
         -> i did exactly what i thought and splitted the whole queue manager into publisher and receiver so they can be tested seperately
-[] add push messenger which can broadcast message to clients.
+[X] add push messenger which can broadcast message to clients.
+
+[] Paging and Sorting handling for queries (examples::portfolio::persistence)
+    -> try find generic solution for that problem (using QueryBuilder)
+[] Refactor handle_query function to not only work with single param or else fail
+    (in case all should be retrieved it will have no params)
+
 
 UI
 [] Implement Homepage

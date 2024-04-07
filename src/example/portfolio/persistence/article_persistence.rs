@@ -1,10 +1,10 @@
-use serde_json::json;
 use sqlx::query;
 use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
+use crate::core::persistence::persistence_errors::PersistenceError;
 use crate::example::portfolio::contracts::article::Article;
 use crate::core::persistence::query_builder::{QueryBuilder, QueryClause, SelectAmount};
-use crate::core::persistence::table_names::{TableName, TableNameSupplier};
+use crate::core::persistence::table_name_supplier::TableNameSupplier;
 use crate::example::portfolio::persistence::table_names::TableNamePortfolio;
 use crate::name_of;
 
@@ -26,11 +26,27 @@ pub async fn get_by_pkn(context: &ExecutionContext, pkn: &str) -> Result<Article
     return if article_option.is_some(){
         Ok(article_option.unwrap())
     } else {
-        let error_response = serde_json::json!({
-            "status": "fail",
-            "message": "couldnt find article",
-        });
-        let err = GeneralServerError{ message: error_response.to_string()};
-        Err(err)
+        let error = PersistenceError::CouldntFindSingle(TableNamePortfolio::Article.extract_table_name());
+        Err(GeneralServerError{ message: error.get_err_message()})
     }
+}
+
+/// Function returns all articles stored
+// TODO think about paging/sorting information which can also be done on the database
+pub async fn get_all(context: &ExecutionContext) -> Result<Vec<Article>, GeneralServerError> {
+    let search_query = QueryBuilder::Select(SelectAmount::All, Box::new(TableNamePortfolio::Article), None);
+
+    let rows = query(&search_query.build_query())
+        .fetch_all(&context.db).await?;
+    let mut all_articles = Vec::new();
+    for row in rows {
+        all_articles.push(row.into())
+    };
+    return if all_articles.len() > 0 {
+        Ok(all_articles)
+    } else {
+        let error = PersistenceError::CouldntFindSingle(TableNamePortfolio::Article.extract_table_name());
+        Err(GeneralServerError{ message: error.get_err_message()})
+    }
+
 }
