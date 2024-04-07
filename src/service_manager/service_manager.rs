@@ -19,7 +19,7 @@ use crate::queue_manager::manager::{QueueManager, QueueManagerProvider};
 use crate::service_manager::service_client_factory;
 
 #[async_trait]
-pub trait IServiceManager {
+pub trait ServiceManagerConstruction {
     async fn new() -> Self;
     async fn register_service(&mut self, service_name: String, service: Box<dyn ClientHandler>);
 }
@@ -88,7 +88,7 @@ impl ServiceManagerProvider for ServiceManager {
 }
 
 #[async_trait]
-impl IServiceManager for ServiceManager {
+impl ServiceManagerConstruction for ServiceManager {
 
     // instantiation of ServiceManager instance.
     async fn new() -> ServiceManager {

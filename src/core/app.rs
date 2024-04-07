@@ -5,7 +5,7 @@ use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::example;
 use crate::routes::{auth_routes, middlewares};
 use crate::routes::main_route::guarded_routes;
-use crate::service_manager::service_manager::{IServiceManager, ServiceManager};
+use crate::service_manager::service_manager::{ServiceManagerConstruction, ServiceManager};
 
 pub fn initialize_app(state: Arc<ExecutionContext>, additional_router: Router<Arc<ExecutionContext>>) -> Router {
     // the route layer middleware guard is only applying to the routes which are merged before it.

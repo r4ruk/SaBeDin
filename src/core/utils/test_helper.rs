@@ -5,7 +5,7 @@ use deadpool_lapin::Pool as mq_pool;
 use crate::config::Config;
 use crate::core::client::auth::AuthClient;
 use crate::core::contracts::dependency_container::ExecutionContext;
-use crate::service_manager::service_manager::{IServiceManager, ServiceManager};
+use crate::service_manager::service_manager::{ServiceManagerConstruction, ServiceManager};
 
 #[allow(unused)]
 pub fn get_config() -> Config {

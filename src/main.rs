@@ -7,12 +7,8 @@ mod routes;
 mod example;
 
 use std::sync::Arc;
-use axum::{middleware, Router};
-use axum::body::Body;
 use crate::core::app;
 use crate::core::app::start_server;
-use crate::routes::main_route::guarded_routes;
-use crate::routes::{auth_routes, middlewares};
 use crate::core::contracts::dependency_container::ExecutionContext;
 
 
