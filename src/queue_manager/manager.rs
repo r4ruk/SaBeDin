@@ -66,12 +66,8 @@ impl QueueManager {
 impl QueueManagerProvider for QueueManager {
     async fn get_from_queue(&self, context: &ExecutionContext, queue_name: &str) -> Result<QueueResponseMessage, GeneralServerError> {
         let connection: Connection = self.get_queue_connection(&context).await?;
-        let mut channel: Channel = connection.create_channel().await?;
+        let channel: Channel = connection.create_channel().await?;
 
-        // receive a message on to defined queue
-        channel = connection.create_channel().await?;
-
-        // TODO not working yet, must be implemented, but too lazy atm.
         return receiver::receive_on_queue(self, channel, queue_name).await
 
     }

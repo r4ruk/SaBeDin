@@ -4,7 +4,6 @@ use sqlx::postgres::PgRow;
 use sqlx::Row;
 use uuid::Uuid;
 use crate::core::contracts::builtin_types::{custom_datetime, custom_uuid};
-use crate::core::contracts::user::FilteredUser;
 
 #[derive(Debug, Deserialize, sqlx::FromRow, Serialize, Clone)]
 pub struct Article {

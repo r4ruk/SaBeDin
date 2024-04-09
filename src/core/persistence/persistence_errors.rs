@@ -1,4 +1,5 @@
 
+#[allow(unused)]
 pub enum PersistenceError {
     CouldntFindSingle(String),
     CouldntFindAny(String),

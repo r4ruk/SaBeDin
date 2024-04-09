@@ -1,17 +1,11 @@
 use crate::core::persistence::table_name_supplier::TableNameSupplier;
 
-#[allow(unused)]
-pub enum SelectAmount {
-    One,
-    All,
-    Amount(usize)
-}
-
 pub struct PagingQuery {
-    amount: i16,
-    page_num: i16
+    pub amount: i16,
+    pub page_num: i16
 }
 
+#[allow(unused)]
 pub enum Sorting {
     Ascending(Vec<String>),
     Descending(Vec<String>),
@@ -45,12 +39,13 @@ impl Sorting {
             }
             // undefined sorting order should still be sorted as paging should always be on
             Sorting::Default => {
-                "ORDER BY Id".to_string()
+                "ORDER BY id".to_string()
             }
         }
     }
 }
 
+#[allow(unused)]
 pub struct OrderInformation {
     column_name: String,
     sorting: Sorting
@@ -63,23 +58,6 @@ impl PagingQuery {
     }
 }
 
-impl SelectAmount {
-    fn get(&self) -> String {
-        return match self {
-            SelectAmount::One => "1".to_string(),
-            SelectAmount::All => "*".to_string(),
-            SelectAmount::Amount(_) => "*".to_string()
-        }
-    }
-
-    fn get_additional(&self) -> String {
-        return match self {
-            SelectAmount::Amount(amount) => format!(" LIMIT {}", amount),
-            _ => "".to_string()
-        }
-    }
-}
-
 // TODO sooner or later think about that so that queries can be made with AND and OR chaining
 // pub enum ChainingStrategy {
 //     AND,
@@ -88,7 +66,7 @@ impl SelectAmount {
 
 #[allow(unused)]
 pub enum QueryBuilder {
-    /// params: FromTableName, Option\<Vec\<QueryClause\>\>, Option\<Sorting\>, Option\<PagingQuery\>
+    /// params: FromTableName, Option\<Vec\<QueryClause\>\>,Sorting, Option\<PagingQuery\>
     Select(Box<dyn TableNameSupplier>, Option<Vec<QueryClause>>, Sorting, Option<PagingQuery>),
 
     /// params: TableName, Vec\<String\> which represents field names
@@ -141,7 +119,7 @@ fn build_select_statement(table_name: &Box<dyn TableNameSupplier>,
                           paging_query: &Option<PagingQuery>)
     -> String {
 
-    let mut query = format!("SELECT * FROM {}", table_name.extract_table_name());
+    let mut query = format!("SELECT * FROM {} ", table_name.extract_table_name());
     query = query + &build_where_clause_simple(where_clauses);
     query =  query + &sorting.translate();
     match paging_query {
@@ -168,7 +146,11 @@ fn build_insert_statement(table_name: &Box<dyn TableNameSupplier>, field_names: 
 }
 
 fn build_delete_statement(table_name: &Box<dyn TableNameSupplier>, where_clauses: &Option<Vec<QueryClause>>) -> String {
-    return format!("DELETE FROM {}", table_name.extract_table_name()) + &build_where_clause_simple(where_clauses);
+    const DELETE_STATEMENT: &str = "DELETE FROM ";
+    if where_clauses.is_none() {
+        return format!("{}{}", DELETE_STATEMENT, table_name.extract_table_name())
+    }
+    return format!("{}{} ", DELETE_STATEMENT,table_name.extract_table_name()) + &build_where_clause_simple(where_clauses).trim_end();
 }
 
 fn build_update_statement(table_name: &Box<dyn TableNameSupplier>,
@@ -176,10 +158,10 @@ fn build_update_statement(table_name: &Box<dyn TableNameSupplier>,
                           where_clauses: &Option<Vec<QueryClause>>)
                           -> String {
 
-    let query = format!("UPDATE {} SET {}{}",
+    let query = format!("UPDATE {} SET {} {}",
                             table_name.extract_table_name(),
                             build_update_setters(field_names),
-                            build_where_clause(where_clauses, field_names.iter().count()));
+                            build_where_clause(where_clauses, field_names.iter().count()).trim_end());
 
     return query
 }
@@ -200,7 +182,7 @@ fn build_where_clause(where_clauses:  &Option<Vec<QueryClause>>, existing_dynami
     let where_count = wheres.iter().count();
     let mut query = "".to_string();
     if where_count > 0 {
-        query = query + " WHERE ";
+        query = query + "WHERE ";
         for (index, query_clause) in wheres.iter().enumerate() {
             if index < where_count - 1 {
                 query = query + &query_clause.get(index + 1 + existing_dynamic_params) + " AND "
@@ -208,6 +190,7 @@ fn build_where_clause(where_clauses:  &Option<Vec<QueryClause>>, existing_dynami
                 query = query + &query_clause.get(index + 1 + existing_dynamic_params)
             }
         }
+        query = query + " ";
     }
     return query
 }

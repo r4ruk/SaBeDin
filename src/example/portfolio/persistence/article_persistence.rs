@@ -3,7 +3,7 @@ use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
 use crate::core::persistence::persistence_errors::PersistenceError;
 use crate::example::portfolio::contracts::article::Article;
-use crate::core::persistence::query_builder::{QueryBuilder, QueryClause, SelectAmount};
+use crate::core::persistence::query_builder::{QueryBuilder, QueryClause};
 use crate::core::persistence::query_builder::Sorting::Default;
 use crate::core::persistence::table_name_supplier::TableNameSupplier;
 use crate::example::portfolio::persistence::table_names::TableNamePortfolio;

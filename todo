@@ -43,7 +43,8 @@ next step:
 {PERSISTENCE}
 [X] Paging and Sorting handling for queries (examples::portfolio::persistence)
     -> try find generic solution for that problem (using QueryBuilder)
-[] Fix all tests of query builder which got broken by this change
+[X] Fix all tests of query builder which got broken by this change
+[] Add more tests to cover the paging and sorting options
 
 
 {SERVICE MANAGER}

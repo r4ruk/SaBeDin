@@ -5,7 +5,7 @@ mod service_manager_test {
     use std::str::FromStr;
     use serde_json::json;
     use uuid::Uuid;
-    use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
+    use crate::core::contracts::basic_informations::RequestPostBody;
     use crate::core::contracts::user::User;
     use crate::service_manager::service_manager::{ServiceManagerConstruction, ServiceManager};
     use crate::core::contracts::service_manager_provider::ServiceManagerProvider;
@@ -30,7 +30,7 @@ mod service_manager_test {
         param.insert("id".to_string(), "1".to_string());
         let db = crate::core::persistence::db_pool::init(&get_config().database_url).await;
         let mq = crate::queue_manager::manager::QueueManager::init().await;
-        let returned_user = manager.try_handle_query(&create_execution_context(db, mq, None).await, SERVICE_NAME.to_string(), param).await.unwrap();
+        let returned_user = manager.try_handle_query(&create_execution_context(db, mq, None).await, SERVICE_NAME, param).await.unwrap();
         let user_object: User = serde_json::from_str(&returned_user.body).unwrap();
 
         assert_eq!(user_object.email, "hans.ueli@test.ch".to_string());
@@ -60,7 +60,7 @@ mod service_manager_test {
             params: HashMap::new(),
         };
         let rs = &create_execution_context(db, mq, None).await;
-        let r = manager.try_handle(rs, SERVICE_NAME.to_string(), requestpostbody).await;
+        let _r = manager.try_handle(rs, SERVICE_NAME, requestpostbody).await;
         println!("test successfully run")
     }
 }

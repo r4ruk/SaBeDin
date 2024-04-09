@@ -32,7 +32,7 @@ pub async fn receive_on_queue(_manager: &QueueManager , channel: Channel, queue_
 
             let parsed:Result<QueueRequestMessage, GeneralServerError> =
                 serde_json::from_str(&response_body)
-                    .map_err(|e| GeneralServerError {
+                    .map_err(|_| GeneralServerError {
                         message: "could not map into QueueRequestMessage".to_string()});
             return match parsed {
                 Ok(result) => { // valid delivery Request message containing correlation_id
