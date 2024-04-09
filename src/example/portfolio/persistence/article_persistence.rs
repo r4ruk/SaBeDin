@@ -4,6 +4,7 @@ use crate::core::contracts::errors::GeneralServerError;
 use crate::core::persistence::persistence_errors::PersistenceError;
 use crate::example::portfolio::contracts::article::Article;
 use crate::core::persistence::query_builder::{QueryBuilder, QueryClause, SelectAmount};
+use crate::core::persistence::query_builder::Sorting::Default;
 use crate::core::persistence::table_name_supplier::TableNameSupplier;
 use crate::example::portfolio::persistence::table_names::TableNamePortfolio;
 use crate::name_of;
@@ -13,7 +14,7 @@ pub async fn get_by_pkn(context: &ExecutionContext, pkn: &str) -> Result<Article
     whereclause.push(QueryClause::Equals(name_of!(programming_key_name in Article)));
     let article_name_supplier: Box<dyn TableNameSupplier> = Box::new(TableNamePortfolio::Article);
 
-    let search_query = QueryBuilder::Select(SelectAmount::One, article_name_supplier, Some(whereclause));
+    let search_query = QueryBuilder::Select(article_name_supplier, Some(whereclause), Default, None);
 
 
     let row = query(&search_query.build_query())
@@ -34,7 +35,7 @@ pub async fn get_by_pkn(context: &ExecutionContext, pkn: &str) -> Result<Article
 /// Function returns all articles stored
 // TODO think about paging/sorting information which can also be done on the database
 pub async fn get_all(context: &ExecutionContext) -> Result<Vec<Article>, GeneralServerError> {
-    let search_query = QueryBuilder::Select(SelectAmount::All, Box::new(TableNamePortfolio::Article), None);
+    let search_query = QueryBuilder::Select(Box::new(TableNamePortfolio::Article), None, Default, None);
 
     let rows = query(&search_query.build_query())
         .fetch_all(&context.db).await?;

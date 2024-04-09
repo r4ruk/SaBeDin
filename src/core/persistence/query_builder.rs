@@ -7,6 +7,62 @@ pub enum SelectAmount {
     Amount(usize)
 }
 
+pub struct PagingQuery {
+    amount: i16,
+    page_num: i16
+}
+
+pub enum Sorting {
+    Ascending(Vec<String>),
+    Descending(Vec<String>),
+    Default
+}
+
+impl Sorting {
+    /// method translates the Sorting into a valid SQL sorting query string
+    fn translate(&self, ) -> String {
+        return match self {
+            Sorting::Ascending(column_names) => {
+                let mut ascending_ordering = "ORDER BY ".to_string();
+                for col in column_names {
+                    ascending_ordering = ascending_ordering + col + ",";
+                }
+                // remove last char as it is a , which should not be at this point
+                ascending_ordering.pop();
+                ascending_ordering = ascending_ordering + " ";
+                ascending_ordering.to_string()
+            }
+            Sorting::Descending(coulmn_names) => {
+                let mut descending_ordering = "ORDER BY ".to_string();
+                for col in coulmn_names {
+                    descending_ordering = descending_ordering + col + " DESC,"
+                }
+
+                // removing last element as it is a , which should not be there
+                descending_ordering.pop();
+                descending_ordering = descending_ordering + " ";
+                descending_ordering
+            }
+            // undefined sorting order should still be sorted as paging should always be on
+            Sorting::Default => {
+                "ORDER BY Id".to_string()
+            }
+        }
+    }
+}
+
+pub struct OrderInformation {
+    column_name: String,
+    sorting: Sorting
+}
+
+impl PagingQuery {
+    fn translate(&self) -> String {
+        let offset = self.amount * self.page_num;
+        return format!(" LIMIT {} OFFSET {}", self.amount, offset)
+    }
+}
+
 impl SelectAmount {
     fn get(&self) -> String {
         return match self {
@@ -32,8 +88,8 @@ impl SelectAmount {
 
 #[allow(unused)]
 pub enum QueryBuilder {
-    /// params: Amount, FromTableName, Option\<Vec\<QueryClause\>\>
-    Select(SelectAmount, Box<dyn TableNameSupplier>, Option<Vec<QueryClause>>),
+    /// params: FromTableName, Option\<Vec\<QueryClause\>\>, Option\<Sorting\>, Option\<PagingQuery\>
+    Select(Box<dyn TableNameSupplier>, Option<Vec<QueryClause>>, Sorting, Option<PagingQuery>),
 
     /// params: TableName, Vec\<String\> which represents field names
     Insert(Box<dyn TableNameSupplier>, Vec<String>),
@@ -71,7 +127,7 @@ impl QueryClause {
 impl QueryBuilder {
     pub fn build_query(&self) -> String {
         return match self {
-            QueryBuilder::Select(amount, table_name, where_clauses) => build_select_statement(amount, table_name, where_clauses),
+            QueryBuilder::Select(table_name, where_clauses, sorting, paging_query) => build_select_statement(table_name, where_clauses, sorting, paging_query),
             QueryBuilder::Insert(table_name, field_names) => build_insert_statement(table_name, field_names),
             QueryBuilder::Update(table_name, field_names, where_clauses) => build_update_statement(table_name, field_names, where_clauses),
             QueryBuilder::Delete(table_name, where_clauses) => build_delete_statement(table_name, where_clauses),
@@ -79,14 +135,20 @@ impl QueryBuilder {
     }
 }
 
-fn build_select_statement(select_amount: &SelectAmount,
-                          table_name: &Box<dyn TableNameSupplier>,
-                          where_clauses: &Option<Vec<QueryClause>>)
+fn build_select_statement(table_name: &Box<dyn TableNameSupplier>,
+                          where_clauses: &Option<Vec<QueryClause>>,
+                          sorting: &Sorting,
+                          paging_query: &Option<PagingQuery>)
     -> String {
 
-    let mut query = format!("SELECT {} FROM {}", select_amount.get(), table_name.extract_table_name());
+    let mut query = format!("SELECT * FROM {}", table_name.extract_table_name());
     query = query + &build_where_clause_simple(where_clauses);
-    query = query + &select_amount.get_additional();
+    query =  query + &sorting.translate();
+    match paging_query {
+        Some(paging) => query = query + &paging.translate(),
+        None => ()
+    }
+
     return query.to_string()
 }
 

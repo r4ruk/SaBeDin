@@ -38,8 +38,15 @@ next step:
         -> i did exactly what i thought and splitted the whole queue manager into publisher and receiver so they can be tested seperately
 [X] add push messenger which can broadcast message to clients.
 
-[] Paging and Sorting handling for queries (examples::portfolio::persistence)
+
+
+{PERSISTENCE}
+[X] Paging and Sorting handling for queries (examples::portfolio::persistence)
     -> try find generic solution for that problem (using QueryBuilder)
+[] Fix all tests of query builder which got broken by this change
+
+
+{SERVICE MANAGER}
 [] Refactor handle_query function to not only work with single param or else fail
     (in case all should be retrieved it will have no params)
 

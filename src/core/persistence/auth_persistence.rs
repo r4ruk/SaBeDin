@@ -5,6 +5,7 @@ use crate::core::contracts::errors::GeneralServerError;
 use crate::core::contracts::user::{FilteredUser, LoginUserData, RegisterUserData};
 use crate::core::persistence::persistence_utils;
 use crate::core::persistence::query_builder::{QueryClause, SelectAmount};
+use crate::core::persistence::query_builder::Sorting::Default;
 use crate::core::persistence::table_name_supplier::TableNameSupplier;
 use crate::core::persistence::table_names::TableName;
 use crate::name_of;
@@ -14,7 +15,7 @@ pub async fn login_user(context: &ExecutionContext, user_data: LoginUserData) ->
     let mut where_clause: Vec<QueryClause> = vec![];
     where_clause.push(QueryClause::Equals(name_of!(email in LoginUserData)));
     let tablenamesupplier: Box<dyn TableNameSupplier> = Box::new(TableName::Users);
-    let search_query = QueryBuilder::Select(SelectAmount::All, tablenamesupplier, Some(where_clause));
+    let search_query = QueryBuilder::Select(tablenamesupplier, Some(where_clause), Default, None );
 
     let row = query(&search_query.build_query())
                             .bind(user_data.email)
@@ -59,8 +60,7 @@ pub async fn register_user(transaction: &mut sqlx::Transaction<'_, sqlx::Postgre
 
 pub async fn check_user_exists(context: &&ExecutionContext, email: String) -> Result<Option<bool>, GeneralServerError> {
     let where_query = vec![QueryClause::Equals(name_of!(email in RegisterUserData))];
-    let tablenamesupplier: Box<dyn TableNameSupplier> = Box::new(TableName::Users);
-    let select_exists = QueryBuilder::Select(SelectAmount::One, Box::new(TableName::Users), Some(where_query));
+    let select_exists = QueryBuilder::Select(Box::new(TableName::Users), Some(where_query), Default, None);
 
     let user_exists: Option<bool> =
         sqlx::query_scalar(&format!("SELECT EXISTS({})", select_exists.build_query()))

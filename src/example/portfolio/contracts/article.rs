@@ -19,18 +19,17 @@ pub struct Article {
     pub created_at: DateTime<Utc>,
 }
 
-/// Implement From<PgRow> for FilteredUser
+/// Implement From<PgRow> for Article
 impl From<PgRow> for Article {
     fn from(row: PgRow) -> Self {
-        // Extract fields from the row and construct a FilteredUser instance
-        // TODO add remaining information
+        // Extract fields from the row and construct an Article instance
         Article {
             id: row.get("id"),  // Adjust field names and types as necessary
-            programming_key_name: "".to_string(),
-            title: "".to_string(),
-            contents: "".to_string(),
-            tags: "".to_string(),
-            created_at: Default::default(),
+            programming_key_name: row.get("programming_key_name"),
+            title: row.get("title"),
+            contents: row.get("contents"),
+            tags: row.get("tags"),
+            created_at: row.get("created_at"),
         }
     }
 }
