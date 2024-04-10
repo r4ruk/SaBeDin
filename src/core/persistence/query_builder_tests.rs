@@ -7,9 +7,11 @@
 
 #[cfg(test)]
 mod query_builder_tests {
+    use crate::core::contracts::user::User;
     use crate::core::persistence::query_builder::{PagingQuery, QueryBuilder, QueryClause, Sorting};
-    use crate::core::persistence::query_builder::Sorting::Default;
+    use crate::core::persistence::query_builder::Sorting::{Ascending, Default, Descending};
     use crate::core::persistence::table_names::TableName;
+    use crate::name_of;
 
     #[test]
     fn test_select_single_statements() {
@@ -156,4 +158,77 @@ mod query_builder_tests {
         assert_eq!(query_expect, query.build_query());
     }
 
+    #[test]
+    fn test_paging_basic_statements() {
+        let mut where_clause: Vec<QueryClause> = vec![];
+        where_clause.push(QueryClause::Equals("name".to_string()));
+        where_clause.push(QueryClause::Equals("email".to_string()));
+
+        let mut query = QueryBuilder::Select(Box::new(TableName::Users),
+                                         Some(where_clause),
+                                         Default,
+                                         Some(PagingQuery{ amount: 1,
+                                             page_num: 0 }));
+
+        let mut query_expect = "SELECT * FROM users WHERE name = $1 AND email = $2 ORDER BY id LIMIT 1 OFFSET 0";
+        assert_eq!(query_expect, query.build_query());
+
+        query = QueryBuilder::Select(Box::new(TableName::Users),
+                                         None,
+                                         Default,
+                                         Some(PagingQuery{ amount: 5,
+                                             page_num: 0}));
+        query_expect = "SELECT * FROM users ORDER BY id LIMIT 5 OFFSET 0";
+        assert_eq!(query_expect, query.build_query());
+
+
+        query = QueryBuilder::Select(Box::new(TableName::Users),
+                                         None,
+                                         Default,
+                                         Some(PagingQuery{ amount: 5,
+                                             page_num: 1}));
+        query_expect = "SELECT * FROM users ORDER BY id LIMIT 5 OFFSET 5";
+        assert_eq!(query_expect, query.build_query());
+
+        query = QueryBuilder::Select(Box::new(TableName::Users),
+                                         None,
+                                         Default,
+                                         Some(PagingQuery{ amount: 5,
+                                             page_num: 2}));
+        query_expect = "SELECT * FROM users ORDER BY id LIMIT 5 OFFSET 10";
+        assert_eq!(query_expect, query.build_query());
+    }
+
+    #[test]
+    fn test_sorting() {
+
+        let mut query = QueryBuilder::Select(Box::new(TableName::Users),
+                                             None,
+                                             Ascending(vec![name_of!(email in User), name_of!(name in User)]),
+                                             None);
+        let mut query_expect = "SELECT * FROM users ORDER BY email,name";
+        assert_eq!(query_expect, query.build_query());
+
+        query = QueryBuilder::Select(Box::new(TableName::Users),
+                                     None,
+                                     Descending(vec![name_of!(email in User), name_of!(name in User)]),
+                                     None);
+        query_expect = "SELECT * FROM users ORDER BY email DESC,name DESC";
+        assert_eq!(query_expect, query.build_query());
+    }
+
+    #[test]
+    fn test_sorting_paging() {
+        let mut where_clause: Vec<QueryClause> = vec![];
+        where_clause.push(QueryClause::Equals("name".to_string()));
+        where_clause.push(QueryClause::Equals("email".to_string()));
+
+        let mut query = QueryBuilder::Select(Box::new(TableName::Users),
+                                             Some(where_clause),
+                                             Ascending(vec![name_of!(email in User), name_of!(name in User)]),
+                                             Some(PagingQuery{ amount: 1, page_num: 0 }));
+
+        let mut query_expect = "SELECT * FROM users WHERE name = $1 AND email = $2 ORDER BY email,name LIMIT 1 OFFSET 0";
+        assert_eq!(query_expect, query.build_query());
+    }
 }

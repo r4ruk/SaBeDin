@@ -39,7 +39,7 @@ impl Sorting {
             }
             // undefined sorting order should still be sorted as paging should always be on
             Sorting::Default => {
-                "ORDER BY id".to_string()
+                "ORDER BY id ".to_string()
             }
         }
     }
@@ -54,7 +54,7 @@ pub struct OrderInformation {
 impl PagingQuery {
     fn translate(&self) -> String {
         let offset = self.amount * self.page_num;
-        return format!(" LIMIT {} OFFSET {}", self.amount, offset)
+        return format!("LIMIT {} OFFSET {}", self.amount, offset)
     }
 }
 
@@ -127,7 +127,7 @@ fn build_select_statement(table_name: &Box<dyn TableNameSupplier>,
         None => ()
     }
 
-    return query.to_string()
+    return query.trim_end().to_string()
 }
 
 fn build_insert_statement(table_name: &Box<dyn TableNameSupplier>, field_names: &Vec<String>) -> String {
