@@ -1,9 +1,6 @@
+use crate::core::contracts::basic_informations::PagingQuery;
 use crate::core::persistence::table_name_supplier::TableNameSupplier;
 
-pub struct PagingQuery {
-    pub amount: i16,
-    pub page_num: i16
-}
 
 #[allow(unused)]
 pub enum Sorting {
@@ -52,7 +49,7 @@ pub struct OrderInformation {
 }
 
 impl PagingQuery {
-    fn translate(&self) -> String {
+    fn translate_sql(&self) -> String {
         let offset = self.amount * self.page_num;
         return format!("LIMIT {} OFFSET {}", self.amount, offset)
     }
@@ -123,7 +120,7 @@ fn build_select_statement(table_name: &Box<dyn TableNameSupplier>,
     query = query + &build_where_clause_simple(where_clauses);
     query =  query + &sorting.translate();
     match paging_query {
-        Some(paging) => query = query + &paging.translate(),
+        Some(paging) => query = query + &paging.translate_sql(),
         None => ()
     }
 

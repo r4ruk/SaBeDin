@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod queue_tests {
     use uuid::Uuid;
-    use crate::core::contracts::basic_informations::RequestPostBody;
+    use crate::core::contracts::basic_informations::{PagingQuery, RequestPostBody};
     use crate::core::contracts::queue_types::QueueRequestMessage;
     use crate::core::utils::test_helper;
     use crate::core::utils::test_helper::get_config;
@@ -23,6 +23,7 @@ mod queue_tests {
                 method: "get".to_string(),
                 object: "".to_string(),
                 params: Default::default(),
+                paging_query: PagingQuery { amount: 50, page_num: 0 },
             },
             timestamp: Default::default(),
         }).await;
@@ -60,6 +61,7 @@ mod queue_tests {
                 method: "get".to_string(),
                 object: "".to_string(),
                 params: Default::default(),
+                paging_query: PagingQuery { amount: 50, page_num: 0 },
             },
             timestamp: Default::default(),
         }).await;
@@ -84,6 +86,7 @@ mod queue_tests {
                 method: "get".to_string(),
                 object: "".to_string(),
                 params: Default::default(),
+                paging_query: PagingQuery { amount: 50, page_num: 0 },
             },
             timestamp: Default::default(),
         }).await;

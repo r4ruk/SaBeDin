@@ -5,7 +5,7 @@ use tokio::sync::Mutex;
 use async_trait::async_trait;
 use log::{info, warn};
 use uuid::Uuid;
-use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
+use crate::core::contracts::basic_informations::{PagingQuery, RequestPostBody, ResponseBody};
 use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
 use crate::core::contracts::queue_types::QueueRequestMessage;
@@ -74,6 +74,7 @@ impl ServiceManagerProvider for ServiceManager {
                         method: "get".to_string(),
                         object: "".to_string(),
                         params,
+                        paging_query: PagingQuery { amount: 50, page_num: 0 },
                     },
                     timestamp: Default::default(),
                 }).await?;
