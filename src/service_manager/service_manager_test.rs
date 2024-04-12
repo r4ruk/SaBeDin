@@ -58,6 +58,7 @@ mod service_manager_test {
             method: "generalmethod".to_string(),
             object: json!(user).to_string(),
             params: HashMap::new(),
+            query_options: Default::default(),
         };
         let rs = &create_execution_context(db, mq, None).await;
         let _r = manager.try_handle(rs, SERVICE_NAME, requestpostbody).await;

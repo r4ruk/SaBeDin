@@ -19,12 +19,22 @@ impl ClientHandler for ArticleClient {
     }
 
     /// <inherits />
+    /// TODO handle multiparams in a nicer way -> Get all can/should have multiple params definitely,
+    /// TODO should also be able to give query, sorting, paging in params. handle this....
     async fn handle_query(&self, context: &ExecutionContext, params: HashMap<String, String>) -> ResponseBody {
         println!("{:?}", params);
         if params.len() == 1 {
             let (key, val) = params.iter().nth(0).unwrap();
-            let ret_val: Result<Article, GeneralServerError> = match key.as_str() {
-                "programmingKeyName" => crate::example::portfolio::service::article_service::get_article_by_pkn(context, val).await,
+            let ret_val: Result<Vec<Article>, GeneralServerError> = match key.as_str() {
+                "programmingKeyName" => {
+                    let res = crate::example::portfolio::service::article_service::get_article_by_pkn(context, val).await;
+                    if res.is_ok() {
+                        Ok(vec![res.unwrap()])
+                    } else {
+                        Err(res.err().unwrap())
+                    }
+                },
+                "getAll" => crate::example::portfolio::service::article_service::get_all(context, None).await,
                 _ => {
                     println!("unsupported parameters");
                     Err(GeneralServerError{ message: "unsupported params".to_string() })

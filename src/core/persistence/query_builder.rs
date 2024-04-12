@@ -1,8 +1,10 @@
+use serde::{Deserialize, Serialize};
 use crate::core::contracts::basic_informations::PagingQuery;
 use crate::core::persistence::table_name_supplier::TableNameSupplier;
 
 
 #[allow(unused)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum Sorting {
     Ascending(Vec<String>),
     Descending(Vec<String>),
@@ -78,6 +80,7 @@ pub enum QueryBuilder {
 
 /// Query clause taking propertyname as parameter.
 #[allow(unused)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum QueryClause {
     Equals(String),
     StartsWith(String),

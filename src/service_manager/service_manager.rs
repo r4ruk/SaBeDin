@@ -74,7 +74,7 @@ impl ServiceManagerProvider for ServiceManager {
                         method: "get".to_string(),
                         object: "".to_string(),
                         params,
-                        paging_query: PagingQuery { amount: 50, page_num: 0 },
+                        query_options: Default::default(),
                     },
                     timestamp: Default::default(),
                 }).await?;

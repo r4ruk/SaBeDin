@@ -1,4 +1,5 @@
 use sqlx::query;
+use crate::core::contracts::basic_informations::{PagingQuery, QueryOptions};
 use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
 use crate::core::persistence::persistence_errors::PersistenceError;
@@ -34,8 +35,14 @@ pub async fn get_by_pkn(context: &ExecutionContext, pkn: &str) -> Result<Article
 
 /// Function returns all articles stored
 // TODO think about paging/sorting information which can also be done on the database
-pub async fn get_all(context: &ExecutionContext) -> Result<Vec<Article>, GeneralServerError> {
-    let search_query = QueryBuilder::Select(Box::new(TableNamePortfolio::Article), None, Default, None);
+pub async fn get_all(context: &ExecutionContext, query_options: QueryOptions) -> Result<Vec<Article>, GeneralServerError> {
+
+    let search_query =
+        QueryBuilder::Select(
+            Box::new(TableNamePortfolio::Article),
+            Some(query_options.queries),
+            query_options.sorting_information,
+            Some(query_options.paging_information));
 
     let rows = query(&search_query.build_query())
         .fetch_all(&context.db).await?;
@@ -49,5 +56,4 @@ pub async fn get_all(context: &ExecutionContext) -> Result<Vec<Article>, General
         let error = PersistenceError::CouldntFindSingle(TableNamePortfolio::Article.extract_table_name());
         Err(GeneralServerError{ message: error.get_err_message()})
     }
-
 }
