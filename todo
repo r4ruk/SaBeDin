@@ -49,7 +49,12 @@ next step:
 
 
 {SERVICE MANAGER}
-[] figure out a way to handle paging and sorting as efficiently as possible (also as generically as possible)
+[X] figure out a way to handle paging and sorting as efficiently as possible (also as generically as possible)
+    [] How does the request param look for a function with multiple params?
+        Thoughts...(for example webpage.com?function=getall&sortbyasc=name)
+    [] Add handler which can build QueryOptions from given params
+    [] Add REST/HTTP documentation about params expected for paging and sorting (in BE already
+        handled in params_object_builder.rs)
 [] Refactor handle_query function to not only work with single param or else fail
     (in case all should be retrieved it will have no params)
 
