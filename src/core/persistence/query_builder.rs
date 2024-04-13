@@ -52,8 +52,8 @@ pub struct OrderInformation {
 
 impl PagingQuery {
     fn translate_sql(&self) -> String {
-        let offset = self.amount * self.page_num;
-        return format!("LIMIT {} OFFSET {}", self.amount, offset)
+        let offset = self.amount_of_items * self.page_num;
+        return format!("LIMIT {} OFFSET {}", self.amount_of_items, offset)
     }
 }
 

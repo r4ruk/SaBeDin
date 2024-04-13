@@ -15,7 +15,7 @@ mod query_builder_tests {
 
     #[test]
     fn test_select_single_statements() {
-        let query = QueryBuilder::Select(Box::new(TableName::Users), None, Default, Some(PagingQuery{ amount: 1, page_num: 0 }));
+        let query = QueryBuilder::Select(Box::new(TableName::Users), None, Default, Some(PagingQuery{ amount_of_items: 1, page_num: 0 }));
         let query_string = "SELECT * FROM users ORDER BY id LIMIT 1 OFFSET 0";
         assert_eq!(query_string, query.build_query());
     }
@@ -26,7 +26,7 @@ mod query_builder_tests {
         let mut where_clause: Vec<QueryClause> = vec![];
         where_clause.push(QueryClause::Equals("name".to_string()));
 
-        let query = QueryBuilder::Select(Box::new(TableName::Users), Some(where_clause), Default, Some(PagingQuery{amount: 1, page_num: 0}));
+        let query = QueryBuilder::Select(Box::new(TableName::Users), Some(where_clause), Default, Some(PagingQuery{ amount_of_items: 1, page_num: 0}));
         let query_string = "SELECT * FROM users WHERE name = $1 ORDER BY id LIMIT 1 OFFSET 0";
         assert_eq!(query_string, query.build_query());
 
@@ -36,7 +36,7 @@ mod query_builder_tests {
         where_clause.push(QueryClause::Equals("name".to_string()));
         where_clause.push(QueryClause::Equals("email".to_string()));
 
-        let query = QueryBuilder::Select(Box::new(TableName::Users), Some(where_clause), Default, Some(PagingQuery { amount: 1, page_num: 0 }));
+        let query = QueryBuilder::Select(Box::new(TableName::Users), Some(where_clause), Default, Some(PagingQuery { amount_of_items: 1, page_num: 0 }));
         let query_string = "SELECT * FROM users WHERE name = $1 AND email = $2 ORDER BY id LIMIT 1 OFFSET 0";
         assert_eq!(query_string, query.build_query());
     }
@@ -46,13 +46,13 @@ mod query_builder_tests {
         let mut where_clause: Vec<QueryClause> = vec![];
         where_clause.push(QueryClause::BiggerThan("number".to_string()));
 
-        let query = QueryBuilder::Select(Box::new(TableName::Users), Some(where_clause), Default, Some(PagingQuery { amount: 1, page_num: 0 }));
+        let query = QueryBuilder::Select(Box::new(TableName::Users), Some(where_clause), Default, Some(PagingQuery { amount_of_items: 1, page_num: 0 }));
         let query_string = "SELECT * FROM users WHERE number > $1 ORDER BY id LIMIT 1 OFFSET 0";
         assert_eq!(query_string, query.build_query());
 
         where_clause = vec![];
         where_clause.push(QueryClause::SmallerThan("number".to_string()));
-        let query = QueryBuilder::Select(Box::new(TableName::Users), Some(where_clause), Default, Some(PagingQuery { amount: 1, page_num: 0 }));
+        let query = QueryBuilder::Select(Box::new(TableName::Users), Some(where_clause), Default, Some(PagingQuery { amount_of_items: 1, page_num: 0 }));
         let query_string = "SELECT * FROM users WHERE number < $1 ORDER BY id LIMIT 1 OFFSET 0";
         assert_eq!(query_string, query.build_query());
 
@@ -65,13 +65,13 @@ mod query_builder_tests {
 
         where_clause = vec![];
         where_clause.push(QueryClause::EndsWith("name".to_string()));
-        let query = QueryBuilder::Select(Box::new(TableName::Users), Some(where_clause), Default, Some(PagingQuery { amount: 1, page_num: 0 }));
+        let query = QueryBuilder::Select(Box::new(TableName::Users), Some(where_clause), Default, Some(PagingQuery { amount_of_items: 1, page_num: 0 }));
         let query_string = "SELECT * FROM users WHERE name LIKE %$1 ORDER BY id LIMIT 1 OFFSET 0";
         assert_eq!(query_string, query.build_query());
 
         where_clause = vec![];
         where_clause.push(QueryClause::Contains("name".to_string()));
-        let query = QueryBuilder::Select(Box::new(TableName::Users), Some(where_clause), Default, Some(PagingQuery { amount: 1, page_num: 0 }));
+        let query = QueryBuilder::Select(Box::new(TableName::Users), Some(where_clause), Default, Some(PagingQuery { amount_of_items: 1, page_num: 0 }));
         let query_string = "SELECT * FROM users WHERE name LIKE %$1% ORDER BY id LIMIT 1 OFFSET 0";
         assert_eq!(query_string, query.build_query());
 
@@ -79,7 +79,7 @@ mod query_builder_tests {
         where_clause.push(QueryClause::SmallerThan("number".to_string()));
         where_clause.push(QueryClause::Equals("name".to_string()));
 
-        let query = QueryBuilder::Select(Box::new(TableName::Users), Some(where_clause), Default, Some(PagingQuery { amount: 1, page_num: 0 }));
+        let query = QueryBuilder::Select(Box::new(TableName::Users), Some(where_clause), Default, Some(PagingQuery { amount_of_items: 1, page_num: 0 }));
         let query_string = "SELECT * FROM users WHERE number < $1 AND name = $2 ORDER BY id LIMIT 1 OFFSET 0";
         assert_eq!(query_string, query.build_query());
     }
@@ -93,7 +93,7 @@ mod query_builder_tests {
 
     #[test]
     fn test_select_subset_statements() {
-        let query = QueryBuilder::Select(Box::new(TableName::Users), None, Sorting::Default, Some(PagingQuery{ amount: 5, page_num: 0 }));
+        let query = QueryBuilder::Select(Box::new(TableName::Users), None, Sorting::Default, Some(PagingQuery{ amount_of_items: 5, page_num: 0 }));
         let query_string = "SELECT * FROM users ORDER BY id LIMIT 5 OFFSET 0";
         assert_eq!(query_string, query.build_query());
     }
@@ -167,7 +167,7 @@ mod query_builder_tests {
         let mut query = QueryBuilder::Select(Box::new(TableName::Users),
                                          Some(where_clause),
                                          Default,
-                                         Some(PagingQuery{ amount: 1,
+                                         Some(PagingQuery{ amount_of_items: 1,
                                              page_num: 0 }));
 
         let mut query_expect = "SELECT * FROM users WHERE name = $1 AND email = $2 ORDER BY id LIMIT 1 OFFSET 0";
@@ -176,7 +176,7 @@ mod query_builder_tests {
         query = QueryBuilder::Select(Box::new(TableName::Users),
                                          None,
                                          Default,
-                                         Some(PagingQuery{ amount: 5,
+                                         Some(PagingQuery{ amount_of_items: 5,
                                              page_num: 0}));
         query_expect = "SELECT * FROM users ORDER BY id LIMIT 5 OFFSET 0";
         assert_eq!(query_expect, query.build_query());
@@ -185,7 +185,7 @@ mod query_builder_tests {
         query = QueryBuilder::Select(Box::new(TableName::Users),
                                          None,
                                          Default,
-                                         Some(PagingQuery{ amount: 5,
+                                         Some(PagingQuery{ amount_of_items: 5,
                                              page_num: 1}));
         query_expect = "SELECT * FROM users ORDER BY id LIMIT 5 OFFSET 5";
         assert_eq!(query_expect, query.build_query());
@@ -193,7 +193,7 @@ mod query_builder_tests {
         query = QueryBuilder::Select(Box::new(TableName::Users),
                                          None,
                                          Default,
-                                         Some(PagingQuery{ amount: 5,
+                                         Some(PagingQuery{ amount_of_items: 5,
                                              page_num: 2}));
         query_expect = "SELECT * FROM users ORDER BY id LIMIT 5 OFFSET 10";
         assert_eq!(query_expect, query.build_query());
@@ -226,7 +226,7 @@ mod query_builder_tests {
         let mut query = QueryBuilder::Select(Box::new(TableName::Users),
                                              Some(where_clause),
                                              Ascending(vec![name_of!(email in User), name_of!(name in User)]),
-                                             Some(PagingQuery{ amount: 1, page_num: 0 }));
+                                             Some(PagingQuery{ amount_of_items: 1, page_num: 0 }));
 
         let mut query_expect = "SELECT * FROM users WHERE name = $1 AND email = $2 ORDER BY email,name LIMIT 1 OFFSET 0";
         assert_eq!(query_expect, query.build_query());

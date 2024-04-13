@@ -18,14 +18,14 @@ pub struct ResponseBody {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PagingQuery {
-    pub amount: i16,
+    pub amount_of_items: i16,
     pub page_num: i16
 }
 
 impl Default for PagingQuery {
     fn default() -> Self {
         return Self {
-            amount: 20,
+            amount_of_items: 20,
             page_num: 0,
         }
     }

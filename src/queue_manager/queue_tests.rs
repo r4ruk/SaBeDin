@@ -23,7 +23,7 @@ mod queue_tests {
                 method: "get".to_string(),
                 object: "".to_string(),
                 params: Default::default(),
-                paging_query: PagingQuery { amount: 50, page_num: 0 },
+                paging_query: PagingQuery { amount_of_items: 50, page_num: 0 },
             },
             timestamp: Default::default(),
         }).await;
@@ -61,7 +61,7 @@ mod queue_tests {
                 method: "get".to_string(),
                 object: "".to_string(),
                 params: Default::default(),
-                paging_query: PagingQuery { amount: 50, page_num: 0 },
+                paging_query: PagingQuery { amount_of_items: 50, page_num: 0 },
             },
             timestamp: Default::default(),
         }).await;
@@ -86,7 +86,7 @@ mod queue_tests {
                 method: "get".to_string(),
                 object: "".to_string(),
                 params: Default::default(),
-                paging_query: PagingQuery { amount: 50, page_num: 0 },
+                paging_query: PagingQuery { amount_of_items: 50, page_num: 0 },
             },
             timestamp: Default::default(),
         }).await;

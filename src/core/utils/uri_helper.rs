@@ -6,7 +6,7 @@ pub fn handle_params(params: &str) -> HashMap<String, String> {
     let param_vec:Vec<&str> = params.split('&').collect::<Vec<&str>>();
     for param in param_vec {
         if let Some((name, value)) = param.split_once('=') {
-            map_params.entry(name.to_string()).or_insert(value.to_string());
+            map_params.entry(name.to_string().to_lowercase()).or_insert(value.to_string());
         } else {
             println!("couldnt read name value params")
         }
