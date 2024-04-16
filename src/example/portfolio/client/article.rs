@@ -35,6 +35,10 @@ impl ClientHandler for ArticleClient {
                 Err(e) => ResponseBody { body: json!(e.message).to_string() },
             };
         } else {
+            // no param method contributed so it should be defaulted to getall
+            if params.contains_key("method") {
+                params.insert("method".to_string(), "getall".to_string());
+            }
             return match handle_multi_param_query(context, &mut params).await {
                 Ok(ret) => ResponseBody { body: json!(ret).to_string() },
                 Err(e) => ResponseBody { body: json!(e.message).to_string() },
