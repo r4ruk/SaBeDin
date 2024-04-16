@@ -5,6 +5,7 @@ mod service_manager;
 mod config;
 mod routes;
 mod example;
+mod cache;
 
 use std::sync::Arc;
 use crate::core::app;

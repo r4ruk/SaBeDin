@@ -1,5 +1,5 @@
 use sqlx::query;
-use crate::core::contracts::basic_informations::{PagingQuery, QueryOptions};
+use crate::core::contracts::basic_informations::{QueryOptions};
 use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
 use crate::core::persistence::persistence_errors::PersistenceError;

@@ -1,12 +1,10 @@
 use std::collections::HashMap;
 use async_trait::async_trait;
-use serde_json::{json, Value};
-use sqlx::query;
-use crate::core::contracts::basic_informations::{QueryOptions, RequestPostBody, ResponseBody};
+use serde_json::{json};
+use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
 use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
 use crate::core::contracts::services::ClientHandler;
-use crate::core::persistence::query_builder::Sorting;
 use crate::example::portfolio::contracts::article::Article;
 use crate::service_manager::params_object_builder::build_query_options_from_params;
 

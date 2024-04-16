@@ -20,11 +20,6 @@ pub struct ExecutionContext {
 }
 
 impl ExecutionContext {
-    pub async fn new() -> Self {
-        let manager = ServiceManager::new().await;
-        return Self::new_with_manager(manager).await
-    }
-
     pub async fn new_with_manager(existing_service_manager: ServiceManager) -> Self {
         dotenv().ok();
         let config = Config::init();
