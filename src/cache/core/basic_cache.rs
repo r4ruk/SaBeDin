@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use chrono::{DateTime, Utc};
 use serde::de::DeserializeOwned;
+use serde_json::map::Entry;
 use serde_json::Value;
 
 pub struct Cache {
@@ -16,7 +17,7 @@ pub struct Cache {
 }
 
 /// Lifetime definitions for store
-enum StoreLifetime {
+pub enum StoreLifetime {
     Short,
     Mid,
     Persistent
@@ -35,6 +36,7 @@ impl Cache {
     pub fn get<TItem>(&self, key: &str) -> Option<TItem>
         where
             TItem: DeserializeOwned {
+
         // retrieving from store which is most up to date
         let element = self.get_from_cache(StoreLifetime::Short, key)
             .or_else(|| self.get_from_cache(StoreLifetime::Mid, key))
@@ -42,7 +44,8 @@ impl Cache {
 
         match element {
             Some(value) => {
-                println!("element: {:?}", value);
+                // debug print to see element which gets retrieved
+                // println!("element: {:?}", value);
                 Some(serde_json::from_value::<TItem>(value).unwrap())
             },
             None => return None
@@ -66,6 +69,11 @@ impl Cache {
     // method adds element to cache (into default store which is short (1h))
     pub fn add_element(&mut self, item: (String, Value)) {
         self.add_element_internal(item, StoreLifetime::Short);
+    }
+
+    /// Method replaces element if it exists and otherwise inserts the given value
+    pub fn update_element(&mut self, item: (String, Value), store_lifetime: StoreLifetime) {
+        self.add_element_in_specific_store(item, store_lifetime)
     }
 
     // method to add element into specific store
