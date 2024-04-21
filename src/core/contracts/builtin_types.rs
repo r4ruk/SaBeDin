@@ -14,8 +14,8 @@ pub mod custom_uuid {
     where
         D: Deserializer<'de>
     {
-        let val: &str = Deserialize::deserialize(deserializer)?;
-        Uuid::from_str(val).map_err(D::Error::custom)
+        let val: String = Deserialize::deserialize(deserializer)?;
+        Uuid::from_str(&val).map_err(D::Error::custom)
     }
 }
 
@@ -31,8 +31,8 @@ pub mod custom_datetime {
         where
             D: Deserializer<'de>
     {
-        let val: &str = Deserialize::deserialize(deserializer)?;
-        let parsed = DateTime::parse_from_rfc3339(val);
+        let val: String = Deserialize::deserialize(deserializer)?;
+        let parsed = DateTime::parse_from_rfc3339(&val);
         let deserialized_time: DateTime<Utc>;
         match parsed {
             Ok(value) => deserialized_time = value.into(),

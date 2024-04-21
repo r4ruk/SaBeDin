@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use chrono::{DateTime, Utc};
+use serde::de::DeserializeOwned;
 use serde_json::Value;
-use time::Duration;
 
 pub struct Cache {
     // cache holding information for an hour
@@ -22,7 +22,6 @@ enum StoreLifetime {
     Persistent
 }
 
-
 impl Cache {
     pub fn initialize() -> Self {
         return Cache {
@@ -33,10 +32,20 @@ impl Cache {
     }
 
     // gets a possible value from the available stores depending on the given key
-    pub fn get(&self, key: &str) -> Option<Value> {
-        self.get_from_cache(StoreLifetime::Short, key)
+    pub fn get<TItem>(&self, key: &str) -> Option<TItem>
+        where
+            TItem: DeserializeOwned {
+        let element = self.get_from_cache(StoreLifetime::Short, key)
             .or_else(|| self.get_from_cache(StoreLifetime::Mid, key))
-            .or_else(|| self.get_from_cache(StoreLifetime::Persistent, key))
+            .or_else(|| self.get_from_cache(StoreLifetime::Persistent, key));
+
+        match element {
+            Some(value) => {
+                println!("element: {:?}", value);
+                Some(serde_json::from_value::<TItem>(value).unwrap())
+            },
+            None => return None
+        }
     }
 
     // method adds element to cache (into default store which is short (1h))

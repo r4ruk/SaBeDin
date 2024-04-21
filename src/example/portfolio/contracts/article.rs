@@ -13,7 +13,6 @@ pub struct Article {
     pub title: String,
     pub contents: String,
     pub tags: String,
-    #[serde(rename = "createdAt")]
     #[serde(with = "custom_datetime")]
     pub created_at: DateTime<Utc>,
 }
