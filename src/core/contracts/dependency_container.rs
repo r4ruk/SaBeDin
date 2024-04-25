@@ -8,7 +8,7 @@ use crate::core::contracts::authentication_provider::AuthProvider;
 use crate::core::contracts::service_manager_provider::ServiceManagerProvider;
 use crate::core::persistence::db_pool;
 use crate::queue_manager::manager::QueueManager;
-use crate::service_manager::service_manager::{ServiceManagerConstruction, ServiceManager};
+use crate::service_manager::service_manager::{ServiceManager};
 
 pub struct ExecutionContext {
     pub service_manager: Arc<dyn ServiceManagerProvider>,
