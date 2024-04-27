@@ -2,6 +2,7 @@ use std::sync::Arc;
 use dotenv::dotenv;
 use sqlx::{Pool, Postgres};
 use deadpool_lapin::Pool as mq_pool;
+use crate::cache::core::basic_cache::Cache;
 use crate::config::Config;
 use crate::core::client::auth::AuthClient;
 use crate::core::contracts::authentication_provider::AuthProvider;
@@ -15,8 +16,9 @@ pub struct ExecutionContext {
     pub auth_provider: Arc<dyn AuthProvider>,
     pub env: Config,
     pub db: Pool<Postgres>,
-    pub queue: mq_pool
-    // redis_client: Client,
+    pub queue: mq_pool,
+    pub cache: Cache,
+   // redis_client: Client,
 }
 
 impl ExecutionContext {
@@ -28,7 +30,8 @@ impl ExecutionContext {
             auth_provider: Arc::new(AuthClient{}),
             env: config.clone(),
             db: db_pool::init(&config.database_url).await,
-            queue: QueueManager::init().await
+            queue: QueueManager::init().await,
+            cache: Cache::initialize()
         }
     }
 }

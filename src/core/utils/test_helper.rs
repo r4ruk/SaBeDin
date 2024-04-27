@@ -2,6 +2,7 @@ use std::sync::Arc;
 use dotenv::dotenv;
 use sqlx::{Pool, Postgres};
 use deadpool_lapin::Pool as mq_pool;
+use crate::cache::core::basic_cache::Cache;
 use crate::config::Config;
 use crate::core::client::auth::AuthClient;
 use crate::core::contracts::dependency_container::ExecutionContext;
@@ -23,6 +24,7 @@ pub async fn create_execution_context(db: Pool<Postgres>, qm: mq_pool, config: O
             env: conf.clone(),
             db,
             queue: qm,
+            cache: Cache::initialize(),
         },
         None => ExecutionContext {
             service_manager: Arc::new(ServiceManager::new().await).clone(),
@@ -30,6 +32,7 @@ pub async fn create_execution_context(db: Pool<Postgres>, qm: mq_pool, config: O
             env: get_config().clone(),
             db,
             queue: qm,
+            cache: Cache::initialize(),
         }
     };
 }
