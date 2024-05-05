@@ -2,7 +2,9 @@ use chrono::Utc;
 use serde_json::json;
 use uuid::Uuid;
 use crate::cache::core::basic_cache::{Cache, StoreLifetime};
+use crate::cache::core::persistent_cache::PersistentStorage;
 use crate::example::portfolio::contracts::article::Article;
+use crate::cache::core::persistent_cache::PersistentStorageHandler;
 
 /// function used to initialize the basic testcase
 fn initialize_basic_cache_testcase() -> (Article, Cache) {
@@ -105,4 +107,10 @@ fn test_invalidate_item_cache() {
     cache.invalidate_item(&cache_key);
     let none_element = cache.get::<Article>(&cache_key);
     assert_eq!(none_element.is_none(), true)
+}
+
+#[test]
+fn test_persistent() {
+    let asdf = PersistentStorage{};
+    asdf.append_element(json!("test"))
 }

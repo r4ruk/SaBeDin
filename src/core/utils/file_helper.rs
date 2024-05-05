@@ -7,3 +7,8 @@ pub fn read_settings(filename: &str) -> io::Result<String> {
     println!("{:?}", path);
     return fs::read_to_string(path)
 }
+
+pub fn get_temp() -> String {
+    let mut dir = env::temp_dir().into_os_string().into_string().unwrap();
+    return dir
+}

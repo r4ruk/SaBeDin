@@ -2,8 +2,9 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use chrono::{DateTime, Utc};
 use serde::de::DeserializeOwned;
-use serde_json::map::Entry;
 use serde_json::Value;
+use crate::cache::core::persistent_cache::PersistentStorage;
+use crate::core::persistence::query_builder::Sorting::Default;
 
 pub struct Cache {
     // cache holding information for an hour
@@ -11,6 +12,8 @@ pub struct Cache {
 
     // store holding information for 8 hours
     mid_store: Arc<Mutex<HashMap<String, ( DateTime<Utc>, Value)>>>,
+
+    persistent_store: Arc<Mutex<PersistentStorage>>
 
     // store holding information persistently (stored in an intermediate store
     // persistent_store: Arc<Mutex<HashMap<String, (DateTime<Utc>, Value)>>>
@@ -27,8 +30,9 @@ impl Cache {
     /// Initializes the Cache
     pub fn initialize() -> Self {
         return Cache {
-            short_store: Default::default(),
-            mid_store: Default::default()
+            short_store: Arc::new(Mutex::new(HashMap::new())),
+            mid_store: Arc::new(Mutex::new(HashMap::new())),
+            persistent_store: Arc::new(Mutex::new(PersistentStorage{}))
         }
     }
 
