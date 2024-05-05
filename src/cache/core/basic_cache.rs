@@ -32,7 +32,7 @@ impl Cache {
         return Cache {
             short_store: Arc::new(Mutex::new(HashMap::new())),
             mid_store: Arc::new(Mutex::new(HashMap::new())),
-            persistent_store: Arc::new(Mutex::new(PersistentStorage{}))
+            persistent_store: Arc::new(Mutex::new(PersistentStorage::initialize()))
         }
     }
 

@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use chrono::Utc;
 use serde_json::json;
 use uuid::Uuid;
@@ -111,6 +112,6 @@ fn test_invalidate_item_cache() {
 
 #[test]
 fn test_persistent() {
-    let asdf = PersistentStorage{};
-    asdf.append_element(json!("test"))
+    let asdf = PersistentStorage::initialize();
+    asdf.append_element("testkey".to_string(), json!("test"))
 }
