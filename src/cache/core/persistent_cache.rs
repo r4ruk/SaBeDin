@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fs;
 use std::fs::{File, OpenOptions, remove_file};
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::ops::Add;
@@ -6,10 +7,11 @@ use std::path::Path;
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 use crate::core::utils::file_helper;
+use crate::core::utils::utils::get_os_newline;
 
 pub trait PersistentStorageHandler {
     fn get<TItem>(&self, key: &str) -> Option<TItem> where TItem: DeserializeOwned;
-    fn append_element(&self,key: String, element: Value);
+    fn append_element(&mut self,key: String, element: Value);
     fn remove_element(&self, key: String);
     fn reset_store(&self);
     fn reload_store(&mut self);
@@ -29,35 +31,25 @@ impl PersistentStorageHandler for PersistentStorage {
         where
             TItem: DeserializeOwned {
 
-         // redis or textfile or something else?
-
+        // todo read from store itself which should have actual data always loaded.
 
         return None
     }
 
-    fn append_element(&self, key: String, element: Value) {
-        let path_with_file = Self::get_cache_path();
-        println!("persistant file store: {}", path_with_file);
-        let path_buf = Path::new(&path_with_file);
-
-        let file = OpenOptions::new()
-            .read(true)
-            .write(true)
-            .create(true)
-            .append(true)
-            .open(path_buf);
-
-        let mut file = BufWriter::new(file.unwrap());
-        let result = writeln!(file, "{};{}",key, element.to_string());
-
-        if result.is_err() {
-            // TODO Add logger finally now.
+    fn append_element(&mut self, key: String, element: Value) {
+        if self.store.contains_key(&key) {
+            self.store.insert(key, element);
+            self.rewrite_full()
+        } else {
+            let mut newlines = HashMap::new();
+            newlines.insert(key, element);
+            Self::write_lines(newlines);
         }
     }
 
-    fn remove_element(&self, key: String) {
-        todo!()
-        // todo probably just rewrite full cache with removed element from hashmap
+    fn remove_element(&mut self, key: String) {
+        self.store.remove(&key);
+        self.rewrite_full();
     }
 
     fn reset_store(&self) {
@@ -92,4 +84,38 @@ impl PersistentStorage {
         let path_with_file = dir.add("persistent_cache.txt");
         path_with_file
     }
+
+    fn rewrite_full(&self) {
+        let cachepath = Self::get_cache_path();
+        // loop to retry if file is not closed at that moment
+        loop {
+            let result = remove_file(cachepath.clone());
+            if result.is_ok(){
+                break
+            }
+        }
+        self.rewrite_full();
+    }
+
+    fn write_lines(lines: HashMap<String, Value>) {
+        let path_with_file = Self::get_cache_path();
+        println!("persistant file store: {}", path_with_file);
+        let path_buf = Path::new(&path_with_file);
+
+        let file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .append(true)
+            .open(path_buf);
+
+        let mut file = BufWriter::new(file.unwrap());
+        for line in lines {
+            let result = writeln!(file, "{};{}",line.0, line.1.to_string());
+            if result.is_err() {
+                // TODO add logger functionality
+            }
+        }
+    }
 }
+

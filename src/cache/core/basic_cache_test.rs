@@ -112,6 +112,6 @@ fn test_invalidate_item_cache() {
 
 #[test]
 fn test_persistent() {
-    let asdf = PersistentStorage::initialize();
+    let mut asdf = PersistentStorage::initialize();
     asdf.append_element("testkey".to_string(), json!("test"))
 }
