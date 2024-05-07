@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use chrono::{DateTime, Utc};
 use serde::de::DeserializeOwned;
 use serde_json::Value;
-use crate::cache::core::persistent_cache::PersistentStorage;
+use crate::cache::core::persistent_cache::{PersistentStorage, PersistentStorageHandler};
 use crate::core::persistence::query_builder::Sorting::Default;
 
 pub struct Cache {
@@ -94,9 +94,8 @@ impl Cache {
             StoreLifetime::Mid => {
                 self.mid_store.lock().unwrap().insert(item.0, (Utc::now(), item.1));
             },
-            // TODO as soon as persistent storage is implemented add real retrieving functionality here.
             StoreLifetime::Persistent => {
-                self.mid_store.lock().unwrap().insert(item.0, (Utc::now(), item.1));
+                self.persistent_store.lock().unwrap().insert(item.0, (Utc::now(), item.1));
             }
         }
     }
@@ -106,7 +105,7 @@ impl Cache {
         let result = match from_lifetime {
             StoreLifetime::Short => self.short_store.lock().unwrap().get(key).cloned(),
             StoreLifetime::Mid => self.mid_store.lock().unwrap().get(key).cloned(),
-            StoreLifetime::Persistent => self.mid_store.lock().unwrap().get(key).cloned(),
+            StoreLifetime::Persistent => self.persistent_store.lock().unwrap().get(key).cloned()
         };
 
         match result {
