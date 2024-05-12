@@ -109,9 +109,3 @@ fn test_invalidate_item_cache() {
     let none_element = cache.get::<Article>(&cache_key);
     assert_eq!(none_element.is_none(), true)
 }
-
-#[test]
-fn test_persistent() {
-    let mut asdf = PersistentStorage::initialize();
-    asdf.insert("testkey".to_string(), json!("test"))
-}

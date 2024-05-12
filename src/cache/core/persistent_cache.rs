@@ -35,6 +35,7 @@ impl PersistentStorageHandler for PersistentStorage {
         return result
     }
 
+    // inserts or updates (if existing) element
     fn insert(&mut self, key: String, element: (DateTime<Utc>, Value)) {
         if self.store.contains_key(&key) {
             self.store.insert(key, element);
@@ -90,12 +91,20 @@ impl PersistentStorage {
         let cachepath = Self::get_cache_path();
         // loop to retry if file is not closed at that moment
         loop {
-            let result = remove_file(cachepath.clone());
-            if result.is_ok(){
-                break
+            match fs::metadata(&cachepath) {
+                Ok(_) => {
+                    let result = remove_file(cachepath.clone());
+                    if result.is_ok() {
+                        break;
+                    }
+                }
+                Err(err) => {
+                    // TODO Logger.Log File does not exist
+                }
             }
         }
-        self.rewrite_full();
+        // write line in any case here as it shouldve been purged
+        Self::write_lines(self.store.clone());
     }
 
     fn write_lines(lines: HashMap<String, (DateTime<Utc>,Value)>) {

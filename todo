@@ -3,6 +3,10 @@ NEXT todo:
 [] cache in the backend handling
 [] Add global logging possibility
 [] think about exception handling
+[] implement idempotency command handling (every command has to come with a id which is clearly identifyable
+    to skip running in case of retry, add log table which can handle this)
+[] Limit waiting time for returning queue message to certain amount
+
 
 next step:
 [X] Introduce BL layer
