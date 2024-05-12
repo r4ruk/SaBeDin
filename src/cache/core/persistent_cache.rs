@@ -29,8 +29,6 @@ impl PersistentStorageHandler for PersistentStorage {
 
     /// gets a possible value from the available stores depending on the given key
     fn get(&self, key: &str) -> Option<&(DateTime<Utc>, Value)> {
-
-        // todo read from store itself which should have actual data always loaded.
         let result = self.store.get(key);
         return result
     }
@@ -55,21 +53,23 @@ impl PersistentStorageHandler for PersistentStorage {
 
     fn reset_store(&self) {
         let path_with_file = Self::get_cache_path();
-        remove_file(path_with_file).unwrap();
+        // TODO add logger handling of error on deletion
+        remove_file(path_with_file).expect("Couldnt delete cache");
     }
 
     fn reload_store(&mut self) {
         let path = Self::get_cache_path();
         let file = File::open(path);
-        let reader = BufReader::new(file.unwrap());
-        self.store.clear();
-        for line in reader.lines() {
-            if let Some((key, value)) = line.unwrap().split_once(';') {
-                // Split successful, handle first and second parts
-                self.store.insert(key.to_string(), (Utc::now(), serde_json::from_str(value).unwrap()));
-
-            } else {
-                println!("Could not split persisted cache element");
+        if Self::does_cachefile_exist() {
+            let reader = BufReader::new(file.unwrap());
+            self.store.clear();
+            for line in reader.lines() {
+                if let Some((key, value)) = line.unwrap().split_once(';') {
+                    // Split successful, handle first and second parts
+                    self.store.insert(key.to_string(), (Utc::now(), serde_json::from_str(value).unwrap()));
+                } else {
+                    println!("Could not split persisted cache element");
+                }
             }
         }
     }
@@ -77,9 +77,11 @@ impl PersistentStorageHandler for PersistentStorage {
 
 impl PersistentStorage {
     pub fn initialize() -> Self {
-        PersistentStorage{
+        let mut persistent_store = PersistentStorage{
             store: Default::default(),
-        }
+        };
+        persistent_store.reload_store();
+        return persistent_store
     }
     fn get_cache_path() -> String {
         let dir = file_helper::get_temp();
@@ -91,16 +93,13 @@ impl PersistentStorage {
         let cachepath = Self::get_cache_path();
         // loop to retry if file is not closed at that moment
         loop {
-            match fs::metadata(&cachepath) {
-                Ok(_) => {
-                    let result = remove_file(cachepath.clone());
-                    if result.is_ok() {
-                        break;
-                    }
+            if Self::does_cachefile_exist() {
+                let result = remove_file(cachepath.clone());
+                if result.is_ok() {
+                    break;
                 }
-                Err(err) => {
-                    // TODO Logger.Log File does not exist
-                }
+            } else {
+                break
             }
         }
         // write line in any case here as it shouldve been purged
@@ -109,7 +108,10 @@ impl PersistentStorage {
 
     fn write_lines(lines: HashMap<String, (DateTime<Utc>,Value)>) {
         let path_with_file = Self::get_cache_path();
-        println!("persistant file store: {}", path_with_file);
+
+        // commented on purpose, can be uncommented to get path information
+        // println!("persistant file store: {}", path_with_file);
+
         let path_buf = Path::new(&path_with_file);
 
         let file = OpenOptions::new()
@@ -127,5 +129,20 @@ impl PersistentStorage {
             }
         }
     }
+
+    fn does_cachefile_exist() -> bool {
+        let cachepath = Self::get_cache_path();
+        let exists = match fs::metadata(&cachepath) {
+            Ok(_) => {
+                true
+            }
+            Err(err) => {
+                // TODO Logger.Log File does not exist
+                false
+            }
+        };
+        return exists
+    }
+
 }
 

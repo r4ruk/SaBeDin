@@ -3,8 +3,13 @@ use serde_json::json;
 use crate::cache::core::persistent_cache::PersistentStorage;
 use crate::cache::core::persistent_cache::PersistentStorageHandler;
 
+fn cleanup_test(store: PersistentStorage) {
+    store.reset_store();
+}
+
 #[test]
-fn test_persistent() {
+fn basic_persistent_cache_test() {
+
     // initialize
     let mut persistent_cache = PersistentStorage::initialize();
 
@@ -18,13 +23,11 @@ fn test_persistent() {
 
     let updated_element = persistent_cache.get("testkey");
     assert!(persistent_cache.get("testkey").is_some());
-    assert_eq!(*updated_element.unwrap().1.as_str().unwrap(), "updated".to_string())
+    assert_eq!(*updated_element.unwrap().1.as_str().unwrap(), "updated".to_string());
 
-    // TODO remove & Assert
+    persistent_cache.remove_element("testkey".to_string());
 
+    assert!(persistent_cache.get("testkey").is_none());
 
+    cleanup_test(persistent_cache);
 }
-
-//TODO reset, reload aso.
-
-
