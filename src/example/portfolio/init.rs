@@ -4,6 +4,7 @@ use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::example::portfolio::client;
 use crate::service_manager::service_manager::{ServiceManagerConstruction, ServiceManager};
 
+#[allow(unused)]
 fn initialize_router(state: Arc<ExecutionContext>) -> Router{
     Router::new().with_state(state)
 }

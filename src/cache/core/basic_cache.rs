@@ -4,7 +4,6 @@ use chrono::{DateTime, Utc};
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 use crate::cache::core::persistent_cache::{PersistentStorage, PersistentStorageHandler};
-use crate::core::persistence::query_builder::Sorting::Default;
 
 pub struct Cache {
     // cache holding information for an hour
@@ -26,6 +25,7 @@ pub enum StoreLifetime {
     Persistent
 }
 
+#[allow(unused)]
 impl Cache {
     /// Initializes the Cache
     pub fn initialize() -> Self {

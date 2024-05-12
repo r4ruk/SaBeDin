@@ -3,6 +3,7 @@ use serde_json::json;
 use crate::cache::core::persistent_cache::PersistentStorage;
 use crate::cache::core::persistent_cache::PersistentStorageHandler;
 
+#[allow(unused)]
 fn cleanup_test(store: PersistentStorage) {
     store.reset_store();
 }

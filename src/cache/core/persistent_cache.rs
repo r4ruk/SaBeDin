@@ -5,10 +5,8 @@ use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::ops::Add;
 use std::path::Path;
 use chrono::{DateTime, Utc};
-use serde::de::DeserializeOwned;
 use serde_json::Value;
 use crate::core::utils::file_helper;
-use crate::core::utils::utils::get_os_newline;
 
 pub trait PersistentStorageHandler {
     fn get(&self, key: &str) -> Option<&(DateTime<Utc>, Value)>;

@@ -9,6 +9,8 @@ pub trait PushMessengerProvider: Send + Sync {
 struct PushMessenger {
     broadcast_sender: broadcast::Sender<String>
 }
+
+#[allow(unused)]
 impl PushMessenger{
     fn new() -> Self {
         let (broadcast_sender, _) = broadcast::channel(10);

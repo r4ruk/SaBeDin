@@ -8,6 +8,7 @@ use crate::example::portfolio::contracts::article::Article;
 use crate::cache::core::persistent_cache::PersistentStorageHandler;
 
 /// function used to initialize the basic testcase
+#[allow(unused)]
 fn initialize_basic_cache_testcase() -> (Article, Cache) {
     let mut element = Article {
         id: Uuid::new_v4(),
