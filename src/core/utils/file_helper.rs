@@ -9,6 +9,6 @@ pub fn read_settings(filename: &str) -> io::Result<String> {
 }
 
 pub fn get_temp() -> String {
-    let mut dir = env::temp_dir().into_os_string().into_string().unwrap();
+    let dir = env::temp_dir().into_os_string().into_string().unwrap();
     return dir
 }

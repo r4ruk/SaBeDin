@@ -1,6 +1,5 @@
-use async_trait::async_trait;
+use std::sync::{Arc, Mutex};
 use crate::core::contracts::errors::GeneralServerError;
-use crate::logger::logging_provider::LoggingProvider;
 use crate::name_of;
 
 #[allow(unused)]
@@ -10,18 +9,21 @@ pub enum LoggingLevel{
     Error
 }
 
-pub struct CoreLogger {}
+pub struct Logger {}
 
-#[async_trait]
-impl LoggingProvider for CoreLogger {
-    async fn log_error(&self, err: GeneralServerError, logging_level: LoggingLevel) -> Result<(), GeneralServerError> {
+
+impl Logger {
+    pub fn log_error(&self, err: GeneralServerError, logging_level: LoggingLevel) {
         println!("error logged: {}, logging_level: '{}'", err.message, name_of!(logging_level));
-        return Ok(())
     }
 }
 
-impl CoreLogger{
-    pub fn initialize() -> Self {
-        Self{}
-    }
+// Define a static instance of the logger
+lazy_static::lazy_static! {
+    static ref LOGGER: Arc<Mutex<Logger>> = Arc::new(Mutex::new(Logger {}));
+}
+
+// Function to get the logger instance
+pub fn get_logger() -> Arc<Mutex<Logger>> {
+    LOGGER.clone()
 }

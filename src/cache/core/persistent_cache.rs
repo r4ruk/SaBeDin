@@ -6,7 +6,9 @@ use std::ops::Add;
 use std::path::Path;
 use chrono::{DateTime, Utc};
 use serde_json::Value;
+use crate::core::contracts::errors::GeneralServerError;
 use crate::core::utils::file_helper;
+use crate::logger::core_logger::{get_logger, LoggingLevel};
 
 pub trait PersistentStorageHandler {
     fn get(&self, key: &str) -> Option<&(DateTime<Utc>, Value)>;
@@ -51,8 +53,11 @@ impl PersistentStorageHandler for PersistentStorage {
 
     fn reset_store(&self) {
         let path_with_file = Self::get_cache_path();
-        // TODO add logger handling of error on deletion
-        remove_file(path_with_file).expect("Couldnt delete cache");
+        let result = remove_file(path_with_file);
+        if result.is_err() {
+            let logger = get_logger();
+            logger.lock().unwrap().log_error(GeneralServerError { message: "Could not clear persistant cache".to_string() }, LoggingLevel::Error);
+        }
     }
 
     fn reload_store(&mut self) {
@@ -66,7 +71,11 @@ impl PersistentStorageHandler for PersistentStorage {
                     // Split successful, handle first and second parts
                     self.store.insert(key.to_string(), (Utc::now(), serde_json::from_str(value).unwrap()));
                 } else {
-                    println!("Could not split persisted cache element");
+                    let logger = get_logger();
+                    logger.lock().unwrap().log_error(GeneralServerError{
+                        message: "Could not parse the existing persistant cache. Resetting...".to_string()
+                    }, LoggingLevel::Error);
+                    self.reset_store()
                 }
             }
         }
@@ -135,7 +144,8 @@ impl PersistentStorage {
                 true
             }
             Err(err) => {
-                // TODO Logger.Log File does not exist
+                let logger = get_logger();
+                logger.lock().unwrap().log_error(GeneralServerError{message: err.to_string()}, LoggingLevel::Error);
                 false
             }
         };

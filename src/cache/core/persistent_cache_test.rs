@@ -4,12 +4,12 @@ use crate::cache::core::persistent_cache::PersistentStorage;
 use crate::cache::core::persistent_cache::PersistentStorageHandler;
 
 #[allow(unused)]
-fn cleanup_test(store: PersistentStorage) {
+async fn cleanup_test(store: PersistentStorage) {
     store.reset_store();
 }
 
-#[test]
-fn basic_persistent_cache_test() {
+#[tokio::test]
+async fn basic_persistent_cache_test() {
 
     // initialize
     let mut persistent_cache = PersistentStorage::initialize();
@@ -30,5 +30,5 @@ fn basic_persistent_cache_test() {
 
     assert!(persistent_cache.get("testkey").is_none());
 
-    cleanup_test(persistent_cache);
+    cleanup_test(persistent_cache).await;
 }
