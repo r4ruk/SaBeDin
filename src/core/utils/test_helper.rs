@@ -14,22 +14,23 @@ pub fn get_config() -> Config {
     return config;
 }
 
-#[allow(unused)]
-pub async fn create_execution_context(db: Pool<Postgres>, qm: mq_pool, config: Option<Config>) -> ExecutionContext {
-    return match config {
-        Some(conf) => ExecutionContext {
-            service_manager: Arc::new(ServiceManager::new().await).clone(),
-            auth_provider: Arc::new(AuthClient{}),
-            env: conf.clone(),
-            db,
-            queue: qm,
-        },
-        None => ExecutionContext {
-            service_manager: Arc::new(ServiceManager::new().await).clone(),
-            auth_provider: Arc::new(AuthClient{}),
-            env: get_config().clone(),
-            db,
-            queue: qm,
-        }
-    };
-}
+// TODO add dbPool Mock
+// #[allow(unused)]
+// pub async fn create_execution_context(db: Pool<Postgres>, qm: mq_pool, config: Option<Config>) -> ExecutionContext {
+//     return match config {
+//         Some(conf) => ExecutionContext {
+//             service_manager: Arc::new(ServiceManager::new().await).clone(),
+//             auth_provider: Arc::new(AuthClient{}),
+//             env: conf.clone(),
+//             db,
+//             queue: qm,
+//         },
+//         None => ExecutionContext {
+//             service_manager: Arc::new(ServiceManager::new().await).clone(),
+//             auth_provider: Arc::new(AuthClient{}),
+//             env: get_config().clone(),
+//             db,
+//             queue: qm,
+//         }
+//     };
+// }

@@ -21,7 +21,7 @@ pub async fn register_user(context: &ExecutionContext, user_data: RegisterUserDa
         return Err(GeneralServerError{message: "user already exists".to_string()})
     }
 
-    let mut transaction = context.db.begin().await?;
+    let mut transaction = context.db.get_pool().begin().await?;
 
     let result = auth_persistence::register_user(&mut transaction, cloned_user_data).await;
 

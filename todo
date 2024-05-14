@@ -3,10 +3,12 @@ NEXT todo:
 [X] cache in the backend handling
 [X] Add global logging possibility
 [X] think about exception handling
-[] Remove cache from execution context as it can be made a singleton (see logger)
+[] refactor all code parts where errors are thrown and log there, [time];[threadnumber];[functionname];[errormessage]
 [] Add messagequeue and DBPool as a general trait so it can be mocked. now its garbage code
-    [] Db
+    [X] Db
+    [] Mock implementation
     [] MessageQueue
+[] Remove cache from execution context as it can be made a singleton (see logger)
 [] implement idempotency command handling (every command has to come with a id which is clearly identifyable
     to skip running in case of retry, add log table which can handle this)
 [] Limit waiting time for returning queue message to certain amount

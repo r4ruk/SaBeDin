@@ -19,7 +19,7 @@ pub async fn login_user(context: &ExecutionContext, user_data: LoginUserData) ->
 
     let row = query(&search_query.build_query())
                             .bind(user_data.email)
-                            .fetch_optional(&context.db)
+                            .fetch_optional(&*context.db.get_pool())
                             .await?;
     let user_option: Option<FilteredUser> = match row {
         Some(user) => Some(user.into()),
@@ -65,7 +65,7 @@ pub async fn check_user_exists(context: &&ExecutionContext, email: String) -> Re
     let user_exists: Option<bool> =
         sqlx::query_scalar(&format!("SELECT EXISTS({})", select_exists.build_query()))
             .bind(email.to_owned().to_ascii_lowercase())
-            .fetch_one(&context.db)
+            .fetch_one(&*context.db.get_pool())
             .await
             .map_err(|e| {
                 GeneralServerError { message: persistence_utils::map_to_error_response(e) }

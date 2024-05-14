@@ -20,7 +20,7 @@ pub async fn get_by_pkn(context: &ExecutionContext, pkn: &str) -> Result<Article
 
     let row = query(&search_query.build_query())
                 .bind(pkn)
-        .fetch_optional(&context.db).await?;
+        .fetch_optional(&*context.db.get_pool()).await?;
     let article_option = match row {
         Some(article) => Some(article.into()),
         None => None
@@ -45,7 +45,7 @@ pub async fn get_all(context: &ExecutionContext, query_options: QueryOptions) ->
             Some(query_options.paging_information));
 
     let rows = query(&search_query.build_query())
-        .fetch_all(&context.db).await?;
+        .fetch_all(&*context.db.get_pool()).await?;
     let mut all_articles = Vec::new();
     for row in rows {
         all_articles.push(row.into())
