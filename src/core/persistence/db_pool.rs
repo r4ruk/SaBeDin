@@ -2,15 +2,14 @@ use std::sync::Arc;
 use sqlx::{Pool, Postgres};
 use sqlx::postgres::PgPoolOptions;
 
+pub struct PostgresConnection {
+    pool: Arc<Pool<Postgres>>,
+}
 
 // Define a trait for providing database connection pools
 pub trait DbConnectionPoolProvider: Send + Sync {
     type PoolType;
     fn get_pool(&self) -> Arc<Self::PoolType>;
-}
-
-pub struct PostgresConnection {
-    pool: Arc<Pool<Postgres>>,
 }
 
 impl DbConnectionPoolProvider for PostgresConnection {
