@@ -7,6 +7,7 @@ mod routes;
 mod example;
 mod cache;
 mod logger;
+mod tests;
 
 use std::sync::Arc;
 use crate::core::app;

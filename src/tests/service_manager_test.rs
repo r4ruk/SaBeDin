@@ -9,7 +9,9 @@ mod service_manager_test {
     use crate::core::contracts::user::User;
     use crate::service_manager::service_manager::{ServiceManagerConstruction, ServiceManager};
     use crate::core::contracts::service_manager_provider::ServiceManagerProvider;
-    use crate::core::utils::test_helper::{create_execution_context, get_config};
+    use crate::core::persistence::db_pool::PostgresConnection;
+    use crate::core::utils::test_helper::{create_execution_context_withdb, get_config};
+    use crate::tests::common::test_helper::{create_execution_context_withdb, get_config};
 
     const SERVICE_NAME: &str = "client";
 
@@ -28,9 +30,9 @@ mod service_manager_test {
 
         let mut param: HashMap<String, String> = HashMap::new();
         param.insert("id".to_string(), "1".to_string());
-        let db = crate::core::persistence::db_pool::init(&get_config().database_url).await;
+        let db = PostgresConnection::init(&get_config().database_url).await;
         let mq = crate::queue_manager::manager::QueueManager::init().await;
-        let returned_user = manager.try_handle_query(&create_execution_context(db, mq, None).await, SERVICE_NAME, param).await.unwrap();
+        let returned_user = manager.try_handle_query(&create_execution_context_withdb(db, mq, None).await, SERVICE_NAME, param).await.unwrap();
         let user_object: User = serde_json::from_str(&returned_user.body).unwrap();
 
         assert_eq!(user_object.email, "hans.ueli@test.ch".to_string());
@@ -41,7 +43,7 @@ mod service_manager_test {
     #[tokio::test]
     async fn handle_command_test() {
         let manager = ServiceManager::new().await;
-        let db = crate::core::persistence::db_pool::init(&get_config().database_url).await;
+        let db = PostgresConnection::init(&get_config().database_url).await;
         let mq = crate::queue_manager::manager::QueueManager::init().await;
         let user = User{
             id: Uuid::from_str("0f083f37-0693-42b8-8a3e-6b1dfa0221ff").unwrap(),
@@ -60,7 +62,7 @@ mod service_manager_test {
             params: HashMap::new(),
             query_options: Default::default(),
         };
-        let rs = &create_execution_context(db, mq, None).await;
+        let rs = &create_execution_context_withdb(db, mq, None).await;
         let _r = manager.try_handle(rs, SERVICE_NAME, requestpostbody).await;
         println!("test successfully run")
     }

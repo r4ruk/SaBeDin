@@ -3,6 +3,7 @@ NEXT todo:
 [X] cache in the backend handling
 [X] Add global logging possibility
 [X] think about exception handling
+[] think about and implement place for mock implementations
 [] refactor all code parts where errors are thrown and log there, [time];[threadnumber];[functionname];[errormessage]
 [] Add messagequeue and DBPool as a general trait so it can be mocked. now its garbage code
     [X] Db

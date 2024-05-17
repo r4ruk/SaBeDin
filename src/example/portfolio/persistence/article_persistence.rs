@@ -34,7 +34,6 @@ pub async fn get_by_pkn(context: &ExecutionContext, pkn: &str) -> Result<Article
 }
 
 /// Function returns all articles stored
-// TODO think about paging/sorting information which can also be done on the database
 pub async fn get_all(context: &ExecutionContext, query_options: QueryOptions) -> Result<Vec<Article>, GeneralServerError> {
 
     let search_query =

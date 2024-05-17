@@ -131,8 +131,11 @@ impl PersistentStorage {
         let mut file = BufWriter::new(file.unwrap());
         for line in lines {
             let result = writeln!(file, "{};{}",line.0, line.1.1.to_string());
-            if result.is_err() {
-                // TODO add logger functionality
+            if let Err(e) = result {
+                let logger = get_logger();
+                logger.lock().unwrap().log_error(GeneralServerError {
+                    message: format!("Could not write line into persistent cache. System Error {}", e)
+                }, LoggingLevel::Error);
             }
         }
     }
