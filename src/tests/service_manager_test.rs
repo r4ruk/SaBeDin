@@ -10,7 +10,6 @@ mod service_manager_test {
     use crate::service_manager::service_manager::{ServiceManagerConstruction, ServiceManager};
     use crate::core::contracts::service_manager_provider::ServiceManagerProvider;
     use crate::core::persistence::db_pool::PostgresConnection;
-    use crate::core::utils::test_helper::{create_execution_context_withdb, get_config};
     use crate::tests::common::test_helper::{create_execution_context_withdb, get_config};
 
     const SERVICE_NAME: &str = "client";
