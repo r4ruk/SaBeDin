@@ -22,7 +22,7 @@ mod service_manager_test {
         assert_eq!(count_of_services, 1);
     }
 
-    // ATTENTION THIS TESTS NEED DOCKER WITH DB RUNNING
+    // ATTENTION THIS TEST NEEDS CONTAINER WITH DB RUNNING
     #[tokio::test]
     async fn handle_query_test() {
         let manager = ServiceManager::new().await;
@@ -38,7 +38,7 @@ mod service_manager_test {
         assert_eq!(user_object.password, "superSafePassword".to_string());
     }
 
-    // ATTENTION THIS TESTS NEED DOCKER WITH DB RUNNING
+    // ATTENTION THIS TEST NEEDS CONTAINER WITH DB RUNNING
     #[tokio::test]
     async fn handle_command_test() {
         let manager = ServiceManager::new().await;

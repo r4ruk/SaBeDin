@@ -10,7 +10,9 @@ use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
 use crate::core::contracts::queue_types::QueueRequestMessage;
 use crate::core::contracts::service_manager_provider::ServiceManagerProvider;
+use crate::core::contracts::system_messages::InformationMessage;
 use crate::core::utils::{file_helper, utils};
+use crate::logger::core_logger::{get_logger, LoggingLevel};
 use crate::queue_manager::manager::{QueueManager, QueueManagerProvider};
 use crate::service_manager::service_client_factory;
 
@@ -37,7 +39,11 @@ impl ServiceManagerProvider for ServiceManager {
                 Ok(service.lock().await.handle_command(context, post_body).await)
             }
             None => {
-                println!("no service found with name: {}", path);
+                let logger = get_logger();
+                logger.lock().unwrap().log_error(GeneralServerError{message:format!("no service found with name: {}", path)}, LoggingLevel::Error);
+
+                // TODO add some mechanism to not just publish into queue as it amkes it prone to attacks (DDOS)
+
                 let queue = QueueManager{};
                 queue.publish(context, path, QueueRequestMessage {
                     message_id: Uuid::new_v4(),
@@ -63,8 +69,12 @@ impl ServiceManagerProvider for ServiceManager {
                 Ok(response)
             }
             None => {
-                println!("no service found with name: {:?}", service);
-                println!("forwarding to queue with topic '{}' to handle it", service);
+                let logger = get_logger();
+                logger.lock().unwrap().log_error(GeneralServerError{message:format!("no service found with name: {:?}", service)}, LoggingLevel::Error);
+
+
+                logger.lock().unwrap().log_error(GeneralServerError{message:format!("forwarding to queue with topic '{}' to handle it", service)}, LoggingLevel::Information);
+
                 let queue_manager = QueueManager { };
                 let res = queue_manager.returning_publish(context, &service, QueueRequestMessage {
                     message_id: Uuid::new_v4(),
@@ -103,7 +113,8 @@ impl ServiceManagerConstruction for ServiceManager {
                     let lines = content.split(&os_specific_newline).collect::<Vec<&str>>();
                     for (_, line) in lines.iter().enumerate() {
                         if line != &"" {
-                            info!("adding service {}", line);
+                            let logger = get_logger();
+                            logger.lock().unwrap().log_error(InformationMessage{message:format!("Adding service {}.", line)}, LoggingLevel::Information);
                             // find Service implementation in service client factory
                             // and then register it in the manager
                             let client_option = service_client_factory::find_service(line);
@@ -112,22 +123,28 @@ impl ServiceManagerConstruction for ServiceManager {
                                     my_manager.register_service(line.to_string(), client).await;
                                 },
                                 None => {
-                                    let interpolated = format!("Unknown type '{}' in factory.", line);
-                                    println!("{}", interpolated)
+                                    let logger = get_logger();
+                                    logger.lock().unwrap().log_error(InformationMessage{message:format!("Unknown type '{}' in factory.", line)}, LoggingLevel::Information);
                                 }
                             }
                         }
                     }
                 }
             },
-            Err(e) => warn!("Could not read anything from the settings file. {:?}", e)
+            Err(e) => {
+                let logger = get_logger();
+                logger.lock().unwrap().log_error(InformationMessage{message:format!("Could not read anything from the settings file. {:?}", e)}, LoggingLevel::Warning);
+            }
         }
         return my_manager
     }
 
     // registers the service in the Manager.
     async fn register_service(&mut self, service_name: String, service: Box<dyn ClientHandler>) {
-        println!("Adding service with name: '{}'", service_name);
+
+        let logger = get_logger();
+        logger.lock().unwrap().log_error(InformationMessage{message:format!("Adding service with name: '{}'", service_name)}, LoggingLevel::Information);
+
         self.services.lock().await.entry(service_name).or_insert(Arc::new(Mutex::new(service)));
     }
 }

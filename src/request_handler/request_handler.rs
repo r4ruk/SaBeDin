@@ -7,6 +7,7 @@ use axum::{async_trait, Form, Json, RequestExt,
 use crate::ExecutionContext;
 use crate::core::contracts::{basic_informations::{RequestPostBody, ResponseBody}};
 use crate::core::utils::uri_helper;
+use crate::logger::core_logger::{get_logger, LoggingLevel};
 
 
 pub async fn health_check() -> Result<String, StatusCode>{
@@ -23,7 +24,10 @@ pub async fn command_handler(State(context): State<Arc<ExecutionContext>>,
     let result =  context.service_manager.try_handle(context.as_ref(), &path, request_post_body).await;
     match result {
         Ok(_) => {println!("successfull handled post request")}
-        Err(e) => {println!("error happened  in the execution: '{}'", e.message)}
+        Err(e) => {
+            let logger = get_logger();
+            logger.lock().unwrap().log_error(e, LoggingLevel::Error);
+        }
     }
 }
 

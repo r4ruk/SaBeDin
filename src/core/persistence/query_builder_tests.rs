@@ -9,7 +9,7 @@
 mod query_builder_tests {
     use crate::core::contracts::user::User;
     use crate::core::persistence::query_builder::{QueryBuilder, QueryClause, Sorting};
-    use crate::core::contracts::basic_informations::{PagingQuery};
+    use crate::core::contracts::query_params::PagingQuery;
     use crate::core::persistence::query_builder::Sorting::{Ascending, Default, Descending};
     use crate::core::persistence::table_names::TableName;
     use crate::name_of;

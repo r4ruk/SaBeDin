@@ -6,6 +6,8 @@ use crate::core::contracts::queue_types::{QueueRequestMessage, QueueResponseMess
 use uuid::Uuid;
 use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
+use crate::core::contracts::system_messages::InformationMessage;
+use crate::logger::core_logger::{get_logger, LoggingLevel};
 use crate::queue_manager::{publisher, receiver};
 use crate::queue_manager::publisher::PublishParams;
 
@@ -47,8 +49,14 @@ impl QueueManager {
 
     /// creates queue on given parameters.
     pub async fn create_queue(&self, channel: Channel, name: &str, declaration_options: QueueDeclareOptions) -> Result<Queue, GeneralServerError> {
-        println!("creating queue with name '{}'", name);
-        return channel.queue_declare(name, declaration_options, Default::default()).await.map_err(|e| GeneralServerError{ message: format!("failed to create channel: {}", e) });
+        let logger = get_logger();
+        logger.lock().unwrap().log_error(InformationMessage{message:format!("creating queue with name '{}'", name)}, LoggingLevel::Information);
+
+        return channel.queue_declare(name, declaration_options, Default::default()).await
+            .map_err(|e|
+                GeneralServerError{
+                    message: format!("failed to create channel: {}", e)
+        });
     }
 
     /// gets a connection from the pool of connections
@@ -57,6 +65,9 @@ impl QueueManager {
         return if conn.is_ok() {
             Ok(conn.unwrap())
         } else {
+            let logger = get_logger();
+            logger.lock().unwrap().log_error(InformationMessage{message:"error getting connection from pool".into()}, LoggingLevel::Error);
+
             Err(GeneralServerError { message: "error getting connection from pool".to_string() })
         }
     }
@@ -75,12 +86,15 @@ impl QueueManagerProvider for QueueManager {
     /// basic publish function which handles general "POST" requests
     async fn publish(&self, context: &ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<(), GeneralServerError> {
         let conn = self.get_queue_connection(&context).await.map_err(|e| {
-            eprintln!("could not get rmq con: {:?}", e);
+            let logger = get_logger();
+            logger.lock().unwrap().log_error(GeneralServerError{message:format!("could not get rmq con: {:?}", e)}, LoggingLevel::Error);
+
             e
         })?;
 
         let channel:  Channel = conn.create_channel().await.map_err(|e| {
-            println!("error in opening channel");
+            let logger = get_logger();
+            logger.lock().unwrap().log_error(GeneralServerError{message:format!("error opening channel: {:?}", e)}, LoggingLevel::Error);
             e
         })?;
 

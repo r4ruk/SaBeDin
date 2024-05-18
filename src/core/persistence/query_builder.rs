@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use crate::core::contracts::basic_informations::PagingQuery;
+use crate::core::contracts::query_params::PagingQuery;
 use crate::core::persistence::table_name_supplier::TableNameSupplier;
 
 

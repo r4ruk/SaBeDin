@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use crate::core::contracts::errors::GeneralServerError;
+use crate::logger::core_logger::{get_logger, LoggingLevel};
 
 // function handles different params arriving from GET request
 pub fn handle_params(params: &str) -> HashMap<String, String> {
@@ -8,7 +10,8 @@ pub fn handle_params(params: &str) -> HashMap<String, String> {
         if let Some((name, value)) = param.split_once('=') {
             map_params.entry(name.to_string().to_lowercase()).or_insert(value.to_string());
         } else {
-            println!("couldnt read name value params")
+            let logger = get_logger();
+            logger.lock().unwrap().log_error(GeneralServerError{message:"could not read name value params".into()}, LoggingLevel::Error);
         }
     }
     return map_params

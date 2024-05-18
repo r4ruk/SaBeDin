@@ -24,6 +24,8 @@ pub async fn receive_on_queue(_manager: &QueueManager , channel: Channel, queue_
 
     while let Some(delivery) = consumer.next().await {
         if let Ok(delivery ) = delivery {
+
+            // TODO really want to log or print here or maybe better even creating event...???
             println!("received msg: {:?}", delivery);
             response_body = String::from_utf8_lossy(&delivery.data).to_string();
             channel
@@ -50,6 +52,8 @@ pub async fn receive_on_queue(_manager: &QueueManager , channel: Channel, queue_
 /// establishes a temporary listener
 pub(crate) async fn establish_temporary_listener(manager: &QueueManager , channel: Channel, correlation_id: Uuid)
                                       -> Result<QueueResponseMessage, GeneralServerError> {
+
+    // TODO Add timeout to decouple from slow or disconnected responder
 
     let queue_declareoptions = QueueDeclareOptions {
         passive: false,

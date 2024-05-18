@@ -3,9 +3,11 @@ use async_trait::async_trait;
 use serde_json::{from_str, json};
 use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
 use crate::core::contracts::dependency_container::ExecutionContext;
+use crate::core::contracts::errors::GeneralServerError;
 use crate::core::contracts::services::ClientHandler;
 use crate::core::contracts::user::User;
 use crate::core::service;
+use crate::logger::core_logger::{get_logger, LoggingLevel};
 
 pub struct UserClient {}
 
@@ -20,7 +22,8 @@ impl ClientHandler for UserClient {
             // ensuring the deserialization worked
             println!("in handlecommand, not handling command yet.");
         } else {
-            println!("could not deserialize body");
+            let logger = get_logger();
+            logger.lock().unwrap().log_error(GeneralServerError{message:"could not deserialize body".into()}, LoggingLevel::Error);
         }
     }
 
@@ -34,13 +37,17 @@ impl ClientHandler for UserClient {
                 "id" => ret_val = Some(service::user_service::get_user(val)),
                 "email" => ret_val = Some(service::user_service::get_user(val)),
                 _ => {
-                    println!("wrong param given");
+                    let logger = get_logger();
+                    logger.lock().unwrap().log_error(GeneralServerError{message:"wrong param given".into()}, LoggingLevel::Warning);
                 }
             }
             if let Some(ret) = ret_val {
                 return ResponseBody{body: json!(ret).to_string()}
             }
         }
+        let logger = get_logger();
+        logger.lock().unwrap().log_error(GeneralServerError{message:"no param given".into()}, LoggingLevel::Warning);
+
         return ResponseBody{body: "error".to_string()}
     }
 

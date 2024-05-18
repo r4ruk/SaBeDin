@@ -1,8 +1,10 @@
+use std::fmt::format;
 use lapin::{BasicProperties, Channel};
 use lapin::options::{BasicPublishOptions, QueueDeclareOptions};
 use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
 use crate::core::contracts::queue_types::QueueRequestMessage;
+use crate::logger::core_logger::{get_logger, LoggingLevel};
 use crate::queue_manager::manager::QueueManager;
 
 pub struct PublishParams<'a> {
@@ -27,12 +29,16 @@ pub async fn basic_publish(params: PublishParams<'_>)
     params.channel.basic_publish("", params.queue_name, BasicPublishOptions::default(), &serde_json::to_vec(&params.body).unwrap(), BasicProperties::default())
         .await
         .map_err(|e| {
-            println!("cant publish: {}", e);
+            let logger = get_logger();
+            logger.lock().unwrap().log_error(GeneralServerError{message:format!("could not publish: {}", e)}, LoggingLevel::Error);
+
             e
         })?
         .await
         .map_err(|e|{
-            println!("cant publish: {}", e);
+            let logger = get_logger();
+            logger.lock().unwrap().log_error(GeneralServerError{message:format!("could not publish: {}", e)}, LoggingLevel::Error);
+
             e
         })?;
 

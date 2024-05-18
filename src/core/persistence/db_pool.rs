@@ -1,6 +1,8 @@
 use std::sync::Arc;
 use sqlx::{Pool, Postgres};
 use sqlx::postgres::PgPoolOptions;
+use crate::core::contracts::errors::GeneralServerError;
+use crate::logger::core_logger::{get_logger, LoggingLevel};
 
 pub struct PostgresConnection {
     pool: Arc<Pool<Postgres>>,
@@ -34,6 +36,11 @@ impl PostgresConnection {
             }
             Err(err) => {
                 println!("🔥 Failed to connect to the database: {:?}", err);
+
+                let err = GeneralServerError { message: format!("failed to connect to database: {}",err ) };
+                let logger = get_logger();
+                logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+
                 std::process::exit(1);
             }
         };

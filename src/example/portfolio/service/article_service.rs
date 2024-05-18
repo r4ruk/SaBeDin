@@ -1,6 +1,6 @@
-use crate::core::contracts::basic_informations::{QueryOptions};
 use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
+use crate::core::contracts::query_params::QueryOptions;
 use crate::example::portfolio::persistence::article_persistence;
 use super::super::contracts::article::Article;
 

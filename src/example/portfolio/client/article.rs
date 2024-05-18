@@ -6,6 +6,7 @@ use crate::core::contracts::dependency_container::ExecutionContext;
 use crate::core::contracts::errors::GeneralServerError;
 use crate::core::contracts::services::ClientHandler;
 use crate::example::portfolio::contracts::article::Article;
+use crate::logger::core_logger::{get_logger, LoggingLevel};
 use crate::service_manager::params_object_builder::build_query_options_from_params;
 
 pub struct ArticleClient{}
@@ -55,13 +56,17 @@ async fn handle_single_param_query(context: &ExecutionContext, params: &mut Hash
         Some(value) => match value.as_str() {
             "programmingkeyname" => crate::example::portfolio::service::article_service::get_article_by_pkn(context, &value.to_string()).await,
             _ => {
-                println!("unsupported method");
-                Err(GeneralServerError { message: "unsupported method".to_string() })
+                let err = GeneralServerError { message: "unsupported method".to_string() };
+                let logger = get_logger();
+                logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                Err(err)
             }
         },
         None => {
-            println!("No method served");
-            Err(GeneralServerError { message: "no method given".to_string() })
+            let err = GeneralServerError { message: "no method provided".to_string() };
+            let logger = get_logger();
+            logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+            Err(err)
         }
     };
     result
@@ -72,13 +77,17 @@ async fn handle_multi_param_query(context: &ExecutionContext, params: &mut HashM
         Some(value) => match value.as_str() {
             "getall" => crate::example::portfolio::service::article_service::get_all(context, build_query_options_from_params(params.clone())).await,
             _ => {
-                println!("unsupported method");
-                Err(GeneralServerError { message: "unsupported method".to_string() })
+                let err = GeneralServerError { message: "unsupported method".to_string() };
+                let logger = get_logger();
+                logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                Err(err)
             }
         },
         None => {
-            println!("No method served");
-            Err(GeneralServerError { message: "no method given".to_string() })
+            let err = GeneralServerError { message: "no method provided".to_string() };
+            let logger = get_logger();
+            logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+            Err(err)
         }
     };
     result

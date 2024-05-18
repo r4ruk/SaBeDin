@@ -3,6 +3,7 @@ use axum::response::{IntoResponse, Response};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tokio::sync::broadcast::error::SendError;
+use crate::core::contracts::system_messages::SysMessage;
 
 #[derive(Serialize, Deserialize)]
 pub struct ApiError {
@@ -11,9 +12,15 @@ pub struct ApiError {
     pub status_code: u16,
 }
 
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct GeneralServerError {
     pub message: String
+}
+
+impl SysMessage for GeneralServerError {
+    fn get_internal_message(&self) -> &str {
+        return &self.message
+    }
 }
 
 impl From<sqlx::Error> for GeneralServerError {

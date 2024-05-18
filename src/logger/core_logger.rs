@@ -1,5 +1,5 @@
 use std::sync::{Arc, Mutex};
-use crate::core::contracts::errors::GeneralServerError;
+use crate::core::contracts::system_messages::SysMessage;
 use crate::name_of;
 
 #[allow(unused)]
@@ -11,10 +11,9 @@ pub enum LoggingLevel{
 
 pub struct Logger {}
 
-
 impl Logger {
-    pub fn log_error(&self, err: GeneralServerError, logging_level: LoggingLevel) {
-        println!("error logged: {}, logging_level: '{}'", err.message, name_of!(logging_level));
+    pub fn log_error<T:SysMessage>(&self, err: T, logging_level: LoggingLevel) {
+        println!("error logged: {}, logging_level: '{}'", err.get_internal_message(), name_of!(logging_level));
     }
 }
 
