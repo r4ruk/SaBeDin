@@ -6,7 +6,7 @@ NEXT todo:
 [X] think about and implement place for mock implementations
 [X] refactor all code parts where errors are thrown and log there, [time];[threadnumber];[functionname];[errormessage]
 [X] Remove cache from execution context as it can be made a singleton (see logger)
-[] Limit waiting time for returning queue message to certain amount (Add timeout to decouple from slow or disconnected responder)
+[X] Limit waiting time for returning queue message to certain amount (Add timeout to decouple from slow or disconnected responder)
 [] Add messagequeue and DBPool as a general trait so it can be mocked. now its garbage code
     [X] Db
     [X] Mock implementation
