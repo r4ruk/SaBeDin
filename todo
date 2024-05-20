@@ -34,7 +34,8 @@ next step:
         -> implemented in service level so it can cover multiple writes in case it is needed.
 [X] fix and add tests
 [X] redo and test service implemented
-[] Add cache...? (in service, handle different types...)
+[X] Add cache...? (in service, handle different types...)
+    [] multiple instances...?
 
 [X] start connecting queue and think about return-pipeline
     [X] examples to be found in the following links:

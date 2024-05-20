@@ -5,17 +5,24 @@ use serde::de::DeserializeOwned;
 use serde_json::Value;
 use crate::cache::core::persistent_cache::{PersistentStorage, PersistentStorageHandler};
 
+///
+/// REMARK
+/// The Stores hold elements depending on its Lifetime.
+/// The unnamed params in the Hashmaps are a bit a downside of this kind of implementation.
+/// Here is the definition of the Structure with Names of params instead of types which
+/// you can see in the code.
+///
+/// Hashmap<Key, (timestampOfAdding, jsonSerializedObject)>
+
+
 pub struct Cache {
     // cache holding information for an hour
-    short_store: Arc<Mutex<HashMap<String, ( DateTime<Utc>, Value)>>>,
+    short_store: Arc<Mutex<HashMap<String, (DateTime<Utc>, Value)>>>,
 
     // store holding information for 8 hours
-    mid_store: Arc<Mutex<HashMap<String, ( DateTime<Utc>, Value)>>>,
+    mid_store: Arc<Mutex<HashMap<String, (DateTime<Utc>, Value)>>>,
 
     persistent_store: Arc<Mutex<PersistentStorage>>
-
-    // store holding information persistently (stored in an intermediate store
-    // persistent_store: Arc<Mutex<HashMap<String, (DateTime<Utc>, Value)>>>
 }
 
 /// Lifetime definitions for store
@@ -41,7 +48,7 @@ impl Cache {
         where
             TItem: DeserializeOwned {
 
-        // retrieving from store which is most up to date
+        // retrieving from store which is most up to date -> shortest to longest living
         let element = self.get_from_cache(StoreLifetime::Short, key)
             .or_else(|| self.get_from_cache(StoreLifetime::Mid, key))
             .or_else(|| self.get_from_cache(StoreLifetime::Persistent, key));
@@ -61,16 +68,17 @@ impl Cache {
     pub fn invalidate_item(&mut self, key: &str) {
         self.short_store.lock().unwrap().remove(key);
         self.mid_store.lock().unwrap().remove(key);
+        self.persistent_store.lock().unwrap().remove_element(key);
     }
 
     /// Resets all the caches
     pub fn reset(&mut self) {
         self.short_store.lock().unwrap().clear();
         self.mid_store.lock().unwrap().clear();
-        // reset_persistent_store();
+        self.persistent_store.lock().unwrap().reset_store();
     }
 
-    // method adds element to cache (into default store which is short (1h))
+    /// method adds element to cache (into default store which is short (1h))
     pub fn add_element(&mut self, item: (String, Value)) {
         self.add_element_internal(item, StoreLifetime::Short);
     }
@@ -80,13 +88,8 @@ impl Cache {
         self.add_element_in_specific_store(item, store_lifetime)
     }
 
-    // method to add element into specific store
+    /// method to add element into specific store
     pub fn add_element_in_specific_store(&mut self, item: (String, Value), store_lifetime: StoreLifetime) {
-        self.add_element_internal(item, store_lifetime);
-    }
-
-    // adds element internally into the defined store
-    fn add_element_internal(&mut self, item: (String, Value), store_lifetime: StoreLifetime) {
         match store_lifetime {
             StoreLifetime::Short => {
                 self.short_store.lock().unwrap().insert(item.0, (Utc::now(), item.1));
@@ -100,7 +103,7 @@ impl Cache {
         }
     }
 
-    // gets element from cache
+    /// gets element from cache
     fn get_from_cache(&self, from_lifetime: StoreLifetime, key: &str) -> Option<Value> {
         let result = match from_lifetime {
             StoreLifetime::Short => self.short_store.lock().unwrap().get(key).cloned(),
@@ -117,7 +120,7 @@ impl Cache {
         }
     }
 
-    // start worker to check for elements in cache to clean up
+    /// start worker to check for elements in cache to clean up
     fn start_worker(&self) {
         let store_clone = self.short_store.clone();
         std::thread::spawn(move || {

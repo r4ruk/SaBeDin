@@ -46,7 +46,7 @@ impl PersistentStorageHandler for PersistentStorage {
         }
     }
 
-    fn remove_element(&mut self, key: String) {
+    fn remove_element(&mut self, key: &str) {
         self.store.remove(&key);
         self.rewrite_full();
     }
