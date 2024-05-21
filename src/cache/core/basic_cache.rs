@@ -80,7 +80,7 @@ impl Cache {
 
     /// method adds element to cache (into default store which is short (1h))
     pub fn add_element(&mut self, item: (String, Value)) {
-        self.add_element_internal(item, StoreLifetime::Short);
+        self.add_element_in_specific_store(item, StoreLifetime::Short);
     }
 
     /// Method replaces element if it exists and otherwise inserts the given value

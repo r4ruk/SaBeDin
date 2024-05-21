@@ -81,6 +81,7 @@ impl ServiceManagerProvider for ServiceManager {
                     correlation_id: Default::default(),
                     headers: "".to_string(),
                     body: RequestPostBody {
+                        idempotency_key: Default::default(),
                         method: "get".to_string(),
                         object: "".to_string(),
                         params,
