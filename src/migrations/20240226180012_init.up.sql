@@ -21,7 +21,19 @@ CREATE UNIQUE INDEX users_email_idx ON users (email);
 
 -- password of the created user is done by argon2 algorithm and equals "password" (without the ")
 INSERT INTO users(name, email, verified, password, role)
-VALUES ('validuser','validuser@test.com', true,'$argon2id$v=19$m=19456,t=2,p=1$5Fowt30D7yxpFW0ZyfAlDw$OSJLoBEQpTdj8dRelbUclJo6qq/iWnhK7CV8CcFU3Xk','user')
+VALUES ('validuser','validuser@test.com', true,'$argon2id$v=19$m=19456,t=2,p=1$5Fowt30D7yxpFW0ZyfAlDw$OSJLoBEQpTdj8dRelbUclJo6qq/iWnhK7CV8CcFU3Xk','user');
+
+
+
+CREATE TABLE "idempotency" (
+   user_id UUID NOT NULL REFERENCES users(id),
+   idempotency_key TEXT NOT NULL,
+   response_status_code SMALLINT NOT NULL,
+   response_body BYTEA NOT NULL,
+   created_at TIMESTAMP WITH Time ZONE DEFAULT NOW(),
+   PRIMARY KEY(user_id, idempotency_key)
+);
+
 
 
 CREATE TABLE

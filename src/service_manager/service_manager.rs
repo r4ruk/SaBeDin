@@ -115,7 +115,7 @@ impl ServiceManagerConstruction for ServiceManager {
                     for (_, line) in lines.iter().enumerate() {
                         if line != &"" {
                             let logger = get_logger();
-                            logger.lock().unwrap().log_error(InformationMessage{message:format!("Adding service {}.", line)}, LoggingLevel::Information);
+                            logger.lock().unwrap().log_error(InformationMessage{message:format!("Trying to add service {}", line)}, LoggingLevel::Information);
                             // find Service implementation in service client factory
                             // and then register it in the manager
                             let client_option = service_client_factory::find_service(line);

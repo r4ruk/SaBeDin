@@ -3,6 +3,7 @@ use crate::core::contracts::system_messages::SysMessage;
 use crate::name_of;
 
 #[allow(unused)]
+#[derive(Debug)]
 pub enum LoggingLevel{
     Information,
     Warning,
@@ -13,7 +14,7 @@ pub struct Logger {}
 
 impl Logger {
     pub fn log_error<T:SysMessage>(&self, err: T, logging_level: LoggingLevel) {
-        println!("error logged: {}, logging_level: '{}'", err.get_internal_message(), name_of!(logging_level));
+        println!("Logged: {}, logging_level: '{:?}'", err.get_internal_message(), logging_level);
     }
 }
 

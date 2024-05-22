@@ -18,6 +18,7 @@ mod queue_tests {
             correlation_id: Default::default(),
             headers: "".to_string(),
             body: RequestPostBody {
+                idempotency_key: Uuid::new_v4().to_string(),
                 method: "get".to_string(),
                 object: "".to_string(),
                 params: Default::default(),
@@ -55,6 +56,7 @@ mod queue_tests {
             correlation_id,
             headers: "".to_string(),
             body: RequestPostBody {
+                idempotency_key: Uuid::new_v4().to_string(),
                 method: "get".to_string(),
                 object: "".to_string(),
                 params: Default::default(),
@@ -79,6 +81,7 @@ mod queue_tests {
             correlation_id,
             headers: "".to_string(),
             body: RequestPostBody {
+                idempotency_key: Uuid::new_v4().to_string(),
                 method: "get".to_string(),
                 object: "".to_string(),
                 params: Default::default(),

@@ -26,7 +26,7 @@ async fn basic_persistent_cache_test() {
     assert!(persistent_cache.get("testkey").is_some());
     assert_eq!(*updated_element.unwrap().1.as_str().unwrap(), "updated".to_string());
 
-    persistent_cache.remove_element("testkey".to_string());
+    persistent_cache.remove_element("testkey");
 
     assert!(persistent_cache.get("testkey").is_none());
 

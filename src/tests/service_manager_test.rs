@@ -56,6 +56,7 @@ mod service_manager_test {
         };
 
         let requestpostbody = RequestPostBody {
+            idempotency_key: Uuid::new_v4().to_string(),
             method: "generalmethod".to_string(),
             object: json!(user).to_string(),
             params: HashMap::new(),
