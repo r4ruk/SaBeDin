@@ -36,6 +36,16 @@ next step:
 [X] redo and test service implemented
 [X] Add cache...? (in service, handle different types...)
     [] multiple instances...?
+[] think and implement server sent events to notify for external microservices retrieval mechanism
+[] add mechanism which retrieves directly from cache so the async communication would work with storing
+    returned message into cache to then directly push from there back instead of retrieve again.
+    [] how to invalidate then
+        [] maybe EventSystem implementation which enables invalidation? (EntityChangedEvent)
+
+
+Or rebuild the whole thing to be event based...?
+Many things to think about next before continueing implementing.
+
 
 [X] start connecting queue and think about return-pipeline
     [X] examples to be found in the following links:
@@ -50,6 +60,7 @@ next step:
         of the temporary queue and await the answer onto it in another function..
         like this it should be possible to first send a message onto the new temporary queue and then start listening onto it...
         -> i did exactly what i thought and splitted the whole queue manager into publisher and receiver so they can be tested seperately
+
 [X] add push messenger which can broadcast message to clients.
 
 
