@@ -1,6 +1,6 @@
 use std::sync::Arc;
 use axum::Router;
-use crate::core::contracts::dependency_container::ExecutionContext;
+use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::example::portfolio::client;
 use crate::service_manager::service_manager::{ServiceManagerConstruction, ServiceManager};
 

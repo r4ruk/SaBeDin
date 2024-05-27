@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use sqlx::{Pool, Postgres};
 use sqlx::postgres::PgPoolOptions;
-use crate::core::contracts::errors::GeneralServerError;
+use crate::core::contracts::base::errors::GeneralServerError;
 use crate::logger::core_logger::{get_logger, LoggingLevel};
 
 pub struct PostgresConnection {

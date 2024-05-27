@@ -1,12 +1,12 @@
 use sqlx::query;
-use crate::core::persistence::query_builder::QueryBuilder;
-use crate::core::contracts::dependency_container::ExecutionContext;
-use crate::core::contracts::errors::GeneralServerError;
-use crate::core::contracts::user::{FilteredUser, LoginUserData, RegisterUserData};
-use crate::core::persistence::persistence_utils;
-use crate::core::persistence::query_builder::QueryClause;
-use crate::core::persistence::query_builder::Sorting::Default;
-use crate::core::persistence::table_name_supplier::TableNameSupplier;
+use crate::core::persistence::core::query_builder::QueryBuilder;
+use crate::core::contracts::base::dependency_container::ExecutionContext;
+use crate::core::contracts::base::errors::GeneralServerError;
+use crate::core::contracts::dtos::user::{FilteredUser, LoginUserData, RegisterUserData};
+use crate::core::persistence::core::query_builder::QueryClause;
+use crate::core::persistence::core::persistence_utils;
+use crate::core::persistence::core::query_builder::Sorting::Default;
+use crate::core::persistence::core::table_name_supplier::TableNameSupplier;
 use crate::core::persistence::table_names::TableName;
 use crate::name_of;
 

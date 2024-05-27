@@ -6,7 +6,7 @@ use std::ops::Add;
 use std::path::Path;
 use chrono::{DateTime, Utc};
 use serde_json::Value;
-use crate::core::contracts::errors::GeneralServerError;
+use crate::core::contracts::base::errors::GeneralServerError;
 use crate::core::utils::file_helper;
 use crate::logger::core_logger::{get_logger, LoggingLevel};
 

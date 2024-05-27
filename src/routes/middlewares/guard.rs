@@ -6,8 +6,8 @@ use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::Response;
 use axum_extra::extract::CookieJar;
-use crate::core::contracts::dependency_container::ExecutionContext;
-use crate::core::contracts::errors::ApiError;
+use crate::core::contracts::base::dependency_container::ExecutionContext;
+use crate::core::contracts::base::errors::ApiError;
 use crate::core::utils::jwt::decode_jwt;
 
 const AUTHORIZATION_HEADER: &str = "Authorization";

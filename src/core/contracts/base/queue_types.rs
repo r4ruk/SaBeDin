@@ -1,8 +1,8 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use crate::core::contracts::basic_informations::RequestPostBody;
-use crate::core::contracts::builtin_types::{custom_uuid, custom_datetime};
+use crate::core::contracts::base::basic_informations::RequestPostBody;
+use crate::core::contracts::base::builtin_types::{custom_uuid, custom_datetime};
 
 
 #[derive(Serialize, Deserialize)]

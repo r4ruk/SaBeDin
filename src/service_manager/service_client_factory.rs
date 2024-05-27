@@ -1,5 +1,5 @@
 use crate::core::client;
-use crate::core::contracts::services::ClientHandler;
+use crate::core::contracts::traits::services::ClientHandler;
 
 // function used to register Services, so it can be found from ServiceManager to further route requests
 // to project internal services.

@@ -1,7 +1,7 @@
 use axum::async_trait;
-use crate::core::contracts::dependency_container::ExecutionContext;
-use crate::core::contracts::errors::GeneralServerError;
-use crate::core::contracts::user::{LoginUserData, RegisterUserData};
+use crate::core::contracts::base::dependency_container::ExecutionContext;
+use crate::core::contracts::base::errors::GeneralServerError;
+use crate::core::contracts::dtos::user::{LoginUserData, RegisterUserData};
 
 #[async_trait]
 pub trait AuthProvider: Send + Sync {

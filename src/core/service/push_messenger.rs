@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use tokio::sync::broadcast;
-use crate::core::contracts::errors::GeneralServerError;
+use crate::core::contracts::base::errors::GeneralServerError;
 
 #[async_trait]
 pub trait PushMessengerProvider: Send + Sync {

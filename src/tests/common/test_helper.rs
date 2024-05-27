@@ -3,8 +3,8 @@ use dotenv::dotenv;
 use deadpool_lapin::Pool as mq_pool;
 use crate::config::Config;
 use crate::core::client::auth::AuthClient;
-use crate::core::contracts::dependency_container::ExecutionContext;
-use crate::core::persistence::db_pool::PostgresConnection;
+use crate::core::contracts::base::dependency_container::ExecutionContext;
+use crate::core::persistence::core::db_pool::PostgresConnection;
 use crate::service_manager::service_manager::{ServiceManagerConstruction, ServiceManager};
 
 use super::*;

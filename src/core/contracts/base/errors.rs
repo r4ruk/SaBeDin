@@ -3,7 +3,7 @@ use axum::response::{IntoResponse, Response};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tokio::sync::broadcast::error::SendError;
-use crate::core::contracts::system_messages::SysMessage;
+use crate::core::contracts::base::system_messages::SysMessage;
 
 #[derive(Serialize, Deserialize)]
 pub struct ApiError {

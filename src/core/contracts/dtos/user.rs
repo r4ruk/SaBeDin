@@ -7,8 +7,8 @@ use serde_json::json;
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 use uuid::Uuid;
-use crate::core::contracts::builtin_types::custom_uuid;
-use crate::core::contracts::builtin_types::custom_datetime;
+use crate::core::contracts::base::builtin_types::custom_uuid;
+use crate::core::contracts::base::builtin_types::custom_datetime;
 
 #[derive(Debug, Deserialize, sqlx::FromRow, Serialize, Clone)]
 pub struct User {
@@ -25,13 +25,6 @@ pub struct User {
     #[serde(rename = "updatedAt")]
     #[serde(with = "custom_datetime")]
     pub updated_at: DateTime<Utc>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TokenClaims {
-    pub email: String,
-    pub iat: usize,
-    pub exp: usize,
 }
 
 #[derive(Debug, Deserialize, Clone)]

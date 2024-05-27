@@ -1,5 +1,5 @@
 use chrono::Utc;
-use crate::core::contracts::user::User;
+use crate::core::contracts::dtos::user::User;
 use uuid::Uuid;
 
 pub fn get_user(param: &str) -> User {

@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use axum::{middleware, Router};
 use axum::body::Body;
-use crate::core::contracts::dependency_container::ExecutionContext;
+use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::example;
 use crate::routes::{auth_routes, middlewares};
 use crate::routes::main_route::guarded_routes;

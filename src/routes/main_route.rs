@@ -6,7 +6,8 @@ use axum::{
 use axum::http::header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE};
 use axum::http::Method;
 use tower_http::cors::{CorsLayer, Any};
-use crate::{ExecutionContext, request_handler};
+use crate:: request_handler;
+use crate::core::contracts::base::dependency_container::ExecutionContext;
 
 pub fn guarded_routes(state: Arc<ExecutionContext>) -> Router {
 

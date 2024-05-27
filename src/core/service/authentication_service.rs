@@ -1,7 +1,7 @@
-use crate::core::contracts::dependency_container::ExecutionContext;
-use crate::core::contracts::errors::GeneralServerError;
-use crate::core::contracts::user::{FilteredUser, LoginUserData, RegisterUserData};
-use crate::core::persistence::auth_persistence;
+use crate::core::contracts::base::dependency_container::ExecutionContext;
+use crate::core::contracts::base::errors::GeneralServerError;
+use crate::core::contracts::dtos::user::{FilteredUser, LoginUserData, RegisterUserData};
+use crate::core::persistence::repositories::auth_persistence;
 use crate::core::service::service_base::handle_finish_transaction;
 use crate::core::utils::password::{check_password_hash, hash_password};
 

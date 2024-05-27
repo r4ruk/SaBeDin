@@ -12,7 +12,7 @@ mod tests;
 use std::sync::Arc;
 use crate::core::app;
 use crate::core::app::start_server;
-use crate::core::contracts::dependency_container::ExecutionContext;
+use crate::core::contracts::base::dependency_container::ExecutionContext;
 
 
 #[tokio::main]

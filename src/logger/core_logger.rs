@@ -1,6 +1,5 @@
 use std::sync::{Arc, Mutex};
-use crate::core::contracts::system_messages::SysMessage;
-use crate::name_of;
+use crate::core::contracts::base::system_messages::SysMessage;
 
 #[allow(unused)]
 #[derive(Debug)]

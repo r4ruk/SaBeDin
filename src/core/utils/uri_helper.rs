@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use crate::core::contracts::errors::GeneralServerError;
+use crate::core::contracts::base::errors::GeneralServerError;
 use crate::logger::core_logger::{get_logger, LoggingLevel};
 
 // function handles different params arriving from GET request

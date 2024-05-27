@@ -1,6 +1,6 @@
 use std::sync::Arc;
 use sqlx::{Pool, Postgres};
-use crate::core::persistence::db_pool::DbConnectionPoolProvider;
+use crate::core::persistence::core::db_pool::DbConnectionPoolProvider;
 
 /// Mock implementation for DbConnectionPoolProvider
 pub struct MockDbConnectionPoolProvider;

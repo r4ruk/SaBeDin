@@ -1,12 +1,11 @@
 use async_std::stream::StreamExt;
-use axum::routing::get;
 use lapin::{Channel, Consumer};
 use lapin::options::{BasicAckOptions, BasicConsumeOptions, QueueDeclareOptions};
 use lapin::types::FieldTable;
 use uuid::Uuid;
-use crate::core::contracts::errors::GeneralServerError;
-use crate::core::contracts::queue_types::{QueueRequestMessage, QueueResponseMessage};
-use crate::core::contracts::system_messages::InformationMessage;
+use crate::core::contracts::base::errors::GeneralServerError;
+use crate::core::contracts::base::queue_types::{QueueRequestMessage, QueueResponseMessage};
+use crate::core::contracts::base::system_messages::InformationMessage;
 use crate::logger::core_logger::{get_logger, LoggingLevel};
 use crate::queue_manager::manager::QueueManager;
 use tokio::time::{timeout, Duration};

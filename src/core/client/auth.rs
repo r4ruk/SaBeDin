@@ -1,8 +1,8 @@
 use async_trait::async_trait;
-use crate::core::contracts::authentication_provider::AuthProvider;
-use crate::core::contracts::dependency_container::ExecutionContext;
-use crate::core::contracts::errors::GeneralServerError;
-use crate::core::contracts::user::{LoginUserData, RegisterUserData};
+use crate::core::contracts::traits::authentication_provider::AuthProvider;
+use crate::core::contracts::base::dependency_container::ExecutionContext;
+use crate::core::contracts::base::errors::GeneralServerError;
+use crate::core::contracts::dtos::user::{LoginUserData, RegisterUserData};
 use crate::core::service::authentication_service;
 
 pub struct AuthClient{}

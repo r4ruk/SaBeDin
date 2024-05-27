@@ -1,16 +1,15 @@
 use std::collections::HashMap;
 use std::sync::Arc;
-use crate::core::contracts::services::ClientHandler;
+use crate::core::contracts::traits::services::ClientHandler;
 use tokio::sync::Mutex;
 use async_trait::async_trait;
-use log::{info, warn};
 use uuid::Uuid;
-use crate::core::contracts::basic_informations::{RequestPostBody, ResponseBody};
-use crate::core::contracts::dependency_container::ExecutionContext;
-use crate::core::contracts::errors::GeneralServerError;
-use crate::core::contracts::queue_types::QueueRequestMessage;
-use crate::core::contracts::service_manager_provider::ServiceManagerProvider;
-use crate::core::contracts::system_messages::InformationMessage;
+use crate::core::contracts::base::basic_informations::{RequestPostBody, ResponseBody};
+use crate::core::contracts::base::dependency_container::ExecutionContext;
+use crate::core::contracts::base::errors::GeneralServerError;
+use crate::core::contracts::base::queue_types::QueueRequestMessage;
+use crate::core::contracts::traits::service_manager_provider::ServiceManagerProvider;
+use crate::core::contracts::base::system_messages::InformationMessage;
 use crate::core::utils::{file_helper, utils};
 use crate::logger::core_logger::{get_logger, LoggingLevel};
 use crate::queue_manager::manager::{QueueManager, QueueManagerProvider};
@@ -30,7 +29,7 @@ pub struct ServiceManager {
 // the try_handle functionality
 #[async_trait]
 impl ServiceManagerProvider for ServiceManager {
-    async fn try_handle(&self, context: &ExecutionContext, path: &str, post_body: RequestPostBody) -> Result<(), GeneralServerError> {
+    async fn try_handle_command(&self, context: &ExecutionContext, path: &str, post_body: RequestPostBody) -> Result<(), GeneralServerError> {
         let binding = self.services.lock().await;
         let service_option = &binding.get(path);
 

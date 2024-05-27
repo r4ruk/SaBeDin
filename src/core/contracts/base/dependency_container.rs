@@ -4,9 +4,9 @@ use deadpool_lapin::Pool as mq_pool;
 use sqlx::{Pool, Postgres};
 use crate::config::Config;
 use crate::core::client::auth::AuthClient;
-use crate::core::contracts::authentication_provider::AuthProvider;
-use crate::core::contracts::service_manager_provider::ServiceManagerProvider;
-use crate::core::persistence::db_pool::{PostgresConnection, DbConnectionPoolProvider};
+use crate::core::contracts::traits::authentication_provider::AuthProvider;
+use crate::core::contracts::traits::service_manager_provider::ServiceManagerProvider;
+use crate::core::persistence::core::db_pool::{DbConnectionPoolProvider, PostgresConnection};
 use crate::queue_manager::manager::QueueManager;
 use crate::service_manager::service_manager::ServiceManager;
 

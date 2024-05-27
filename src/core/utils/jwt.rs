@@ -3,7 +3,7 @@ use chrono::{DateTime, Duration, Utc};
 use dotenv::dotenv;
 use std::env;
 use jsonwebtoken::{decode, DecodingKey, encode, EncodingKey, Header, TokenData};
-use crate::core::contracts::user::TokenClaims;
+use crate::core::contracts::base::token::TokenClaims;
 
 pub fn encode_jwt(email: String) -> Result<String, StatusCode> {
     let now: DateTime<Utc> = Utc::now();

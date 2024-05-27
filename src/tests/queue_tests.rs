@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod queue_tests {
     use uuid::Uuid;
-    use crate::core::contracts::basic_informations::RequestPostBody;
-    use crate::core::contracts::queue_types::QueueRequestMessage;
+    use crate::core::contracts::base::basic_informations::RequestPostBody;
+    use crate::core::contracts::base::queue_types::QueueRequestMessage;
     use crate::queue_manager::manager::{QueueManager, QueueManagerProvider};
     use crate::tests::common::test_helper::create_execution_context;
 

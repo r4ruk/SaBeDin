@@ -1,12 +1,3 @@
-pub mod errors;
-pub mod services;
-pub mod basic_informations;
-pub mod user;
-pub mod builtin_types;
-pub mod dependency_container;
-pub mod authentication_provider;
-pub mod service_manager_provider;
-pub mod custom_macros;
-pub mod queue_types;
-pub mod query_params;
-pub mod system_messages;
+pub mod traits;
+pub mod base;
+pub mod dtos;

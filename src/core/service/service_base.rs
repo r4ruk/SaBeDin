@@ -1,5 +1,5 @@
 use sqlx::{Postgres, Transaction};
-use crate::core::contracts::errors::GeneralServerError;
+use crate::core::contracts::base::errors::GeneralServerError;
 
 pub async fn handle_finish_transaction(result: Result<(), GeneralServerError>, transaction: Transaction<'_, Postgres>)
  -> Result<(), GeneralServerError>{

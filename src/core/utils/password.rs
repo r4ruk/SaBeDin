@@ -2,7 +2,7 @@ use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use argon2::password_hash::{SaltString};
 use rand_core::OsRng;
 use serde_json::Value;
-use crate::core::contracts::user::FilteredUser;
+use crate::core::contracts::dtos::user::FilteredUser;
 
 pub fn hash_password(pwd: &str) -> Result<String, Value>{
     let salt = SaltString::generate(&mut OsRng);

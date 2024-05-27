@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
-use crate::core::contracts::query_params::QueryOptions;
+use crate::core::contracts::base::query_params::QueryOptions;
 
 // The request post body representation which can be further sent to processing Services
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RequestPostBody {
     pub idempotency_key: String,
     pub method: String,

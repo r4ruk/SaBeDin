@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 use lazy_static::lazy_static;
-use crate::core::persistence::table_name_supplier::TableNameSupplier;
+use crate::core::persistence::core::table_name_supplier::TableNameSupplier;
 
 /// enum representing different entities stored in the database
 #[derive(Debug, Hash, PartialEq, Eq)]
 pub enum TableName {
     Users,
+    Idempotency
 }
 
 lazy_static!{
@@ -14,8 +15,7 @@ lazy_static!{
 
         // extend the following lines with matching database informations
         m.insert(TableName::Users, "users".to_string());
-
-
+        m.insert(TableName::Idempotency, "idempotency".to_string());
         m
     };
 }

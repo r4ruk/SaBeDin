@@ -1,12 +1,12 @@
 use sqlx::query;
-use crate::core::contracts::dependency_container::ExecutionContext;
-use crate::core::contracts::errors::GeneralServerError;
-use crate::core::contracts::query_params::QueryOptions;
-use crate::core::persistence::persistence_errors::PersistenceError;
+use crate::core::contracts::base::dependency_container::ExecutionContext;
+use crate::core::contracts::base::errors::GeneralServerError;
+use crate::core::contracts::base::query_params::QueryOptions;
+use crate::core::persistence::core::persistence_errors::PersistenceError;
 use crate::example::portfolio::contracts::article::Article;
-use crate::core::persistence::query_builder::{QueryBuilder, QueryClause};
-use crate::core::persistence::query_builder::Sorting::Default;
-use crate::core::persistence::table_name_supplier::TableNameSupplier;
+use crate::core::persistence::core::query_builder::{QueryBuilder, QueryClause};
+use crate::core::persistence::core::query_builder::Sorting::Default;
+use crate::core::persistence::core::table_name_supplier::TableNameSupplier;
 use crate::example::portfolio::persistence::table_names::TableNamePortfolio;
 use crate::name_of;
 

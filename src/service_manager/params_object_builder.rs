@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use crate::core::contracts::query_params::QueryOptions;
-use crate::core::persistence::query_builder::Sorting;
+use crate::core::contracts::base::query_params::QueryOptions;
+use crate::core::persistence::core::query_builder::Sorting;
 
 pub fn build_query_options_from_params(params: HashMap<String, String>) -> Option<QueryOptions> {
     // queries will be added by function which is handling the called get function

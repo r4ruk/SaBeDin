@@ -5,7 +5,7 @@ use axum::{async_trait, Form, Json, RequestExt,
            http::{header::CONTENT_TYPE, StatusCode},
            extract::{FromRequest, Path, Request, State}};
 use crate::ExecutionContext;
-use crate::core::contracts::{basic_informations::{RequestPostBody, ResponseBody}};
+use crate::core::contracts::{base::basic_informations::{RequestPostBody, ResponseBody}};
 use crate::core::utils::uri_helper;
 use crate::logger::core_logger::{get_logger, LoggingLevel};
 
@@ -23,7 +23,7 @@ pub async fn command_handler(State(context): State<Arc<ExecutionContext>>,
 
 
     // redirect handling to service manager, which decides what to do with the request.
-    let result =  context.service_manager.try_handle(context.as_ref(), &path, request_post_body).await;
+    let result =  context.service_manager.try_handle_command(context.as_ref(), &path, request_post_body).await;
     match result {
         Ok(_) => {println!("successfull handled post request")}
         Err(e) => {
