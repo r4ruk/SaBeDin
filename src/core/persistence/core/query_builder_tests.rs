@@ -10,7 +10,6 @@ mod query_builder_tests {
     use crate::core::contracts::dtos::user::User;
     use crate::core::persistence::core::query_builder::{QueryBuilder, QueryClause, Sorting};
     use crate::core::contracts::base::query_params::PagingQuery;
-    use crate::core::persistence::core::query_builder::QueryBuilder;
     use crate::core::persistence::core::query_builder::Sorting::{Ascending, Default, Descending};
     use crate::core::persistence::table_names::TableName;
     use crate::name_of;
@@ -137,13 +136,13 @@ mod query_builder_tests {
     fn test_update_singleval_statements() {
 
         let mut where_clause: Vec<QueryClause> = vec![];
-        where_clause.push(QueryClause::Equals("name".to_string()));
+        where_clause.push(QueryClause::Equals("climb".to_string()));
         where_clause.push(QueryClause::Equals("email".to_string()));
 
         let props = vec!["name".to_string()];
 
         let query = QueryBuilder::Update(Box::new(TableName::Users), props, Some(where_clause));
-        let query_expect = "UPDATE users SET name = $1 WHERE name = $2 AND email = $3";
+        let query_expect = "UPDATE users SET name = $1 WHERE climb = $2 AND email = $3";
         assert_eq!(query_expect, query.build_query());
     }
     #[test]

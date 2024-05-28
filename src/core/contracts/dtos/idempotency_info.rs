@@ -7,10 +7,10 @@ use crate::core::contracts::base::builtin_types::custom_uuid;
 #[derive(Debug, Deserialize, sqlx::FromRow, Serialize, Clone)]
 pub struct IdempotencyObject {
     #[serde(with="custom_uuid")]
-   pub user_id: Uuid,
-   pub idempotency_key: String,
-   pub response_status_code: i16,
-   pub response_body: Value,
+    pub user_id: Uuid,
+    pub idempotency_key: String,
+    pub response_status_code: i16,
+    pub response_body: Value,
 }
 
 #[derive(Debug)]

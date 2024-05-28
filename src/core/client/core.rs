@@ -18,7 +18,7 @@ impl AdministrationClient {
             Ok(event) =>{
                 match event {
                     IdempotencyEvents::CreateIdempotencyKey => {
-                        let res = service::administration_service::create_idempotency_key(body.object).await?;
+                        let res = service::administration_service::create_idempotency_key(&context, body.object).await?;
                         return if res.is_success() {
                             Ok(())
                         } else {
@@ -29,7 +29,7 @@ impl AdministrationClient {
                         }
                     }
                     IdempotencyEvents::UpdateIdempotencyKey => {
-                        let res = service::administration_service::update_idempotency_key(body.object).await;
+                        let res = service::administration_service::update_idempotency_key(&context, body.object).await;
                         return if res.is_success() {
                             Ok(())
                         } else {
