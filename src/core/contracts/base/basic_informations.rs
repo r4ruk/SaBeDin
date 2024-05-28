@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use crate::core::contracts::base::query_params::QueryOptions;
 
 // The request post body representation which can be further sent to processing Services
@@ -15,4 +16,15 @@ pub struct RequestPostBody {
 #[derive(Serialize, Deserialize, Debug )]
 pub struct ResponseBody {
     pub body: String,
+}
+
+
+pub fn new_simple_post_body(method: String, object: Value) -> RequestPostBody {
+    RequestPostBody {
+        idempotency_key: "".to_string(),
+        method,
+        object: object.to_string(),
+        params: Default::default(),
+        query_options: Default::default(),
+    }
 }

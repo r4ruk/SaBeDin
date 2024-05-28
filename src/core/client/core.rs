@@ -1,7 +1,9 @@
 use std::collections::HashMap;
+use sqlx::testing::TestTermination;
 use crate::core::contracts::base::basic_informations::{RequestPostBody, ResponseBody};
 use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::core::contracts::base::errors::GeneralServerError;
+use crate::core::contracts::dtos::idempotency_info::IdempotencyEvents;
 use crate::core::service;
 use crate::logger::core_logger::{get_logger, LoggingLevel};
 
@@ -12,11 +14,32 @@ impl AdministrationClient {
 
         println!("handling request in administrationclient {:?}", body);
         
-        match body.method.as_str() {
-            "createIdempotencyKey" => {
-                // TODO deserialize RequestPostBody object which contains the IdempotencyKeyObject
-                let res = service::administration_service::create_idempotency_key(body.idempotency_key.clone()).await?;
-                return Ok(())
+        match body.method.parse::<IdempotencyEvents>() {
+            Ok(event) =>{
+                match event {
+                    IdempotencyEvents::CreateIdempotencyKey => {
+                        let res = service::administration_service::create_idempotency_key(body.object).await?;
+                        return if res.is_success() {
+                            Ok(())
+                        } else {
+                            let err = GeneralServerError { message: "Couldnt create idempotency key".to_string() };
+                            let logger = get_logger();
+                            logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                            Err(err)
+                        }
+                    }
+                    IdempotencyEvents::UpdateIdempotencyKey => {
+                        let res = service::administration_service::update_idempotency_key(body.object).await;
+                        return if res.is_success() {
+                            Ok(())
+                        } else {
+                            let err = GeneralServerError { message: "Couldnt update idempotency key".to_string() };
+                            let logger = get_logger();
+                            logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                            Err(err)
+                        }
+                    }
+                }
             }
             _ => {
                 let logger = get_logger();
