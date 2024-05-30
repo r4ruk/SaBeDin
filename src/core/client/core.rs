@@ -16,10 +16,10 @@ impl AdministrationClient {
         
         match body.method.parse::<IdempotencyEvents>() {
             Ok(event) =>{
-                match event {
+                return match event {
                     IdempotencyEvents::CreateIdempotencyKey => {
                         let res = service::administration_service::create_idempotency_key(&context, body.object).await?;
-                        return if res.is_success() {
+                        if res.is_success() {
                             Ok(())
                         } else {
                             let err = GeneralServerError { message: "Couldnt create idempotency key".to_string() };
@@ -30,7 +30,7 @@ impl AdministrationClient {
                     }
                     IdempotencyEvents::UpdateIdempotencyKey => {
                         let res = service::administration_service::update_idempotency_key(&context, body.object).await;
-                        return if res.is_success() {
+                        if res.is_success() {
                             Ok(())
                         } else {
                             let err = GeneralServerError { message: "Couldnt update idempotency key".to_string() };

@@ -19,11 +19,8 @@ pub async fn health_check() -> Result<String, StatusCode>{
 pub async fn command_handler(State(context): State<Arc<ExecutionContext>>,
                              Path(path): Path<String>,
                              JsonOrForm(request_post_body): JsonOrForm<RequestPostBody>) {
-    // TODO Add Itempotency key insert/check with user sending request
-
-
     // redirect handling to service manager, which decides what to do with the request.
-    let result =  context.service_manager.try_handle_command(context.as_ref(), &path, request_post_body).await;
+    let result =  context.service_manager.handle_command(context.as_ref(), &path, request_post_body).await;
     match result {
         Ok(_) => {println!("successfull handled post request")}
         Err(e) => {

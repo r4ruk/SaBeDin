@@ -5,7 +5,8 @@ use crate::core::contracts::dtos::idempotency_info::IdempotencyObject;
 use crate::core::persistence::repositories::administration_persistence;
 use crate::logger::core_logger::{get_logger, LoggingLevel};
 
-pub async fn create_idempotency_key(context: &ExecutionContext, idempotency_json: String) -> Result<(), GeneralServerError>{
+/// Creates the idempotency key if it does not exist
+pub async fn create_idempotency_key(context: &ExecutionContext, idempotency_json: String) -> Result<(), GeneralServerError> {
     let idem_key_object = from_str::<IdempotencyObject>(&idempotency_json);
 
     if idem_key_object.is_ok() {
@@ -14,8 +15,7 @@ pub async fn create_idempotency_key(context: &ExecutionContext, idempotency_json
             .await?;
         if res.is_some() && res.unwrap() != true {
             let mut transaction = context.db.get_pool().begin().await?;
-            let result = administration_persistence::create_idempotency_key(&mut transaction, idempotency_key_object).await?;
-            // todo check result or throw general server error
+            administration_persistence::create_idempotency_key(&mut transaction, idempotency_key_object).await?;
         } else {
             let err = GeneralServerError {message: "Command already handled".to_string()};
             let logger = get_logger();
@@ -24,13 +24,21 @@ pub async fn create_idempotency_key(context: &ExecutionContext, idempotency_json
         }
     }
     return Ok(())
-
 }
-pub async fn update_idempotency_key(context: &ExecutionContext, idempotency_json: String) {
+
+/// Updates the idempotency key
+pub async fn update_idempotency_key(context: &ExecutionContext, idempotency_json: String) -> Result<(), GeneralServerError> {
     let idem_key_object = from_str::<IdempotencyObject>(&idempotency_json);
 
     if idem_key_object.is_ok() {
-        let _obj = idem_key_object.unwrap();
-        // todo handle update in persistence
+        let idempotency_key_object = idem_key_object.unwrap();
+        let mut transaction = context.db.get_pool().begin().await?;
+        administration_persistence::update_idempotency_key(&mut transaction, idempotency_key_object).await?;
+    } else {
+        let err = GeneralServerError {
+            message: "Could not map into IdempotencyObject.".to_string(),
+        };
+        return Err(err)
     }
+    return Ok(())
 }
