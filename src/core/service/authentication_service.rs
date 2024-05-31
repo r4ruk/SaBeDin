@@ -1,7 +1,7 @@
 use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::core::contracts::base::errors::GeneralServerError;
 use crate::core::contracts::dtos::user::{FilteredUser, LoginUserData, RegisterUserData};
-use crate::core::persistence::repositories::auth_persistence;
+use crate::core::persistence::repositories::auth_repository;
 use crate::core::service::service_base::handle_finish_transaction;
 use crate::core::utils::password::{check_password_hash, hash_password};
 
@@ -23,7 +23,7 @@ pub async fn register_user(context: &ExecutionContext, user_data: RegisterUserDa
 
     let mut transaction = context.db.get_pool().begin().await?;
 
-    let result = auth_persistence::register_user(&mut transaction, cloned_user_data).await;
+    let result = auth_repository::register_user(&mut transaction, cloned_user_data).await;
 
     handle_finish_transaction(result, transaction).await
 }
@@ -31,7 +31,7 @@ pub async fn register_user(context: &ExecutionContext, user_data: RegisterUserDa
 /// function returns bool about state of the login attempt
 pub async fn login(context: &ExecutionContext, user_data:LoginUserData) -> bool {
 
-    let dbuser = auth_persistence::login_user(context, user_data.clone()).await;
+    let dbuser = auth_repository::login_user(context, user_data.clone()).await;
 
     let user: FilteredUser = match dbuser {
         Ok(u) => u,
@@ -44,7 +44,7 @@ pub async fn login(context: &ExecutionContext, user_data:LoginUserData) -> bool 
 
 /// Function checks if user exists already or not
 pub async fn check_user_exists(context: &ExecutionContext, email: String) -> bool {
-    let user_exists = auth_persistence::check_user_exists(&context, email).await;
+    let user_exists = auth_repository::check_user_exists(&context, email).await;
     return match user_exists {
         Ok(res) => {
             res.unwrap_or_else(|| true)

@@ -41,15 +41,21 @@ pub struct LoginUserData {
 }
 
 #[allow(non_snake_case)]
+#[derive(Debug, Deserialize, sqlx::FromRow, Serialize, Clone)]
 pub struct FilteredUser {
+    #[serde(with = "custom_uuid")]
     pub id: Uuid,
     pub name: String,
     pub email: String,
     pub password: String,
     pub role: String,
     pub verified: bool,
-    pub created_at: Option<DateTime<Utc>>,
-    pub updated_at: Option<DateTime<Utc>>,
+    #[serde(rename = "createdAt")]
+    #[serde(with = "custom_datetime")]
+    pub created_at: DateTime<Utc>,
+    #[serde(rename = "updatedAt")]
+    #[serde(with = "custom_datetime")]
+    pub updated_at: DateTime<Utc>,
 }
 
 

@@ -10,6 +10,7 @@ use axum_extra::extract::CookieJar;
 use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::core::contracts::base::errors::ApiError;
 use crate::core::contracts::base::token::TokenClaims;
+use crate::core::contracts::dtos::user::FilteredUser;
 use crate::core::utils::jwt::decode_jwt;
 
 const AUTHORIZATION_HEADER: &str = "Authorization";
@@ -61,7 +62,13 @@ pub async fn guard<T>(
     params_map.insert("email".to_string(), _claim.email);
 
     let result = _context.service_manager.try_handle_query(&*_context, "user", params_map).await;
-
+    if let Ok(body) = result {
+        let json_result = serde_json::from_str(&body.body);
+        if let Ok(object) = json_result {
+            let user: FilteredUser = object;
+            // let mut context = _context.lock().await.unwrap();
+        }
+    }
 
 
     // TODO add retrieving user information logic here for permissions and accesscontrol policies

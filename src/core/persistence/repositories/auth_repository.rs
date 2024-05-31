@@ -72,6 +72,3 @@ pub async fn check_user_exists(context: &&ExecutionContext, email: String) -> Re
             })?;
     Ok(user_exists)
 }
-
-
-

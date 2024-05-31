@@ -12,7 +12,7 @@ mod service_manager_test {
     use crate::core::persistence::core::db_pool::PostgresConnection;
     use crate::tests::common::test_helper::{create_execution_context_withdb, get_config};
 
-    const SERVICE_NAME: &str = "client";
+    const SERVICE_NAME: &str = "user";
 
 
     #[tokio::test]
@@ -28,7 +28,7 @@ mod service_manager_test {
         let manager = ServiceManager::new().await;
 
         let mut param: HashMap<String, String> = HashMap::new();
-        param.insert("id".to_string(), "1".to_string());
+        param.insert("email".to_string(), "hans.ueli@test.ch".to_string());
         let db = PostgresConnection::init(&get_config().database_url).await;
         let mq = crate::queue_manager::manager::QueueManager::init().await;
         let returned_user = manager.try_handle_query(&create_execution_context_withdb(db, mq, None).await, SERVICE_NAME, param).await.unwrap();

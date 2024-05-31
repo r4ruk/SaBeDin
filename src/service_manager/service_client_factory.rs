@@ -5,7 +5,7 @@ use crate::core::contracts::traits::services::ClientHandler;
 // to project internal services.
 pub fn find_service(service_name: &str) -> Option<Box<dyn ClientHandler>>{
     match service_name {
-        "client" => Some(client::user::UserClient::instantiate()),
+        "user" => Some(client::user::UserClient::instantiate()),
         _ => None
     }
 }

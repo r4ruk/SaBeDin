@@ -1,2 +1,3 @@
-pub mod auth_persistence;
-pub mod administration_persistence;
+pub mod auth_repository;
+pub mod administration_repository;
+pub mod user_repository;
