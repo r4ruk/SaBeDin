@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::string::ToString;
 use std::sync::Arc;
 use axum::{http::Request, middleware::Next};
@@ -8,6 +9,7 @@ use axum::response::Response;
 use axum_extra::extract::CookieJar;
 use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::core::contracts::base::errors::ApiError;
+use crate::core::contracts::base::token::TokenClaims;
 use crate::core::utils::jwt::decode_jwt;
 
 const AUTHORIZATION_HEADER: &str = "Authorization";
@@ -49,11 +51,17 @@ pub async fn guard<T>(
         })
     }
 
-    let _claim = decode_jwt(token.unwrap()).map_err(|_| ApiError {
+    let _claim: TokenClaims = decode_jwt(token.unwrap()).map_err(|_| ApiError {
         message: "claim not valid".to_string(),
         redirect: "none".to_string(),
         status_code: StatusCode::BAD_REQUEST.as_u16(),
     })?.claims;
+
+    let mut params_map = HashMap::new();
+    params_map.insert("email".to_string(), _claim.email);
+
+    let result = _context.service_manager.try_handle_query(&*_context, "user", params_map).await;
+
 
 
     // TODO add retrieving user information logic here for permissions and accesscontrol policies
