@@ -16,7 +16,7 @@ NEXT todo:
     [] add userId of request into execution context in the middleware
     [X] finish idempotency implementation\
 
-[] tear ClientHandler apart and contribute basic implementation for handle_query function which
+[X] tear ClientHandler apart and contribute basic implementation for handle_query function which
     calls handle_single_param and handle_multi_param methods. These should be implemented by each specific client then
 
 
