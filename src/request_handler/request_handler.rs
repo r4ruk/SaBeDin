@@ -6,6 +6,7 @@ use axum::{async_trait, Form, Json, RequestExt,
            extract::{FromRequest, Path, Request, State}};
 use crate::ExecutionContext;
 use crate::core::contracts::{base::basic_informations::{RequestPostBody, ResponseBody}};
+use crate::core::contracts::base::basic_informations::RequestPostBodyWrapper;
 use crate::core::utils::uri_helper;
 use crate::logger::core_logger::{get_logger, LoggingLevel};
 
@@ -18,8 +19,16 @@ pub async fn health_check() -> Result<String, StatusCode>{
 // handler for POST requests
 pub async fn command_handler(State(context): State<Arc<ExecutionContext>>,
                              Path(path): Path<String>,
-                             JsonOrForm(request_post_body): JsonOrForm<RequestPostBody>) {
+                             JsonOrForm(wrapper): JsonOrForm<RequestPostBodyWrapper>) {
     // redirect handling to service manager, which decides what to do with the request.
+    // TODO map fromn wrapper property
+    let request_post_body = RequestPostBody{
+        idempotency_key: "".to_string(),
+        method: "".to_string(),
+        object: "".to_string(),
+        params: Default::default(),
+        query_options: Default::default(),
+    };
     let result =  context.service_manager.handle_command(context.as_ref(), &path, request_post_body).await;
     match result {
         Ok(_) => {println!("successfull handled post request")}
