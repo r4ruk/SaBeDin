@@ -25,6 +25,19 @@ pub struct RequestPostBodyWrapper {
     pub requesting_user_id: String,
 }
 
+impl From<RequestPostBodyWrapper> for RequestPostBody {
+    fn from(value: RequestPostBodyWrapper) -> Self {
+        Self {
+            idempotency_key: value.idempotency_key,
+            method: value.method,
+            object: value.object,
+            params: value.params,
+            query_options: value.query_options,
+        }
+    }
+}
+
+
 #[derive(Serialize, Deserialize, Debug )]
 pub struct ResponseBody {
     pub body: String,

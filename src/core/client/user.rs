@@ -61,7 +61,7 @@ impl ClientHandler for UserClient {
     }
 
 
-    async fn handle_multi_param_query(&self, context: &ExecutionContext, mut params: HashMap<String, String>) -> Result<ResponseBody, GeneralServerError> {
+    async fn handle_multi_param_query(&self, _context: &ExecutionContext, mut params: HashMap<String, String>) -> Result<ResponseBody, GeneralServerError> {
         let result = match params.remove("method") {
             Some(value) => match value.as_str() {
                 _ => {

@@ -60,11 +60,10 @@ impl ServiceManagerProvider for ServiceManager {
     async fn try_handle_query(&self, context: &ExecutionContext, service: &str, params: HashMap<String, String>) -> Result<ResponseBody, GeneralServerError> {
         let binding = self.services.lock().await; // using async lock
         let service_option = &binding.get(service);
-        let mut response = ResponseBody{ body: "".to_string() };
         match service_option {
             Some(service) => {
                 let serv = service.lock().await;
-                response = serv.handle_query(context, params).await;
+                let response = serv.handle_query(context, params).await;
                 Ok(response)
             }
             None => {

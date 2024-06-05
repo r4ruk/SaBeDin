@@ -1,9 +1,11 @@
+use std::str::FromStr;
 use std::sync::Arc;
 use serde_json::json;
 use axum::{async_trait, Form, Json, RequestExt,
            response::{IntoResponse, Response},
            http::{header::CONTENT_TYPE, StatusCode},
            extract::{FromRequest, Path, Request, State}};
+use uuid::Uuid;
 use crate::ExecutionContext;
 use crate::core::contracts::{base::basic_informations::{RequestPostBody, ResponseBody}};
 use crate::core::contracts::base::basic_informations::RequestPostBodyWrapper;
@@ -20,16 +22,16 @@ pub async fn health_check() -> Result<String, StatusCode>{
 pub async fn command_handler(State(context): State<Arc<ExecutionContext>>,
                              Path(path): Path<String>,
                              JsonOrForm(wrapper): JsonOrForm<RequestPostBodyWrapper>) {
+    // map into RequestPostBody
+    let request_post_body = wrapper.clone().into();
+
+    let user_id_result = Uuid::from_str(&wrapper.requesting_user_id);
+    if user_id_result.is_err() {
+        return;
+    }
+
     // redirect handling to service manager, which decides what to do with the request.
-    // TODO map fromn wrapper property
-    let request_post_body = RequestPostBody{
-        idempotency_key: "".to_string(),
-        method: "".to_string(),
-        object: "".to_string(),
-        params: Default::default(),
-        query_options: Default::default(),
-    };
-    let result =  context.service_manager.handle_command(context.as_ref(), &path, request_post_body).await;
+    let result =  context.service_manager.handle_command(context.as_ref(), &path, request_post_body, user_id_result.unwrap()).await;
     match result {
         Ok(_) => {println!("successfull handled post request")}
         Err(e) => {

@@ -12,6 +12,36 @@ pub struct ApiError {
     pub status_code: u16,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub enum ErrorCode {
+    Unauthorized,
+    BadRequest,
+    Forbidden,
+    NotFound
+}
+
+impl ErrorCode{
+    pub fn get_error_code(&self) -> u16{
+        match self {
+            ErrorCode::Unauthorized => 401,
+            ErrorCode::BadRequest => 400,
+            ErrorCode::Forbidden => 403,
+            ErrorCode::NotFound => 404,
+        }
+    }
+}
+
+impl ApiError {
+    pub fn new(err_code: ErrorCode) -> Self{
+        return Self {
+            message: format!("{:?}", err_code),
+            redirect: "".to_string(),
+            status_code: err_code.get_error_code(),
+        }
+    }
+}
+
+
 #[derive(Debug,Clone, Serialize, Deserialize)]
 pub struct GeneralServerError {
     pub message: String
