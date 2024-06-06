@@ -1,11 +1,12 @@
 use async_trait::async_trait;
 use deadpool_lapin::{Manager, Pool};
-use lapin::{Channel, ConnectionProperties,Queue};
+use lapin::{Channel, ConnectionProperties, Queue};
 use lapin::options::QueueDeclareOptions;
-use crate::core::contracts::base::queue_types::{QueueRequestMessage, QueueResponseMessage};
 use uuid::Uuid;
+
 use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::core::contracts::base::errors::GeneralServerError;
+use crate::core::contracts::base::queue_types::{QueueRequestMessage, QueueResponseMessage};
 use crate::core::contracts::base::system_messages::InformationMessage;
 use crate::logger::core_logger::{get_logger, LoggingLevel};
 use crate::queue_manager::{publisher, receiver};
@@ -19,7 +20,6 @@ pub trait QueueManagerProvider: Send + Sync  {
     async fn publish(&self, context: &ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<(), GeneralServerError>;
     async fn returning_publish(&self, context: &ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<QueueResponseMessage, GeneralServerError>;
 }
-
 
 
 pub struct QueueManager {}
@@ -39,10 +39,10 @@ impl QueueManager {
         let addr = "amqp://raruk:test123@127.0.0.1:5672";
         // let conn = Connection::connect(addr, ConnectionProperties::default()).await.map_err(|_| println!("error happened") );
         let manager = Manager::new(addr, ConnectionProperties::default());
-        let pool = deadpool::managed::Pool::builder(manager)
+        let pool = Pool::builder(manager)
             .max_size(10)
             .build()
-            .expect("can create pool");
+            .expect("can't create pool");
 
         pool
     }

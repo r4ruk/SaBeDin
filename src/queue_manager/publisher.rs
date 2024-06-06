@@ -1,6 +1,6 @@
-use std::fmt::format;
 use lapin::{BasicProperties, Channel};
 use lapin::options::{BasicPublishOptions, QueueDeclareOptions};
+
 use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::core::contracts::base::errors::GeneralServerError;
 use crate::core::contracts::base::queue_types::QueueRequestMessage;

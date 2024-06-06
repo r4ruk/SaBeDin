@@ -1,15 +1,17 @@
 use std::collections::HashMap;
 use std::sync::Arc;
-use crate::core::contracts::traits::services::ClientHandler;
-use tokio::sync::Mutex;
+
 use async_trait::async_trait;
+use tokio::sync::Mutex;
 use uuid::Uuid;
+
 use crate::core::contracts::base::basic_informations::{RequestPostBody, ResponseBody};
 use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::core::contracts::base::errors::GeneralServerError;
 use crate::core::contracts::base::queue_types::QueueRequestMessage;
-use crate::core::contracts::traits::service_manager_provider::ServiceManagerProvider;
 use crate::core::contracts::base::system_messages::InformationMessage;
+use crate::core::contracts::traits::service_manager_provider::ServiceManagerProvider;
+use crate::core::contracts::traits::services::ClientHandler;
 use crate::core::utils::{file_helper, utils};
 use crate::logger::core_logger::{get_logger, LoggingLevel};
 use crate::queue_manager::manager::{QueueManager, QueueManagerProvider};
@@ -19,10 +21,12 @@ use crate::service_manager::service_client_factory;
 pub trait ServiceManagerConstruction {
     async fn new() -> Self;
     async fn register_service(&mut self, service_name: String, service: Box<dyn ClientHandler>);
+    async fn register_external_service(&mut self, service_name: String);
 }
 
 pub struct ServiceManager {
-    pub services: Mutex<HashMap<String, Arc<Mutex<Box<dyn ClientHandler>>>>>
+    pub services: Mutex<HashMap<String, Arc<Mutex<Box<dyn ClientHandler>>>>>,
+    pub external_services: Mutex<Vec<String>>
 }
 
 // implementation for the ServiceManagerExt trait which ensures the ServiceManager implements
@@ -102,7 +106,8 @@ impl ServiceManagerConstruction for ServiceManager {
         let os_specific_newline = utils::get_os_newline();
 
         let mut my_manager = ServiceManager {
-            services: Mutex::new(Default::default())
+            services: Mutex::new(Default::default()),
+            external_services: Mutex::new(Default::default()),
         };
         match contents {
             Ok(content) => {
@@ -145,5 +150,16 @@ impl ServiceManagerConstruction for ServiceManager {
         logger.lock().unwrap().log_error(InformationMessage{message:format!("Adding service with name: '{}'", service_name)}, LoggingLevel::Information);
 
         self.services.lock().await.entry(service_name).or_insert(Arc::new(Mutex::new(service)));
+    }
+
+    // registers services for external applications / microservices which are allowed in queue
+    // TODO add API possibility for external services to register themselves for queue handling
+    async fn register_external_service(&mut self, service_name: String) {
+        let logger = get_logger();
+        logger.lock().unwrap().log_error(InformationMessage{message:format!("Adding external service with name: '{}'", service_name)}, LoggingLevel::Information);
+
+        if !self.external_services.lock().await.contains(&service_name.clone()) {
+            self.external_services.lock().await.push(service_name);
+        }
     }
 }

@@ -2,13 +2,14 @@ use async_std::stream::StreamExt;
 use lapin::{Channel, Consumer};
 use lapin::options::{BasicAckOptions, BasicConsumeOptions, QueueDeclareOptions};
 use lapin::types::FieldTable;
+use tokio::time::{Duration, timeout};
 use uuid::Uuid;
+
 use crate::core::contracts::base::errors::GeneralServerError;
 use crate::core::contracts::base::queue_types::{QueueRequestMessage, QueueResponseMessage};
 use crate::core::contracts::base::system_messages::InformationMessage;
 use crate::logger::core_logger::{get_logger, LoggingLevel};
 use crate::queue_manager::manager::QueueManager;
-use tokio::time::{timeout, Duration};
 
 /// receives a message from the given queue
 pub async fn receive_on_queue(_manager: &QueueManager , channel: Channel, queue_name: &str)
@@ -56,7 +57,7 @@ pub async fn receive_on_queue(_manager: &QueueManager , channel: Channel, queue_
 pub(crate) async fn establish_temporary_listener(manager: &QueueManager , channel: Channel, correlation_id: Uuid)
                                       -> Result<QueueResponseMessage, GeneralServerError> {
 
-    let timeout_duration = Duration::from_secs(15);
+    let timeout_duration = Duration::from_secs(5);
 
     let queue_declareoptions = QueueDeclareOptions {
         passive: false,
