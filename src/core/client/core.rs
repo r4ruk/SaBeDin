@@ -7,9 +7,9 @@ use crate::core::contracts::dtos::idempotency_info::IdempotencyEvents;
 use crate::core::service;
 use crate::logger::core_logger::{get_logger, LoggingLevel};
 
-pub struct AdministrationClient {}
+pub struct IdempotencyClient {}
 
-impl AdministrationClient {
+impl IdempotencyClient {
     pub async fn handle_command(&self, context: &ExecutionContext, body: RequestPostBody) -> Result<(), GeneralServerError>{
 
         println!("handling request in administrationclient {:?}", body);

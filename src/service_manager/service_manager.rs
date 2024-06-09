@@ -2,7 +2,9 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use tokio::sync::Mutex;
+use lazy_static::lazy_static;
+use tokio::sync::RwLock;
+use tokio::task::block_in_place;
 use uuid::Uuid;
 
 use crate::core::contracts::base::basic_informations::{RequestPostBody, ResponseBody};
@@ -10,36 +12,34 @@ use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::core::contracts::base::errors::GeneralServerError;
 use crate::core::contracts::base::queue_types::QueueRequestMessage;
 use crate::core::contracts::base::system_messages::InformationMessage;
-use crate::core::contracts::traits::service_manager_provider::ServiceManagerProvider;
+use crate::core::contracts::traits::service_manager_provider::{ExtendableServiceManager, ExtendableServiceManagerProvider, ServiceManagerProvider};
 use crate::core::contracts::traits::services::ClientHandler;
 use crate::core::utils::{file_helper, utils};
 use crate::logger::core_logger::{get_logger, LoggingLevel};
 use crate::queue_manager::manager::{QueueManager, QueueManagerProvider};
 use crate::service_manager::service_client_factory;
 
-#[async_trait]
-pub trait ServiceManagerConstruction {
-    async fn new() -> Self;
-    async fn register_service(&mut self, service_name: String, service: Box<dyn ClientHandler>);
-    async fn register_external_service(&mut self, service_name: String);
+pub struct GlobalServiceManager {
+    pub services: RwLock<HashMap<String, Arc<Box<dyn ClientHandler>>>>,
+    pub external_services: RwLock<Vec<String>>
 }
 
-pub struct ServiceManager {
-    pub services: Mutex<HashMap<String, Arc<Mutex<Box<dyn ClientHandler>>>>>,
-    pub external_services: Mutex<Vec<String>>
+lazy_static! {
+  pub static ref SERVICE_MANAGER: GlobalServiceManager = GlobalServiceManager::new();
 }
+
+impl ExtendableServiceManagerProvider for GlobalServiceManager{}
 
 // implementation for the ServiceManagerExt trait which ensures the ServiceManager implements
-// the try_handle functionality
 #[async_trait]
-impl ServiceManagerProvider for ServiceManager {
+impl ServiceManagerProvider for GlobalServiceManager {
     async fn try_handle_command(&self, context: &ExecutionContext, path: &str, post_body: RequestPostBody) -> Result<(), GeneralServerError> {
-        let binding = self.services.lock().await;
-        let service_option = &binding.get(path);
+        let binding = self.services.read().await;
+        let service_option = binding.get(path);
 
         match service_option {
             Some(service) => {
-                Ok(service.lock().await.handle_command(context, post_body).await)
+                Ok(service.handle_command(context, post_body).await)
             }
             None => {
                 let logger = get_logger();
@@ -62,12 +62,11 @@ impl ServiceManagerProvider for ServiceManager {
     }
 
     async fn try_handle_query(&self, context: &ExecutionContext, service: &str, params: HashMap<String, String>) -> Result<ResponseBody, GeneralServerError> {
-        let binding = self.services.lock().await; // using async lock
-        let service_option = &binding.get(service);
+        let binding = self.services.read().await;
+        let service_option = binding.get(service);
         match service_option {
             Some(service) => {
-                let serv = service.lock().await;
-                let response = serv.handle_query(context, params).await;
+                let response = service.handle_query(context, params).await;
                 Ok(response)
             }
             None => {
@@ -98,16 +97,28 @@ impl ServiceManagerProvider for ServiceManager {
 }
 
 #[async_trait]
-impl ServiceManagerConstruction for ServiceManager {
+impl ExtendableServiceManager for GlobalServiceManager {
+    // registers services for external applications / microservices which are allowed in queue
+    async fn register_external_service(&mut self, service_name: String) {
+        let logger = get_logger();
+        logger.lock().unwrap().log_error(InformationMessage{message:format!("Adding external service with name: '{}'", service_name)}, LoggingLevel::Information);
+
+        if !self.external_services.read().await.contains(&service_name.clone()) {
+            self.external_services.write().await.push(service_name);
+        }
+    }
+}
+
+impl GlobalServiceManager {
 
     // instantiation of ServiceManager instance.
-    async fn new() -> ServiceManager {
+    fn new() -> GlobalServiceManager {
         let contents = file_helper::read_settings("config.setting");
         let os_specific_newline = utils::get_os_newline();
 
-        let mut my_manager = ServiceManager {
-            services: Mutex::new(Default::default()),
-            external_services: Mutex::new(Default::default()),
+        let mut my_manager = GlobalServiceManager {
+            services: Default::default(),
+            external_services: Default::default(),
         };
         match contents {
             Ok(content) => {
@@ -124,7 +135,10 @@ impl ServiceManagerConstruction for ServiceManager {
                             let client_option = service_client_factory::find_service(line);
                             match client_option {
                                 Some(client) => {
-                                    my_manager.register_service(line.to_string(), client).await;
+                                    let future_result = block_in_place(|| my_manager.register_service(line.to_string(), client));
+                                    match future_result {
+                                        _ => {}
+                                    }
                                 },
                                 None => {
                                     let logger = get_logger();
@@ -144,22 +158,11 @@ impl ServiceManagerConstruction for ServiceManager {
     }
 
     // registers the service in the Manager.
-    async fn register_service(&mut self, service_name: String, service: Box<dyn ClientHandler>) {
+    pub(crate) async fn register_service(&self, service_name: String, service: Box<dyn ClientHandler>) {
 
         let logger = get_logger();
         logger.lock().unwrap().log_error(InformationMessage{message:format!("Adding service with name: '{}'", service_name)}, LoggingLevel::Information);
 
-        self.services.lock().await.entry(service_name).or_insert(Arc::new(Mutex::new(service)));
-    }
-
-    // registers services for external applications / microservices which are allowed in queue
-    // TODO add API possibility for external services to register themselves for queue handling
-    async fn register_external_service(&mut self, service_name: String) {
-        let logger = get_logger();
-        logger.lock().unwrap().log_error(InformationMessage{message:format!("Adding external service with name: '{}'", service_name)}, LoggingLevel::Information);
-
-        if !self.external_services.lock().await.contains(&service_name.clone()) {
-            self.external_services.lock().await.push(service_name);
-        }
+        self.services.write().await.entry(service_name).or_insert(Arc::new(service));
     }
 }

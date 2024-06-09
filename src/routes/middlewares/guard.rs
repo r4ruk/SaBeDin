@@ -14,11 +14,13 @@ use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::core::contracts::base::errors::{ApiError, ErrorCode};
 use crate::core::contracts::base::token::TokenClaims;
 use crate::core::contracts::dtos::user::FilteredUser;
+use crate::core::contracts::traits::service_manager_provider::ServiceManagerProvider;
 use crate::core::utils::jwt::decode_jwt;
+use crate::service_manager::service_manager::SERVICE_MANAGER;
 
 const AUTHORIZATION_HEADER: &str = "Authorization";
 
-pub async fn guard<T>(
+pub async fn guard(
     cookie_jar: CookieJar,
     State(context): State<Arc<ExecutionContext>>,
     req: Request<Body>,
@@ -64,28 +66,25 @@ pub async fn guard<T>(
     let mut params_map = HashMap::new();
     params_map.insert("email".to_string(), _claim.email);
 
-    let result = context.service_manager.try_handle_query(&*context, "user", params_map).await;
-    if let Ok(body) = result {
-        let json_result = serde_json::from_str(&body.body);
-        if let Ok(object) = json_result {
-            let user: FilteredUser = object;
+    let result = SERVICE_MANAGER.try_handle_query(&*context, "user", params_map).await?;
 
-            // Read the request body
-            let (parts, body) = req.into_parts();
+    let json_result = serde_json::from_str(&result.body);
+    if let Ok(object) = json_result {
+        let user: FilteredUser = object;
 
-            let whole_body = to_bytes(body, usize::MAX).await
-                .map_err(|_| ApiError::new(ErrorCode::NotFound))?;
+        // Read the request body
+        let (parts, body) = req.into_parts();
 
-            // Process the body
-            let modified_body = process_body(user, &whole_body).await?;
+        let whole_body = to_bytes(body, usize::MAX).await
+            .map_err(|_| ApiError::new(ErrorCode::NotFound))?;
 
-            let new_req = Request::from_parts(parts, Body::from(modified_body));
-            Ok(next.clone().run(new_req).await)
-        } else {
-            Err(ApiError::new(ErrorCode::NotFound))
-        }
+        // Process the body
+        let modified_body = process_body(user, &whole_body).await?;
+
+        let new_req = Request::from_parts(parts, Body::from(modified_body));
+        Ok(next.clone().run(new_req).await)
     } else {
-        Err(ApiError::new(ErrorCode::Unauthorized))
+        Err(ApiError::new(ErrorCode::NotFound))
     }
 }
 
