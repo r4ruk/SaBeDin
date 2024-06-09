@@ -166,4 +166,3 @@ impl GlobalServiceManager {
         self.services.write().await.entry(service_name).or_insert(Arc::new(service));
     }
 }
-\
