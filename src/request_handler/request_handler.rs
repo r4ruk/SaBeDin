@@ -1,16 +1,15 @@
 use std::str::FromStr;
 use std::sync::Arc;
 use serde_json::json;
-use axum::{async_trait, Form, Json, RequestExt,
-           response::{IntoResponse, Response},
-           http::{header::CONTENT_TYPE, StatusCode},
-           extract::{FromRequest, Path, Request, State}};
+use axum::{async_trait, Form, Json, RequestExt, response::{IntoResponse, Response}, http::{header::CONTENT_TYPE, StatusCode}, extract::{FromRequest, Path, Request, State}, debug_handler};
 use uuid::Uuid;
 use crate::ExecutionContext;
 use crate::core::contracts::{base::basic_informations::{RequestPostBody, ResponseBody}};
 use crate::core::contracts::base::basic_informations::RequestPostBodyWrapper;
+use crate::core::contracts::traits::service_manager_provider::ServiceManagerProvider;
 use crate::core::utils::uri_helper;
 use crate::logger::core_logger::{get_logger, LoggingLevel};
+use crate::service_manager::service_manager::SERVICE_MANAGER;
 
 
 pub async fn health_check() -> Result<String, StatusCode>{
@@ -19,6 +18,7 @@ pub async fn health_check() -> Result<String, StatusCode>{
 }
 
 // handler for POST requests
+#[debug_handler]
 pub async fn command_handler(State(context): State<Arc<ExecutionContext>>,
                              Path(path): Path<String>,
                              JsonOrForm(wrapper): JsonOrForm<RequestPostBodyWrapper>) {
@@ -31,7 +31,8 @@ pub async fn command_handler(State(context): State<Arc<ExecutionContext>>,
     }
 
     // redirect handling to service manager, which decides what to do with the request.
-    let result =  context.service_manager.handle_command(context.as_ref(), &path, request_post_body, user_id_result.unwrap()).await;
+
+    let result = SERVICE_MANAGER.handle_command(context.as_ref(), &path, request_post_body, user_id_result.unwrap()).await;
     match result {
         Ok(_) => {println!("successfull handled post request")}
         Err(e) => {
@@ -42,6 +43,7 @@ pub async fn command_handler(State(context): State<Arc<ExecutionContext>>,
 }
 
 // handler for GET-Requests
+#[debug_handler]
 pub async fn query_handler(State(context):State<Arc<ExecutionContext>>,
                            mut req: Request) -> Result<Json<ResponseBody>, (StatusCode, Json<ResponseBody>)> {
 
@@ -59,7 +61,7 @@ pub async fn query_handler(State(context):State<Arc<ExecutionContext>>,
 
         let params = uri_helper::handle_params(params);
 
-        let result = context.service_manager.try_handle_query(context.as_ref(), &service, params).await;
+        let result = SERVICE_MANAGER.try_handle_query(context.as_ref(), &service, params).await;
         if result.is_ok() {
             response_body.body = result.unwrap().body
         } else {

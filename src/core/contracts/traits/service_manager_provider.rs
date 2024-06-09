@@ -1,20 +1,25 @@
 use std::collections::HashMap;
+use std::format;
 
 use async_trait::async_trait;
 use serde_json::json;
 use sqlx::testing::TestTermination;
 use uuid::Uuid;
 
-use crate::core::client::core::AdministrationClient;
+use crate::core::client::core::IdempotencyClient;
 use crate::core::contracts::base::basic_informations::{new_simple_post_body, RequestPostBody, ResponseBody};
 use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::core::contracts::base::errors::GeneralServerError;
-use crate::core::contracts::dtos::idempotency_info::{IdempotencyEvents, IdempotencyObject};
+use crate::core::contracts::dtos::idempotency_info::{IdempotencyObject, IdempotencyEvents};
+use crate::core::contracts::traits::services::ClientHandler;
 
 #[async_trait]
-pub trait ServiceManagerProvider: Send + Sync {
+pub trait ExtendableServiceManagerProvider : ServiceManagerProvider + ExtendableServiceManager + Send + Sync + Sized + 'static{ }
+
+#[async_trait]
+pub trait ServiceManagerProvider: Send + Sync + Sized + 'static{
     async fn handle_command(&self, context: &ExecutionContext, path: &str, request_post_body: RequestPostBody, user_id: Uuid) -> Result<(), GeneralServerError> {
-        let admin_client = AdministrationClient {};
+        let admin_client = IdempotencyClient {};
         let mut idem_key_obj = IdempotencyObject {
             user_id, // TODO inject user Id sending request into the execution Context in middleware
             idempotency_key: request_post_body.clone().idempotency_key,
@@ -31,14 +36,30 @@ pub trait ServiceManagerProvider: Send + Sync {
 
                 idem_key_obj.response_status_code = 200;
                 let idempotency_update_body = new_simple_post_body(
-                                                                    IdempotencyEvents::UpdateIdempotencyKey.name(),
-                                                                   json!(idem_key_obj));
+                    IdempotencyEvents::UpdateIdempotencyKey.name(),
+                    json!(idem_key_obj));
 
-                admin_client.handle_command(context, idempotency_update_body).await?
+                admin_client.handle_command(context, idempotency_update_body).await?;
             }
             Ok(result)
         } else { res }
     }
     async fn try_handle_command(&self, context: &ExecutionContext, path: &str, request_post_body: RequestPostBody) -> Result<(), GeneralServerError>;
     async fn try_handle_query(&self, context: &ExecutionContext, service: &str, params: HashMap<String, String>) -> Result<ResponseBody, GeneralServerError>;
+}
+
+#[async_trait]
+pub trait ExtendableServiceManager : Send + Sync {
+    async fn register_external_service(&mut self, service_name: String);
+}
+
+#[async_trait]
+pub trait ServiceManagerConstruction {
+    async fn new() -> Self;
+    async fn register_service(&mut self, service_name: String, service: Box<dyn ClientHandler>);
+}
+
+pub trait GlobalServiceManagerConstruction {
+    fn new() -> Self;
+    fn register_service(&mut self, service_name: String, service: Box<dyn ClientHandler>);
 }

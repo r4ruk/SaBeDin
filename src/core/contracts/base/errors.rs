@@ -64,6 +64,19 @@ impl From<sqlx::Error> for GeneralServerError {
         }
     }
 }
+impl From<GeneralServerError> for ApiError {
+    fn from(error: GeneralServerError) -> Self {
+        let message = serde_json::json!({
+            "status":"fail",
+            "message":format!("Error occurred while retrieving informations {:?}", error)
+        });
+        return ApiError{
+            message: error.message,
+            redirect: "".to_string(),
+            status_code: 404,
+        }
+    }
+}
 
 impl From<lapin::Error> for GeneralServerError {
     fn from(error: lapin::Error) -> Self {
