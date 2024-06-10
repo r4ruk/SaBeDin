@@ -5,7 +5,6 @@ use crate::config::Config;
 use crate::core::client::auth::AuthClient;
 use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::core::persistence::core::db_pool::PostgresConnection;
-use crate::service_manager::service_manager::{ServiceManagerConstruction, ServiceManager};
 
 use super::*;
 
@@ -20,18 +19,16 @@ pub fn get_config() -> Config {
 pub async fn create_execution_context(qm: mq_pool, config: Option<Config>) -> ExecutionContext {
     return match config {
         Some(conf) => ExecutionContext {
-            service_manager: Arc::new(ServiceManager::new().await).clone(),
             auth_provider: Arc::new(AuthClient{}),
             env: conf.clone(),
             db: Arc::new(db_mock::MockDbConnectionPoolProvider{}),
             queue: qm,
         },
         None => ExecutionContext {
-            service_manager: Arc::new(ServiceManager::new().await).clone(),
             auth_provider: Arc::new(AuthClient{}),
             env: get_config().clone(),
             db: Arc::new(db_mock::MockDbConnectionPoolProvider{}),
-            queue: qm,
+            queue: qm
         }
     };
 }
@@ -40,14 +37,12 @@ pub async fn create_execution_context(qm: mq_pool, config: Option<Config>) -> Ex
 pub async fn create_execution_context_withdb(db: PostgresConnection,qm: mq_pool, config: Option<Config>) -> ExecutionContext {
     return match config {
         Some(conf) => ExecutionContext {
-            service_manager: Arc::new(ServiceManager::new().await).clone(),
             auth_provider: Arc::new(AuthClient{}),
             env: conf.clone(),
             db: Arc::new(db),
             queue: qm,
         },
         None => ExecutionContext {
-            service_manager: Arc::new(ServiceManager::new().await).clone(),
             auth_provider: Arc::new(AuthClient{}),
             env: get_config().clone(),
             db: Arc::new(db),

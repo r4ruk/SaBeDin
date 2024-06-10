@@ -15,8 +15,7 @@ pub struct ExecutionContext {
     pub auth_provider: Arc<dyn AuthProvider>,
     pub db: Arc<dyn DbConnectionPoolProvider<PoolType=Pool<Postgres>>>,
     pub env: Config,
-    pub queue: mq_pool,
-    pub requesting_user_id: Uuid
+    pub queue: mq_pool
 }
 
 impl ExecutionContext {
@@ -27,8 +26,7 @@ impl ExecutionContext {
             auth_provider: Arc::new(AuthClient{}),
             db: Arc::new(PostgresConnection::init(&config.database_url).await),
             env: config.clone(),
-            queue: QueueManager::init().await,
-            requesting_user_id: Default::default()
+            queue: QueueManager::init().await
         }
     }
 }

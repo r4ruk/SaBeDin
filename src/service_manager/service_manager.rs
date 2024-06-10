@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt::format;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -43,9 +44,13 @@ impl ServiceManagerProvider for GlobalServiceManager {
             }
             None => {
                 let logger = get_logger();
-                logger.lock().unwrap().log_error(GeneralServerError{message:format!("no service found with name: {}", path)}, LoggingLevel::Error);
+                logger.lock().unwrap().log_error(GeneralServerError{message:format!("no service found with name: {}", path)}, LoggingLevel::Information);
 
-                // TODO add some mechanism to not just publish into queue as it amkes it prone to attacks (DDOS)
+                if !SERVICE_MANAGER.external_services.read().await.contains(&path.to_string()) {
+                    let err = GeneralServerError{message:format!("queue for external service not registered: '{}'", path)};
+                    logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                    return Err(err)
+                }
 
                 let queue = QueueManager{};
                 queue.publish(context, path, QueueRequestMessage {

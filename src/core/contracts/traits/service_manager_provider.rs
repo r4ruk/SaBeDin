@@ -21,7 +21,7 @@ pub trait ServiceManagerProvider: Send + Sync + Sized + 'static{
     async fn handle_command(&self, context: &ExecutionContext, path: &str, request_post_body: RequestPostBody, user_id: Uuid) -> Result<(), GeneralServerError> {
         let admin_client = IdempotencyClient {};
         let mut idem_key_obj = IdempotencyObject {
-            user_id, // TODO inject user Id sending request into the execution Context in middleware
+            user_id,
             idempotency_key: request_post_body.clone().idempotency_key,
             response_status_code: 0,
             response_body: Default::default(),

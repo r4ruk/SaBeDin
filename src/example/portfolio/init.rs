@@ -4,7 +4,7 @@ use axum::Router;
 
 use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::example::portfolio::client;
-use crate::service_manager::service_manager::{GlobalServiceManager, SERVICE_MANAGER};
+use crate::service_manager::service_manager::SERVICE_MANAGER;
 
 #[allow(unused)]
 fn initialize_router(state: Arc<ExecutionContext>) -> Router{
