@@ -7,7 +7,7 @@ mod service_manager_test {
     use uuid::Uuid;
     use crate::core::contracts::base::basic_informations::RequestPostBody;
     use crate::core::contracts::dtos::user::User;
-    use crate::service_manager::service_manager::{ServiceManagerConstruction, ServiceManager, SERVICE_MANAGER};
+    use crate::service_manager::service_manager::SERVICE_MANAGER;
     use crate::core::contracts::traits::service_manager_provider::ServiceManagerProvider;
     use crate::core::persistence::core::db_pool::PostgresConnection;
     use crate::tests::common::test_helper::{create_execution_context_withdb, get_config};

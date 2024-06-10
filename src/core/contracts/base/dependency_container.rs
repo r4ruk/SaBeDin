@@ -3,7 +3,6 @@ use std::sync::Arc;
 use deadpool_lapin::Pool as mq_pool;
 use dotenv::dotenv;
 use sqlx::{Pool, Postgres};
-use uuid::Uuid;
 
 use crate::config::Config;
 use crate::core::client::auth::AuthClient;
