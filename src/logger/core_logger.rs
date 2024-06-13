@@ -12,7 +12,7 @@ pub enum LoggingLevel{
 pub struct Logger {}
 
 impl Logger {
-    pub fn log_error<T:SysMessage>(&self, err: T, logging_level: LoggingLevel) {
+    pub fn log_message<T:SysMessage>(&self, err: T, logging_level: LoggingLevel) {
         println!("Logged: {}, logging_level: '{:?}'", err.get_internal_message(), logging_level);
     }
 }

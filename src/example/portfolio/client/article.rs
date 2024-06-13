@@ -60,14 +60,14 @@ impl ClientHandler for ArticleClient {
                 _ => {
                     let err = GeneralServerError { message: "unsupported method".to_string() };
                     let logger = get_logger();
-                    logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                    logger.lock().unwrap().log_message(err.clone(), LoggingLevel::Error);
                     Err(err)
                 }
             },
             None => {
                 let err = GeneralServerError { message: "no method provided".to_string() };
                 let logger = get_logger();
-                logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                logger.lock().unwrap().log_message(err.clone(), LoggingLevel::Error);
                 Err(err)
             }
         };
@@ -85,14 +85,14 @@ impl ClientHandler for ArticleClient {
                 _ => {
                     let err = GeneralServerError { message: "unsupported method".to_string() };
                     let logger = get_logger();
-                    logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                    logger.lock().unwrap().log_message(err.clone(), LoggingLevel::Error);
                     Err(err)
                 }
             },
             None => {
                 let err = GeneralServerError { message: "no method provided".to_string() };
                 let logger = get_logger();
-                logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                logger.lock().unwrap().log_message(err.clone(), LoggingLevel::Error);
                 Err(err)
             }
         };

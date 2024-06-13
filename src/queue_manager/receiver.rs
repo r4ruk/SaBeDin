@@ -70,7 +70,7 @@ pub(crate) async fn establish_temporary_listener(manager: &QueueManager , channe
     let queue = manager.create_queue(channel.clone(), &correlation_id.to_string(),queue_declareoptions).await?;
     
     let logger = get_logger();
-    logger.lock().unwrap().log_error(InformationMessage { message: format!("Declared queue {:?}", queue) }, LoggingLevel::Information);
+    logger.lock().unwrap().log_message(InformationMessage { message: format!("Declared queue {:?}", queue) }, LoggingLevel::Information);
 
     let mut consumer: Consumer = channel
         .basic_consume(
@@ -108,7 +108,7 @@ pub(crate) async fn establish_temporary_listener(manager: &QueueManager , channe
         // Error happened when message was received...
         Ok(Err(err)) =>{
             let logger = get_logger();
-            logger.lock().unwrap().log_error(GeneralServerError{
+            logger.lock().unwrap().log_message(GeneralServerError{
                 message: format!("Internal error in queue message retrieval for correlationId: {}", correlation_id)
             }, LoggingLevel::Error);
             Err(err)
@@ -117,7 +117,7 @@ pub(crate) async fn establish_temporary_listener(manager: &QueueManager , channe
         // Connection timeout reached so returning unsuccessful
         Err(_) => {
             let logger = get_logger();
-            logger.lock().unwrap().log_error(GeneralServerError{
+            logger.lock().unwrap().log_message(GeneralServerError{
                 message: format!("Timeout in queue message retrieval for correlationId: {}", correlation_id)
             }, LoggingLevel::Error);
 

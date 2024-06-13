@@ -20,6 +20,7 @@ pub fn guarded_routes(state: Arc<ExecutionContext>) -> Router {
     // servicename then gets handled inside request handler
     Router::new()
         .route("/healthcheck", get(request_handler::request_handler::health_check))
+        .route("/registerservice", post(request_handler::request_handler::register_service))
         .route("/*service", post(request_handler::request_handler::command_handler))
         .route("/*service", get(request_handler::request_handler::query_handler))
         .with_state(state)

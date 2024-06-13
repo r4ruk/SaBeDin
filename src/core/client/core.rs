@@ -24,7 +24,7 @@ impl IdempotencyClient {
                         } else {
                             let err = GeneralServerError { message: "Couldnt create idempotency key".to_string() };
                             let logger = get_logger();
-                            logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                            logger.lock().unwrap().log_message(err.clone(), LoggingLevel::Error);
                             Err(err)
                         }
                     }
@@ -35,7 +35,7 @@ impl IdempotencyClient {
                         } else {
                             let err = GeneralServerError { message: "Couldnt update idempotency key".to_string() };
                             let logger = get_logger();
-                            logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                            logger.lock().unwrap().log_message(err.clone(), LoggingLevel::Error);
                             Err(err)
                         }
                     }
@@ -44,7 +44,7 @@ impl IdempotencyClient {
             _ => {
                 let logger = get_logger();
                 let err = GeneralServerError { message: "unrecognized method".to_string() };
-                logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Information);
+                logger.lock().unwrap().log_message(err.clone(), LoggingLevel::Information);
                 return Err(err)
             }
         }

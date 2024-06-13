@@ -25,7 +25,7 @@ impl ClientHandler for UserClient {
             println!("in handlecommand, not handling command yet.");
         } else {
             let logger = get_logger();
-            logger.lock().unwrap().log_error(GeneralServerError{message:"could not deserialize body".into()}, LoggingLevel::Error);
+            logger.lock().unwrap().log_message(GeneralServerError{message:"could not deserialize body".into()}, LoggingLevel::Error);
         }
     }
 
@@ -46,14 +46,14 @@ impl ClientHandler for UserClient {
                 _ => {
                     let err = GeneralServerError { message: "unsupported method".to_string() };
                     let logger = get_logger();
-                    logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                    logger.lock().unwrap().log_message(err.clone(), LoggingLevel::Error);
                     Err(err)
                 }
             },
             None => {
                 let err = GeneralServerError { message: "no method provided".to_string() };
                 let logger = get_logger();
-                logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                logger.lock().unwrap().log_message(err.clone(), LoggingLevel::Error);
                 Err(err)
             }
         };
@@ -67,14 +67,14 @@ impl ClientHandler for UserClient {
                 _ => {
                     let err = GeneralServerError { message: "unsupported method".to_string() };
                     let logger = get_logger();
-                    logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                    logger.lock().unwrap().log_message(err.clone(), LoggingLevel::Error);
                     Err(err)
                 }
             },
             None => {
                 let err = GeneralServerError { message: "no method provided".to_string() };
                 let logger = get_logger();
-                logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                logger.lock().unwrap().log_message(err.clone(), LoggingLevel::Error);
                 Err(err)
             }
         };

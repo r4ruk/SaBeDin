@@ -19,7 +19,7 @@ pub async fn create_idempotency_key(context: &ExecutionContext, idempotency_json
         } else {
             let err = GeneralServerError {message: "Command already handled".to_string()};
             let logger = get_logger();
-            logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Warning);
+            logger.lock().unwrap().log_message(err.clone(), LoggingLevel::Warning);
             return Err(err)
         }
     }

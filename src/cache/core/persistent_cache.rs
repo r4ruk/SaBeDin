@@ -56,7 +56,7 @@ impl PersistentStorageHandler for PersistentStorage {
         let result = remove_file(path_with_file);
         if result.is_err() {
             let logger = get_logger();
-            logger.lock().unwrap().log_error(GeneralServerError { message: "Could not clear persistant cache".to_string() }, LoggingLevel::Error);
+            logger.lock().unwrap().log_message(GeneralServerError { message: "Could not clear persistant cache".to_string() }, LoggingLevel::Error);
         }
     }
 
@@ -72,7 +72,7 @@ impl PersistentStorageHandler for PersistentStorage {
                     self.store.insert(key.to_string(), (Utc::now(), serde_json::from_str(value).unwrap()));
                 } else {
                     let logger = get_logger();
-                    logger.lock().unwrap().log_error(GeneralServerError{
+                    logger.lock().unwrap().log_message(GeneralServerError{
                         message: "Could not parse the existing persistant cache. Resetting...".to_string()
                     }, LoggingLevel::Error);
                     self.reset_store()
@@ -133,7 +133,7 @@ impl PersistentStorage {
             let result = writeln!(file, "{};{}",line.0, line.1.1.to_string());
             if let Err(e) = result {
                 let logger = get_logger();
-                logger.lock().unwrap().log_error(GeneralServerError {
+                logger.lock().unwrap().log_message(GeneralServerError {
                     message: format!("Could not write line into persistent cache. System Error {}", e)
                 }, LoggingLevel::Error);
             }
@@ -148,7 +148,7 @@ impl PersistentStorage {
             }
             Err(err) => {
                 let logger = get_logger();
-                logger.lock().unwrap().log_error(GeneralServerError{message: err.to_string()}, LoggingLevel::Error);
+                logger.lock().unwrap().log_message(GeneralServerError{message: err.to_string()}, LoggingLevel::Error);
                 false
             }
         };

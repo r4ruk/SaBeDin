@@ -30,14 +30,14 @@ pub async fn basic_publish(params: PublishParams<'_>)
         .await
         .map_err(|e| {
             let logger = get_logger();
-            logger.lock().unwrap().log_error(GeneralServerError{message:format!("could not publish: {}", e)}, LoggingLevel::Error);
+            logger.lock().unwrap().log_message(GeneralServerError{message:format!("could not publish: {}", e)}, LoggingLevel::Error);
 
             e
         })?
         .await
         .map_err(|e|{
             let logger = get_logger();
-            logger.lock().unwrap().log_error(GeneralServerError{message:format!("could not publish: {}", e)}, LoggingLevel::Error);
+            logger.lock().unwrap().log_message(GeneralServerError{message:format!("could not publish: {}", e)}, LoggingLevel::Error);
 
             e
         })?;

@@ -6,6 +6,7 @@ use uuid::Uuid;
 use crate::ExecutionContext;
 use crate::core::contracts::{base::basic_informations::{RequestPostBody, ResponseBody}};
 use crate::core::contracts::base::basic_informations::RequestPostBodyWrapper;
+use crate::core::contracts::base::system_messages::InformationMessage;
 use crate::core::contracts::traits::service_manager_provider::ServiceManagerProvider;
 use crate::core::utils::uri_helper;
 use crate::logger::core_logger::{get_logger, LoggingLevel};
@@ -16,6 +17,20 @@ pub async fn health_check() -> Result<String, StatusCode>{
     println!("in healthcheck");
     Ok(json!(ResponseBody{body:"healthy!".to_string()}).to_string())
 }
+// handler for POST requests
+#[debug_handler]
+pub async fn register_service(State(context): State<Arc<ExecutionContext>>,
+                             Path(path): Path<String>,
+                             JsonOrForm(wrapper): JsonOrForm<RequestPostBodyWrapper>) {
+    // TODO to be defined how the service registering post body has to look like
+    let service = wrapper.object;
+
+    let logger = get_logger();
+    logger.lock().unwrap().log_message(InformationMessage{ message: format!("registered microservice in external services: '{}'", service) }, LoggingLevel::Information);
+
+    SERVICE_MANAGER.external_services.write().await.push(service);
+}
+
 
 // handler for POST requests
 #[debug_handler]
@@ -37,7 +52,7 @@ pub async fn command_handler(State(context): State<Arc<ExecutionContext>>,
         Ok(_) => {println!("successfull handled post request")}
         Err(e) => {
             let logger = get_logger();
-            logger.lock().unwrap().log_error(e, LoggingLevel::Error);
+            logger.lock().unwrap().log_message(e, LoggingLevel::Error);
         }
     }
 }

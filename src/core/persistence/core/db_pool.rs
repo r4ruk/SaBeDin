@@ -39,7 +39,7 @@ impl PostgresConnection {
 
                 let err = GeneralServerError { message: format!("failed to connect to database: {}",err ) };
                 let logger = get_logger();
-                logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                logger.lock().unwrap().log_message(err.clone(), LoggingLevel::Error);
 
                 std::process::exit(1);
             }

@@ -11,7 +11,7 @@ pub fn handle_params(params: &str) -> HashMap<String, String> {
             map_params.entry(name.to_string().to_lowercase()).or_insert(value.to_string());
         } else {
             let logger = get_logger();
-            logger.lock().unwrap().log_error(GeneralServerError{message:"could not read name value params".into()}, LoggingLevel::Error);
+            logger.lock().unwrap().log_message(GeneralServerError{message:"could not read name value params".into()}, LoggingLevel::Error);
         }
     }
     return map_params

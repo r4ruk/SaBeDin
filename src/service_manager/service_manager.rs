@@ -43,11 +43,11 @@ impl ServiceManagerProvider for GlobalServiceManager {
             }
             None => {
                 let logger = get_logger();
-                logger.lock().unwrap().log_error(GeneralServerError{message:format!("no service found with name: {}", path)}, LoggingLevel::Information);
+                logger.lock().unwrap().log_message(GeneralServerError{message:format!("no service found with name: {}", path)}, LoggingLevel::Information);
 
                 if !SERVICE_MANAGER.external_services.read().await.contains(&path.to_string()) {
                     let err = GeneralServerError{message:format!("queue for external service not registered: '{}'", path)};
-                    logger.lock().unwrap().log_error(err.clone(), LoggingLevel::Error);
+                    logger.lock().unwrap().log_message(err.clone(), LoggingLevel::Error);
                     return Err(err)
                 }
 
@@ -75,10 +75,10 @@ impl ServiceManagerProvider for GlobalServiceManager {
             }
             None => {
                 let logger = get_logger();
-                logger.lock().unwrap().log_error(GeneralServerError{message:format!("no service found with name: {:?}", service)}, LoggingLevel::Error);
+                logger.lock().unwrap().log_message(GeneralServerError{message:format!("no service found with name: {:?}", service)}, LoggingLevel::Error);
 
 
-                logger.lock().unwrap().log_error(GeneralServerError{message:format!("forwarding to queue with topic '{}' to handle it", service)}, LoggingLevel::Information);
+                logger.lock().unwrap().log_message(GeneralServerError{message:format!("forwarding to queue with topic '{}' to handle it", service)}, LoggingLevel::Information);
 
                 let queue_manager = QueueManager { };
                 let res = queue_manager.returning_publish(context, &service, QueueRequestMessage {
@@ -105,7 +105,7 @@ impl ExtendableServiceManager for GlobalServiceManager {
     // registers services for external applications / microservices which are allowed in queue
     async fn register_external_service(&mut self, service_name: String) {
         let logger = get_logger();
-        logger.lock().unwrap().log_error(InformationMessage{message:format!("Adding external service with name: '{}'", service_name)}, LoggingLevel::Information);
+        logger.lock().unwrap().log_message(InformationMessage{message:format!("Adding external service with name: '{}'", service_name)}, LoggingLevel::Information);
 
         if !self.external_services.read().await.contains(&service_name.clone()) {
             self.external_services.write().await.push(service_name);
@@ -133,7 +133,7 @@ impl GlobalServiceManager {
                     for (_, line) in lines.iter().enumerate() {
                         if line != &"" {
                             let logger = get_logger();
-                            logger.lock().unwrap().log_error(InformationMessage{message:format!("Trying to add service {}", line)}, LoggingLevel::Information);
+                            logger.lock().unwrap().log_message(InformationMessage{message:format!("Trying to add service {}", line)}, LoggingLevel::Information);
                             // find Service implementation in service client factory
                             // and then register it in the manager
                             let client_option = service_client_factory::find_service(line);
@@ -146,7 +146,7 @@ impl GlobalServiceManager {
                                 },
                                 None => {
                                     let logger = get_logger();
-                                    logger.lock().unwrap().log_error(InformationMessage{message:format!("Unknown type '{}' in factory.", line)}, LoggingLevel::Information);
+                                    logger.lock().unwrap().log_message(InformationMessage{message:format!("Unknown type '{}' in factory.", line)}, LoggingLevel::Information);
                                 }
                             }
                         }
@@ -155,7 +155,7 @@ impl GlobalServiceManager {
             },
             Err(e) => {
                 let logger = get_logger();
-                logger.lock().unwrap().log_error(InformationMessage{message:format!("Could not read anything from the settings file. {:?}", e)}, LoggingLevel::Warning);
+                logger.lock().unwrap().log_message(InformationMessage{message:format!("Could not read anything from the settings file. {:?}", e)}, LoggingLevel::Warning);
             }
         }
         return my_manager
@@ -165,7 +165,7 @@ impl GlobalServiceManager {
     pub(crate) async fn register_service(&self, service_name: String, service: Box<dyn ClientHandler>) {
 
         let logger = get_logger();
-        logger.lock().unwrap().log_error(InformationMessage{message:format!("Adding service with name: '{}'", service_name)}, LoggingLevel::Information);
+        logger.lock().unwrap().log_message(InformationMessage{message:format!("Adding service with name: '{}'", service_name)}, LoggingLevel::Information);
 
         self.services.write().await.entry(service_name).or_insert(Arc::new(service));
     }

@@ -50,7 +50,7 @@ impl QueueManager {
     /// creates queue on given parameters.
     pub async fn create_queue(&self, channel: Channel, name: &str, declaration_options: QueueDeclareOptions) -> Result<Queue, GeneralServerError> {
         let logger = get_logger();
-        logger.lock().unwrap().log_error(InformationMessage{message:format!("creating queue with name '{}'", name)}, LoggingLevel::Information);
+        logger.lock().unwrap().log_message(InformationMessage{message:format!("creating queue with name '{}'", name)}, LoggingLevel::Information);
 
         return channel.queue_declare(name, declaration_options, Default::default()).await
             .map_err(|e|
@@ -66,7 +66,7 @@ impl QueueManager {
             Ok(conn.unwrap())
         } else {
             let logger = get_logger();
-            logger.lock().unwrap().log_error(InformationMessage{message:"error getting connection from pool".into()}, LoggingLevel::Error);
+            logger.lock().unwrap().log_message(InformationMessage{message:"error getting connection from pool".into()}, LoggingLevel::Error);
 
             Err(GeneralServerError { message: "error getting connection from pool".to_string() })
         }
@@ -87,14 +87,14 @@ impl QueueManagerProvider for QueueManager {
     async fn publish(&self, context: &ExecutionContext, queue_name: &str, body: QueueRequestMessage) -> Result<(), GeneralServerError> {
         let conn = self.get_queue_connection(&context).await.map_err(|e| {
             let logger = get_logger();
-            logger.lock().unwrap().log_error(GeneralServerError{message:format!("could not get rmq con: {:?}", e)}, LoggingLevel::Error);
+            logger.lock().unwrap().log_message(GeneralServerError{message:format!("could not get rmq con: {:?}", e)}, LoggingLevel::Error);
 
             e
         })?;
 
         let channel:  Channel = conn.create_channel().await.map_err(|e| {
             let logger = get_logger();
-            logger.lock().unwrap().log_error(GeneralServerError{message:format!("error opening channel: {:?}", e)}, LoggingLevel::Error);
+            logger.lock().unwrap().log_message(GeneralServerError{message:format!("error opening channel: {:?}", e)}, LoggingLevel::Error);
             e
         })?;
 
