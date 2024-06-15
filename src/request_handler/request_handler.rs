@@ -46,7 +46,6 @@ pub async fn command_handler(State(context): State<Arc<ExecutionContext>>,
     }
 
     // redirect handling to service manager, which decides what to do with the request.
-
     let result = SERVICE_MANAGER.handle_command(context.as_ref(), &path, request_post_body, user_id_result.unwrap()).await;
     match result {
         Ok(_) => {println!("successfull handled post request")}
