@@ -15,7 +15,7 @@ pub struct UserClient {}
 
 #[async_trait]
 impl ClientHandler for UserClient {
-    async fn handle_command(&self, context: &ExecutionContext, body: RequestPostBody) {
+    async fn handle_command(&self, _context: &ExecutionContext, body: RequestPostBody) {
         // TODO add real data and functionality
         println!("handling request in clientservice {:?}", body);
 

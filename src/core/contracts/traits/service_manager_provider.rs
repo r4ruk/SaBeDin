@@ -51,14 +51,3 @@ pub trait ServiceManagerProvider: Send + Sync + Sized + 'static{
 pub trait ExtendableServiceManager : Send + Sync {
     async fn register_external_service(&mut self, service_name: String);
 }
-
-#[async_trait]
-pub trait ServiceManagerConstruction {
-    async fn new() -> Self;
-    async fn register_service(&mut self, service_name: String, service: Box<dyn ClientHandler>);
-}
-
-pub trait GlobalServiceManagerConstruction {
-    fn new() -> Self;
-    fn register_service(&mut self, service_name: String, service: Box<dyn ClientHandler>);
-}

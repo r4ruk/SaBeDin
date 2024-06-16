@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use sqlx::testing::TestTermination;
-use crate::core::contracts::base::basic_informations::{RequestPostBody, ResponseBody};
+
+use crate::core::contracts::base::basic_informations::RequestPostBody;
 use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::core::contracts::base::errors::GeneralServerError;
 use crate::core::contracts::dtos::idempotency_info::IdempotencyEvents;
@@ -52,9 +52,10 @@ impl IdempotencyClient {
     }
 
     // handles query function for administration functionality
-    async fn handle_query(&self, context: &ExecutionContext, params: HashMap<String, String>) -> ResponseBody {
-        println!("{:?}", params);
-        // TODO handle query if needed...
-        return ResponseBody{body: "error".to_string()}
-    }
+
+    // async fn handle_query(&self, _context: &ExecutionContext, params: HashMap<String, String>) -> ResponseBody {
+    //     println!("{:?}", params);
+    //     // TODO handle query if needed...
+    //     return ResponseBody{body: "error".to_string()}
+    // }
 }

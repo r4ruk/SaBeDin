@@ -3,6 +3,7 @@ use tokio::sync::broadcast;
 use crate::core::contracts::base::errors::GeneralServerError;
 
 #[async_trait]
+#[allow(unused)]
 pub trait PushMessengerProvider: Send + Sync {
     async fn push_message(&self, message: &str) -> Result<(), GeneralServerError>;
 }

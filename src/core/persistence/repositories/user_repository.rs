@@ -1,7 +1,7 @@
 use sqlx::query;
 use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::core::contracts::base::errors::GeneralServerError;
-use crate::core::contracts::dtos::user::{FilteredUser, User};
+use crate::core::contracts::dtos::user::FilteredUser;
 use crate::core::persistence::core::persistence_errors::PersistenceError;
 use crate::core::persistence::core::query_builder::{QueryBuilder, QueryClause};
 use crate::core::persistence::core::query_builder::Sorting::Default;

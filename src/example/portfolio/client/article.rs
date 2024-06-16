@@ -15,42 +15,18 @@ pub struct ArticleClient{}
 
 #[async_trait]
 impl ClientHandler for ArticleClient {
-    async fn handle_command(&self, context: &ExecutionContext, body: RequestPostBody) {
+    async fn handle_command(&self, _context: &ExecutionContext, _body: RequestPostBody) {
         // TODO add handle command
         // publish article
         // correct article
         // delete article
     }
 
-    // /// <inherits />
-    // ///
-    // /// single param => returns single element, handle all the same
-    // /// more params => Returns Vec of elements, handle all the same (also handle queryparams depending
-    // /// Sorting & paging here.
-    // async fn handle_query(&self, context: &ExecutionContext, mut params: HashMap<String, String>) -> ResponseBody {
-    //     println!("{:?}", params);
-    //
-    //     if params.len() == 1 {
-    //         return match handle_single_param_query(context, &mut params).await {
-    //             Ok(ret) => ResponseBody { body: json!(ret).to_string() },
-    //             Err(e) => ResponseBody { body: json!(e.message).to_string() },
-    //         };
-    //     } else {
-    //         // no param method contributed so it should be defaulted to getall
-    //         if params.contains_key("method") {
-    //             params.insert("method".to_string(), "getall".to_string());
-    //         }
-    //         return match handle_multi_param_query(context, &mut params).await {
-    //             Ok(ret) => ResponseBody { body: json!(ret).to_string() },
-    //             Err(e) => ResponseBody { body: json!(e.message).to_string() },
-    //         };
-    //     }
-    // }
-
     fn instantiate() -> Box<dyn ClientHandler> where Self: Sized {
         let client = ArticleClient{};
         return Box::new(client)
     }
+
     async fn handle_single_param_query(&self, context: &ExecutionContext, mut params: HashMap<String, String>) -> Result<ResponseBody, GeneralServerError> {
         let result = match params.remove("method") {
             Some(value) => match value.as_str() {

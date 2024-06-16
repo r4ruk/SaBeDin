@@ -24,14 +24,12 @@ pub async fn receive_on_queue(_manager: &QueueManager , channel: Channel, queue_
         )
         .await?;
 
-    let mut response_body= String::new();
-
     while let Some(delivery) = consumer.next().await {
         if let Ok(delivery ) = delivery {
 
             // TODO really want to log or print here or maybe better even creating event...???
             println!("received msg: {:?}", delivery);
-            response_body = String::from_utf8_lossy(&delivery.data).to_string();
+            let response_body = String::from_utf8_lossy(&delivery.data).to_string();
             channel
                 .basic_ack(delivery.delivery_tag, BasicAckOptions::default())
                 .await?;

@@ -120,7 +120,7 @@ impl GlobalServiceManager {
         let contents = file_helper::read_settings("config.setting");
         let os_specific_newline = utils::get_os_newline();
 
-        let mut my_manager = GlobalServiceManager {
+        let my_manager = GlobalServiceManager {
             services: Default::default(),
             external_services: Default::default(),
         };

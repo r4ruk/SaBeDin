@@ -71,7 +71,7 @@ impl From<GeneralServerError> for ApiError {
             "message":format!("Error occurred while retrieving informations {:?}", error)
         });
         return ApiError{
-            message: error.message,
+            message: message.to_string(),
             redirect: "".to_string(),
             status_code: 404,
         }

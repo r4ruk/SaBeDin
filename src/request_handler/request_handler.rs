@@ -1,17 +1,18 @@
 use std::str::FromStr;
 use std::sync::Arc;
+
+use axum::{async_trait, debug_handler, extract::{FromRequest, Path, Request, State}, Form, http::{header::CONTENT_TYPE, StatusCode}, Json, RequestExt, response::{IntoResponse, Response}};
 use serde_json::json;
-use axum::{async_trait, Form, Json, RequestExt, response::{IntoResponse, Response}, http::{header::CONTENT_TYPE, StatusCode}, extract::{FromRequest, Path, Request, State}, debug_handler};
 use uuid::Uuid;
-use crate::ExecutionContext;
-use crate::core::contracts::{base::basic_informations::{RequestPostBody, ResponseBody}};
+
 use crate::core::contracts::base::basic_informations::RequestPostBodyWrapper;
+use crate::core::contracts::base::basic_informations::ResponseBody;
 use crate::core::contracts::base::system_messages::InformationMessage;
 use crate::core::contracts::traits::service_manager_provider::ServiceManagerProvider;
 use crate::core::utils::uri_helper;
+use crate::ExecutionContext;
 use crate::logger::core_logger::{get_logger, LoggingLevel};
 use crate::service_manager::service_manager::SERVICE_MANAGER;
-
 
 pub async fn health_check() -> Result<String, StatusCode>{
     println!("in healthcheck");
@@ -19,8 +20,8 @@ pub async fn health_check() -> Result<String, StatusCode>{
 }
 // handler for POST requests
 #[debug_handler]
-pub async fn register_service(State(context): State<Arc<ExecutionContext>>,
-                             Path(path): Path<String>,
+pub async fn register_service(State(_context): State<Arc<ExecutionContext>>,
+                             Path(_path): Path<String>,
                              JsonOrForm(wrapper): JsonOrForm<RequestPostBodyWrapper>) {
     // TODO to be defined how the service registering post body has to look like
     let service = wrapper.object;

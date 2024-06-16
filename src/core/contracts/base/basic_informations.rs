@@ -1,9 +1,7 @@
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use uuid::Uuid;
 use crate::core::contracts::base::query_params::QueryOptions;
-use crate::core::contracts::dtos::user::FilteredUser;
 
 // The request post body representation which can be further sent to processing Services
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -14,6 +14,7 @@ use crate::queue_manager::publisher::PublishParams;
 
 pub(crate) type Connection = deadpool::managed::Object<Manager>;
 
+#[allow(unused)]
 #[async_trait]
 pub trait QueueManagerProvider: Send + Sync  {
     async fn get_from_queue(&self, context: &ExecutionContext, queue_name: &str) -> Result<QueueResponseMessage, GeneralServerError>;

@@ -1,4 +1,3 @@
-use log::info;
 
 pub trait SysMessage {
     fn get_internal_message(&self) -> &str;
