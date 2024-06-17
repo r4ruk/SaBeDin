@@ -7,7 +7,7 @@ use tokio::sync::RwLock;
 use tokio::task::block_in_place;
 use uuid::Uuid;
 
-use crate::core::contracts::base::basic_informations::{RequestPostBody, ResponseBody};
+use crate::core::contracts::base::basic_informations::{CommandResponse, RequestPostBody, ResponseBody};
 use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::core::contracts::base::errors::GeneralServerError;
 use crate::core::contracts::base::queue_types::QueueRequestMessage;
@@ -33,13 +33,14 @@ impl ExtendableServiceManagerProvider for GlobalServiceManager{}
 // implementation for the ServiceManagerExt trait which ensures the ServiceManager implements
 #[async_trait]
 impl ServiceManagerProvider for GlobalServiceManager {
-    async fn try_handle_command(&self, context: &ExecutionContext, path: &str, post_body: RequestPostBody) -> Result<(), GeneralServerError> {
+    async fn try_handle_command(&self, context: &ExecutionContext, path: &str, post_body: RequestPostBody) -> Result<CommandResponse, GeneralServerError> {
         let binding = self.services.read().await;
         let service_option = binding.get(path);
 
         match service_option {
             Some(service) => {
-                Ok(service.handle_command(context, post_body).await)
+                let result = service.handle_command(context, post_body).await?;
+                Ok(CommandResponse { code: 200, response: result.body })
             }
             None => {
                 let logger = get_logger();
@@ -60,7 +61,7 @@ impl ServiceManagerProvider for GlobalServiceManager {
                     timestamp: Default::default(),
                 }).await?;
 
-                return Ok(())
+                return Ok(CommandResponse { code: 200, response: "didnt handle anything.".to_string() })
             }
         }
     }

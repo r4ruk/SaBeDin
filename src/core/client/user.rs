@@ -15,7 +15,7 @@ pub struct UserClient {}
 
 #[async_trait]
 impl ClientHandler for UserClient {
-    async fn handle_command(&self, _context: &ExecutionContext, body: RequestPostBody) {
+    async fn handle_command(&self, _context: &ExecutionContext, body: RequestPostBody) -> Result<ResponseBody, GeneralServerError> {
         // TODO add real data and functionality
         println!("handling request in clientservice {:?}", body);
 
@@ -23,9 +23,12 @@ impl ClientHandler for UserClient {
         if user.is_err() == false {
             // ensuring the deserialization worked
             println!("in handlecommand, not handling command yet.");
+            return Ok(ResponseBody { body: "handled user post command".to_string() })
         } else {
+            let err = GeneralServerError{message:"could not deserialize body".into()};
             let logger = get_logger();
-            logger.lock().unwrap().log_message(GeneralServerError{message:"could not deserialize body".into()}, LoggingLevel::Error);
+            logger.lock().unwrap().log_message(err.clone(), LoggingLevel::Error);
+            Err(err)
         }
     }
 

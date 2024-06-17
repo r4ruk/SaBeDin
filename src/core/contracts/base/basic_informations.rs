@@ -13,6 +13,12 @@ pub struct RequestPostBody {
     pub query_options: QueryOptions
 }
 
+#[derive(Serialize, Deserialize, Clone)]
+pub struct CommandResponse {
+    pub code: i16,
+    pub response: String
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RequestPostBodyWrapper {
     pub idempotency_key: String,

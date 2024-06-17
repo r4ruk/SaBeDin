@@ -15,11 +15,12 @@ pub struct ArticleClient{}
 
 #[async_trait]
 impl ClientHandler for ArticleClient {
-    async fn handle_command(&self, _context: &ExecutionContext, _body: RequestPostBody) {
+    async fn handle_command(&self, _context: &ExecutionContext, _body: RequestPostBody) -> Result<ResponseBody, GeneralServerError> {
         // TODO add handle command
         // publish article
         // correct article
         // delete article
+        return Ok(ResponseBody { body: "all good".to_string() })
     }
 
     fn instantiate() -> Box<dyn ClientHandler> where Self: Sized {

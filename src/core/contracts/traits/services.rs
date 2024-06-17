@@ -8,7 +8,7 @@ use crate::core::contracts::base::errors::GeneralServerError;
 // definition for a Service, which can be used in the ServiceManager to route requests to.
 #[async_trait]
 pub trait ClientHandler: 'static + Send + Sync {
-    async fn handle_command(&self, context: &ExecutionContext, body: RequestPostBody);
+    async fn handle_command(&self, context: &ExecutionContext, body: RequestPostBody) -> Result<ResponseBody, GeneralServerError>;
     async fn handle_query(&self, context: &ExecutionContext, mut params: HashMap<String, String>) -> ResponseBody {
         if params.len() == 1 {
             return self.handle_single_param_query(context, params.clone()).await
