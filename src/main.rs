@@ -21,7 +21,7 @@ use crate::routes::{auth_routes, middlewares};
 #[tokio::main]
 async fn main() {
 
-    let state = Arc::new(ExecutionContext::new_with_manager().await);
+    let state = Arc::new(ExecutionContext::new().await);
 
     let app = app::initialize_app(state.clone(), Default::default());
     start_server(app).await;

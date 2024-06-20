@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use async_trait::async_trait;
 use serde_json::json;
-use sqlx::testing::TestTermination;
 use uuid::Uuid;
 
 use crate::core::client::core::IdempotencyClient;
@@ -10,7 +9,6 @@ use crate::core::contracts::base::basic_informations::{new_simple_post_body, Com
 use crate::core::contracts::base::dependency_container::ExecutionContext;
 use crate::core::contracts::base::errors::GeneralServerError;
 use crate::core::contracts::dtos::idempotency_info::{IdempotencyObject, IdempotencyEvents};
-use crate::core::contracts::traits::services::ClientHandler;
 
 #[async_trait]
 pub trait ExtendableServiceManagerProvider : ServiceManagerProvider + ExtendableServiceManager + Send + Sync + Sized + 'static{ }

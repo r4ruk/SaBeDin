@@ -18,7 +18,7 @@ pub struct ExecutionContext {
 }
 
 impl ExecutionContext {
-    pub async fn new_with_manager() -> Self {
+    pub async fn new() -> Self {
         dotenv().ok();
         let config = Config::init();
         Self {

@@ -4,17 +4,19 @@ use axum::{
     Router,
 };
 use axum::http::header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE};
-use axum::http::Method;
+use axum::http::{HeaderName, Method};
 use tower_http::cors::{CorsLayer, Any};
 use crate:: request_handler;
 use crate::core::contracts::base::dependency_container::ExecutionContext;
+
+const IDEMPOTENCY_KEY_HEADER: HeaderName = HeaderName::from_static("idempotencykey");
 
 pub fn guarded_routes(state: Arc<ExecutionContext>) -> Router {
 
     let cors = CorsLayer::new()
         .allow_methods([Method::GET, Method::POST])
         .allow_origin(Any)
-        .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE]);
+        .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE, IDEMPOTENCY_KEY_HEADER]);
 
     // send everything which ends to a mydomain.com/servicename to the handler function in request_handler
     // servicename then gets handled inside request handler
