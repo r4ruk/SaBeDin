@@ -91,6 +91,8 @@ pub async fn guard(
                                          &whole_body).await?;
 
         let mut new_req = Request::from_parts(parts.clone(), Body::from(modified_body));
+
+        // insert idempotency key
         if let Some(key) = idempotency_key {
             modified_body = process_body(key,
                          "idempotency_key".to_string(),
@@ -114,7 +116,7 @@ async fn process_body(user_id: String, property_name: String, whole_body: &Bytes
 
     // // Modify the JSON object
     if let Some(obj) = json.as_object_mut() {
-        obj.insert("requesting_user_id".to_string(), Value::String(user_id));
+        obj.insert(property_name, Value::String(user_id));
     }
     let modified_body = serde_json::to_vec(&json).map_err(|_| ApiError::new(ErrorCode::BadRequest))?;
     Ok(modified_body)
