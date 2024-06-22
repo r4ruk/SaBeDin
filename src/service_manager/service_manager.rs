@@ -163,8 +163,7 @@ impl GlobalServiceManager {
         }
         futures::executor::block_on(async {
             let logger = get_logger();
-            logger.lock().unwrap().log_message(InformationMessage { message: format!("my manager after initialization: {:?}", my_manager.services.read().await.keys().collect::<Vec<_>>())}, LoggingLevel::Information)
-            println!();
+            logger.lock().unwrap().log_message(InformationMessage { message: format!("my manager after initialization: {:?}", my_manager.services.read().await.keys().collect::<Vec<_>>())}, LoggingLevel::Information);
         });
         return my_manager
     }
