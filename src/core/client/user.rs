@@ -54,6 +54,8 @@ impl ClientHandler for UserClient {
                 }
             },
             None => {
+                // TODO add handle GETALL method if no method is provided here...
+
                 let err = GeneralServerError { message: "no method provided".to_string() };
                 let logger = get_logger();
                 logger.lock().unwrap().log_message(err.clone(), LoggingLevel::Error);

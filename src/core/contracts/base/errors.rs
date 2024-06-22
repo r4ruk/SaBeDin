@@ -68,7 +68,7 @@ impl From<GeneralServerError> for ApiError {
     fn from(error: GeneralServerError) -> Self {
         let message = serde_json::json!({
             "status":"fail",
-            "message":format!("Error occurred while retrieving informations {:?}", error)
+            "message":format!("APIERROR: Error occurred while retrieving informations {:?}", error)
         });
         return ApiError{
             message: message.to_string(),

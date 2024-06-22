@@ -19,6 +19,7 @@ use crate::logger::core_logger::{get_logger, LoggingLevel};
 use crate::queue_manager::manager::{QueueManager, QueueManagerProvider};
 use crate::service_manager::service_client_factory;
 
+
 pub struct GlobalServiceManager {
     pub services: RwLock<HashMap<String, Arc<Box<dyn ClientHandler>>>>,
     pub external_services: RwLock<Vec<String>>
@@ -67,7 +68,9 @@ impl ServiceManagerProvider for GlobalServiceManager {
     }
 
     async fn try_handle_query(&self, context: &ExecutionContext, service: &str, params: HashMap<String, String>) -> Result<ResponseBody, GeneralServerError> {
-        let binding = self.services.read().await;
+        let binding = SERVICE_MANAGER.services.read().await;
+
+        println!("Current services: {:?}", binding.keys().collect::<Vec<_>>());
         let service_option = binding.get(service);
         match service_option {
             Some(service) => {
@@ -140,10 +143,9 @@ impl GlobalServiceManager {
                             let client_option = service_client_factory::find_service(line);
                             match client_option {
                                 Some(client) => {
-                                    let future_result = block_in_place(|| my_manager.register_service(line.to_string(), client));
-                                    match future_result {
-                                        _ => {}
-                                    }
+                                    futures::executor::block_on(async {
+                                        my_manager.register_service(line.to_string(), client).await
+                                    })
                                 },
                                 None => {
                                     let logger = get_logger();
@@ -159,6 +161,11 @@ impl GlobalServiceManager {
                 logger.lock().unwrap().log_message(InformationMessage{message:format!("Could not read anything from the settings file. {:?}", e)}, LoggingLevel::Warning);
             }
         }
+        futures::executor::block_on(async {
+            let logger = get_logger();
+            logger.lock().unwrap().log_message(InformationMessage { message: format!("my manager after initialization: {:?}", my_manager.services.read().await.keys().collect::<Vec<_>>())}, LoggingLevel::Information)
+            println!();
+        });
         return my_manager
     }
 
