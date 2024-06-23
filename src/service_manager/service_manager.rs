@@ -4,7 +4,6 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use lazy_static::lazy_static;
 use tokio::sync::RwLock;
-use tokio::task::block_in_place;
 use uuid::Uuid;
 
 use crate::core::contracts::base::basic_informations::{CommandResponse, RequestPostBody, ResponseBody};

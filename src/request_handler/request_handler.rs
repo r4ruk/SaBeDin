@@ -7,7 +7,6 @@ use uuid::Uuid;
 
 use crate::core::contracts::base::basic_informations::RequestPostBodyWrapper;
 use crate::core::contracts::base::basic_informations::ResponseBody;
-use crate::core::contracts::base::errors::GeneralServerError;
 use crate::core::contracts::base::system_messages::InformationMessage;
 use crate::core::contracts::traits::service_manager_provider::ServiceManagerProvider;
 use crate::core::utils::uri_helper;
