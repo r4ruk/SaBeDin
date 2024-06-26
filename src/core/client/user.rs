@@ -40,6 +40,14 @@ impl ClientHandler for UserClient {
     }
 
     async fn handle_query_internal(&self, context: &ExecutionContext, mut params: HashMap<String, String>) -> Result<ResponseBody, GeneralServerError> {
+        // specific query parameters contributed which result in special function implementation
+        if let Some(email) = params.remove("email") {
+            let result = user_service::get_user_by_email(context, &email.to_string()).await?;
+            return Ok(ResponseBody{
+                body: json!(result).to_string()
+            })
+        };
+
         // method contributed in query string
         if let Some(method) = params.remove("method") {
             // if at one point it would be needed to be used, here you go
@@ -56,13 +64,6 @@ impl ClientHandler for UserClient {
             let logger = get_logger();
             logger.lock().unwrap().log_message(info.clone(), LoggingLevel::Information);
             return Err(info)
-        }
-
-        // specific query parameters contributed which result in special function implementation
-        if let Some(email) = params.remove("email") {
-            return Ok(ResponseBody{
-                body: json!(user_service::get_user_by_email(context, &email.to_string()).await).to_string()
-            })
         }
 
         // nothing contributed
